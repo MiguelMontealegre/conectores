@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ruvic-twilio-sms-connector"
+version = "1.0.0"
+description = "Conector Ruvic para Twilio SMS: envío de SMS transaccionales y consulta de estado"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31,<3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["ruvic_twilio_sms_connector*"]

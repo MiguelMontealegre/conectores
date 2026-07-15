@@ -1,0 +1,125 @@
+{
+  "id": "twilio_sms",
+  "name": "Twilio SMS",
+  "version": "1.0.0",
+  "description": "Envío de SMS transaccionales por Twilio y consulta del estado de entrega de los mensajes",
+  "category": "messaging",
+  "library": {
+    "package": "ruvic-twilio-sms-connector",
+    "install": "pip install git+https://github.com/tu-org/conector-twilio-sms.git#subdirectory=lib",
+    "import_name": "ruvic_twilio_sms_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "auth_token",
+      "label": "Account SID + Auth Token",
+      "fields": [
+        {
+          "key": "account_sid",
+          "label": "Account SID",
+          "type": "text",
+          "required": true,
+          "placeholder": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "help_text": "Aparece en el panel principal de la consola de Twilio. Empieza por 'AC'",
+          "pattern": "^AC[0-9a-fA-F]{32}$"
+        },
+        {
+          "key": "auth_token",
+          "label": "Auth Token",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "help_text": "Token secreto que aparece junto al Account SID en la consola de Twilio"
+        },
+        {
+          "key": "from_number",
+          "label": "Número remitente (From)",
+          "type": "text",
+          "required": false,
+          "placeholder": "+15017122661",
+          "help_text": "Número de Twilio en formato E.164. Usa este campo O el Messaging Service SID"
+        },
+        {
+          "key": "messaging_service_sid",
+          "label": "Messaging Service SID",
+          "type": "text",
+          "required": false,
+          "placeholder": "MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "help_text": "Alternativa al número remitente. Empieza por 'MG'. Recomendado para volumen y cumplimiento"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "15"
+        }
+      ]
+    },
+    {
+      "id": "api_key",
+      "label": "API Key (recomendado para producción)",
+      "fields": [
+        {
+          "key": "account_sid",
+          "label": "Account SID",
+          "type": "text",
+          "required": true,
+          "placeholder": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "help_text": "Account SID de Twilio (empieza por 'AC')",
+          "pattern": "^AC[0-9a-fA-F]{32}$"
+        },
+        {
+          "key": "api_key_sid",
+          "label": "API Key SID",
+          "type": "text",
+          "required": true,
+          "placeholder": "SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "help_text": "SID de la API Key creada en Consola → Account → API keys & tokens. Empieza por 'SK'"
+        },
+        {
+          "key": "api_key_secret",
+          "label": "API Key Secret",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "help_text": "Secret mostrado UNA sola vez al crear la API Key. Si lo perdiste, crea otra"
+        },
+        {
+          "key": "from_number",
+          "label": "Número remitente (From)",
+          "type": "text",
+          "required": false,
+          "placeholder": "+15017122661",
+          "help_text": "Número de Twilio en formato E.164. Usa este campo O el Messaging Service SID"
+        },
+        {
+          "key": "messaging_service_sid",
+          "label": "Messaging Service SID",
+          "type": "text",
+          "required": false,
+          "placeholder": "MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "help_text": "Alternativa al número remitente. Empieza por 'MG'"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "15"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_TWILIO_SMS_",
+  "operations": [
+    "sms.send",
+    "sms.get_status",
+    "sms.list"
+  ],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "Requiere una cuenta de Twilio con un número habilitado para SMS o un Messaging Service. En cuentas trial solo se puede enviar a números verificados y los mensajes llevan un prefijo de prueba. Las API keys se recomiendan sobre el Auth Token para producción, ya que pueden revocarse individualmente sin rotar el token de la cuenta."
+  }
+}

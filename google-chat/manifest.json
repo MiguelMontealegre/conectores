@@ -1,0 +1,78 @@
+{
+  "id": "gchat",
+  "name": "Google Chat",
+  "version": "1.0.0",
+  "description": "Mensajería a espacios de Google Chat: envío de mensajes vía webhook entrante o Chat API con cuenta de servicio",
+  "category": "messaging",
+  "library": {
+    "package": "ruvic-gchat-connector",
+    "install": "pip install git+https://github.com/tu-org/conector-gchat.git#subdirectory=lib",
+    "import_name": "ruvic_gchat_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "webhook",
+      "label": "Webhook entrante (un espacio)",
+      "fields": [
+        {
+          "key": "webhook_url",
+          "label": "URL del webhook",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "placeholder": "https://chat.googleapis.com/v1/spaces/XXXX/messages?key=...&token=...",
+          "help_text": "En el espacio de Google Chat: Apps e integraciones → Webhooks → Añadir webhook. Copia la URL completa (incluye key y token)",
+          "pattern": "^https://chat\\.googleapis\\.com/.+"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "15"
+        }
+      ]
+    },
+    {
+      "id": "service_account",
+      "label": "Cuenta de servicio (Chat API)",
+      "fields": [
+        {
+          "key": "service_account_json",
+          "label": "Credenciales de la cuenta de servicio (JSON)",
+          "type": "textarea",
+          "secret": true,
+          "required": true,
+          "placeholder": "{ \"type\": \"service_account\", \"project_id\": \"...\", ... }",
+          "help_text": "Pega el contenido completo del archivo JSON descargado de Google Cloud Console (IAM → Cuentas de servicio → Claves)"
+        },
+        {
+          "key": "default_space",
+          "label": "Espacio por defecto (opcional)",
+          "type": "text",
+          "required": false,
+          "placeholder": "spaces/AAAAAAAAAAA",
+          "help_text": "Espacio destino cuando no se indique uno. El ID aparece en la URL del espacio o con list_spaces()"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "15"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_GCHAT_",
+  "operations": [
+    "chat.send_message",
+    "chat.list_spaces",
+    "chat.get_space"
+  ],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "Modo webhook: solo requiere crear el webhook en el espacio destino (el usuario debe poder gestionar apps e integraciones del espacio). Modo cuenta de servicio: proyecto de Google Cloud con la Google Chat API habilitada, una app de Chat configurada (Chat API → Configuración) y la app agregada a cada espacio destino; scope usado: https://www.googleapis.com/auth/chat.bot."
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "telegram",
+  "name": "Telegram",
+  "version": "1.0.0",
+  "description": "Envío de mensajes y archivos a chats, grupos y canales de Telegram, y recepción de actualizaciones, mediante un bot",
+  "category": "messaging",
+  "library": {
+    "package": "ruvic-telegram-connector",
+    "install": "pip install git+https://github.com/tu-org/conector-telegram.git#subdirectory=lib",
+    "import_name": "ruvic_telegram_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "bot_token",
+      "label": "Token de bot (BotFather)",
+      "fields": [
+        {
+          "key": "bot_token",
+          "label": "Token del bot",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "placeholder": "123456789:AAH8x...",
+          "help_text": "Token emitido por @BotFather al crear el bot (/newbot) o con /token",
+          "pattern": "^\\d+:[A-Za-z0-9_-]{30,}$"
+        },
+        {
+          "key": "default_chat_id",
+          "label": "Chat por defecto (opcional)",
+          "type": "text",
+          "required": false,
+          "placeholder": "-1001234567890",
+          "help_text": "ID del chat/grupo/canal al que se enviará cuando no se indique destino. Los supergrupos y canales empiezan por -100"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "15"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_TELEGRAM_",
+  "operations": [
+    "chat.send_message",
+    "chat.send_file",
+    "chat.get_updates",
+    "chat.get_info"
+  ],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "El bot debe ser creado en @BotFather. Para enviar a un grupo/canal, el bot debe ser miembro (en canales, administrador con permiso de publicar). Para leer todos los mensajes de un grupo, desactivar el privacy mode en BotFather (/setprivacy → Disable)."
+  }
+}

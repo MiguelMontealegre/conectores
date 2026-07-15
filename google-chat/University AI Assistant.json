@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "university-ai-assistant-499500",
+  "private_key_id": "e40ec6bea9c2b23627168a0c8d7f7a38a6eda171",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCzVjfo5Zjfsjeo\n4LzdiiD32NqbUeitbaOndleaGmai1pvBYHJfFUnluQc93WcRObqGtee/48A7KHnF\n8T7OTrgrpuPn8DFF7ZXvOiIKMw4BIUs2etlQ8dFLp8VZChsbeqYr9I+T1xbl6sFx\nFgEFaZ1Y/uWqob2h2n2Mxk3dCg/tevCwIXiSuR3+TR12KDiAZibu7d87AbbN/NY8\nAuPpZwwZm/NmB7EcPq3iGq9gbfvKE/j8DubPASNVk+nKrk44l3V0fG83gs4215F6\ni5yFL/rbr3GxbW6czZqb4uVXY/WfP8gj2+cJ9SEncCVJwOtAgIll0WFmDHyeN7/z\nMPoZ1KtVAgMBAAECggEAVmPhwgkcaCJPisRcZvJb6FkoEetWxXjL/edV0vAF4kq0\ntGZ0Iha8xvOnp+cod9VR5APr9HXPzA+2/aI1yaeFM84M+tWrvs5xTFE6RaSLigLS\nWxe56TLcSnAy8q4aGdYvB3yjz6mtJ6u7bPEXI9bZTB5aX6TTl40Lrw12Q9VNj+27\nMdyT84xAWM0G/8aZZV+9mlYiRTCq5AdeA1kFyWCbMfq5Bb5Q5BbnwB57xjb8dOeJ\n0IWUsWGXLt/W9VRD2HHpJCRS7sJo5vuPyS3iAOf7fYCJkMkyjxdZQlmgmiEUZ2Re\nF2h4o3BcWbofo+SvqcFV2oay+a+GyXZ7Ascy91KMPwKBgQDf+W2wWqEVYVjkxh4D\nJanUwd4wNcWpdo4xfQ5gPmdKRzPtblHiGm8HTM6ec/HQY0V4mK2MkCUO9PY+sYs6\n4ZvXdmLQF0bKX/UNXISp6cCSN5cTIOjsyJr/1Dl3VWEIXwzj0atz37uLShpufV+7\nE4bSOLK5bGiTe7k48xM+aVAZlwKBgQDM+tWlaChI2+ZcarJFUBZuPXWff1y8+Sgj\nCg8S3/eChQMhDSjMhsssAHD7gbjUkap69G2M7ybOWYt4LF+YLEeYo+wIeajyoiEI\ndKHXV8mPQFgYn4l+zlb8cff0wR1tGVXCj83BwKCsvB8JiWbtxNNZAmwYdCkkpDq5\nvD9e5VjH8wKBgQDH0ptAKbtpfc53XSJNoH6iqMx4qqDNDk7SbEY1K7evl1MG09QO\nK5M/KhF1YPAvAUJr05uSus+1Rmujh3c2cy48zwxdp0arK21QHGjnxvrd+Oa6VDQ7\nfMZ81HTouK23cEXpw5h56vRB0z09snGEUGmKiLc7ozKx0kJwQr26gu7JxQKBgGS0\nn55iK9iP4P9qlCclj7+dhlpUMnXNW4DLglhdnLaNLtpgIrlJSCxYEyods3cMEdvS\nlrf1DvW2XKUv989Fge9mKaKIUw7RxLToyFKKGMa+cAm4585bBbWFMLMY5aIiHlY2\nXHpibw4uZnlC/kS2vLcwT3c8KrKL1SZHbELtHs8tAoGAVrZ9B/XanJUzlXJaJdtQ\naJp4wL2ZVY42goZdAol5uQmC3Nw6fZwwFIbycA5dy6DoMWOEvu8VgDZ7oTeIptAT\niNozXAhi/L789JouqVcAh35lZ0m6XRfwccxbYTfPQ3RhH4WPlqxq/6mFXkGp1D95\n/cA88zyUibkMMkj0HnzwiD0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "ruvic-connector@university-ai-assistant-499500.iam.gserviceaccount.com",
+  "client_id": "110202211375557571972",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ruvic-connector%40university-ai-assistant-499500.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
