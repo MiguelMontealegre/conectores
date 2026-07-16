@@ -3,422 +3,574 @@
   ============================================================
   Guía de configuración del conector Twilio SMS — Ruvic
   ============================================================
-  Basada en la PLANTILLA OFICIAL (conector PostgreSQL):
-  misma estructura de 8 secciones, bilingüe ES/EN, y reutiliza
-  assets/ruvic.css SIN modificarlo. Reemplaza los
-  .screenshot-placeholder por capturas reales en assets/img/.
-
-  Nota: este conector tiene DOS modos de autenticación
-  (Auth Token y API Key); las secciones 3 y 5 los cubren.
+  Sigue la guía oficial de documentación Ruvic:
+  - i18n por llaves data-i18n + objeto I18N (es/en). El texto
+    por defecto del HTML está en español.
+  - Sin toggle propio ni cabecera propia: el PORTAL aplica el
+    idioma del usuario (localStorage ruvic-docs-lang) sobre
+    [data-i18n], [data-i18n-placeholder] y [data-i18n-alt].
+  - ids de sección canónicos y estables (no se traducen).
+  - assets/ruvic.css es solo para preview local; al publicar se
+    reescribe a la hoja canónica del portal.
+  Reemplaza los .screenshot-placeholder por capturas reales en
+  assets/img/.
   ============================================================
 -->
-<html lang="es" data-lang="es">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conector Twilio SMS — Guía de configuración | Ruvic</title>
+  <title data-i18n="doc_title">Conector Twilio SMS — Ruvic</title>
   <link rel="stylesheet" href="assets/ruvic.css">
 </head>
 <body>
-
-<header class="ruvic-header">
-  <div class="ruvic-header-inner">
-    <!-- Reemplazar por <img class="ruvic-logo" src="assets/img/ruvic-logo.svg" alt="Ruvic"> cuando el logo esté en assets -->
-    <p class="ruvic-wordmark">Ruvic</p>
-
-    <h1>
-      <span class="lang-es">Conector Twilio SMS — Guía de configuración</span>
-      <span class="lang-en">Twilio SMS Connector — Setup Guide</span>
-    </h1>
-    <p class="subtitle">
-      <span class="lang-es">Conecta tu cuenta de Twilio a Ruvic Engine para que el agente envíe SMS transaccionales (códigos, alertas, notificaciones) y consulte su estado de entrega.</span>
-      <span class="lang-en">Connect your Twilio account to Ruvic Engine so the agent can send transactional SMS (codes, alerts, notifications) and check their delivery status.</span>
-    </p>
-
-    <div class="meta">
-      <span class="ruvic-badge">Twilio SMS</span>
-      <span class="ruvic-badge">
-        <span class="lang-es">Mensajería</span>
-        <span class="lang-en">Messaging</span>
-      </span>
-      <span class="ruvic-badge">v1.0.0</span>
-    </div>
-
-    <div class="lang-switch" role="group" aria-label="Idioma / Language">
-      <button type="button" data-set-lang="es" class="active">ES</button>
-      <button type="button" data-set-lang="en">EN</button>
-    </div>
-  </div>
-</header>
 
 <main class="ruvic-container">
 
   <!-- ============ ÍNDICE ============ -->
   <nav class="ruvic-toc" aria-label="Índice">
-    <h2><span class="lang-es">Contenido</span><span class="lang-en">Contents</span></h2>
+    <h2 data-i18n="toc_title">Contenido</h2>
     <ol>
-      <li><a href="#que-es"><span class="lang-es">¿Qué es y para qué sirve?</span><span class="lang-en">What is it and what is it for?</span></a></li>
-      <li><a href="#prerrequisitos"><span class="lang-es">Prerrequisitos</span><span class="lang-en">Prerequisites</span></a></li>
-      <li><a href="#fabricante"><span class="lang-es">Configuración en Twilio (paso a paso)</span><span class="lang-en">Twilio-side setup (step by step)</span></a></li>
-      <li><a href="#permisos"><span class="lang-es">Permisos y credenciales</span><span class="lang-en">Permissions and credentials</span></a></li>
-      <li><a href="#ruvic"><span class="lang-es">Configuración en Ruvic</span><span class="lang-en">Setup in Ruvic</span></a></li>
-      <li><a href="#verificacion"><span class="lang-es">Verificación</span><span class="lang-en">Verification</span></a></li>
-      <li><a href="#problemas"><span class="lang-es">Solución de problemas</span><span class="lang-en">Troubleshooting</span></a></li>
-      <li><a href="#faq"><span class="lang-es">Preguntas frecuentes y notas de seguridad</span><span class="lang-en">FAQ and security notes</span></a></li>
+      <li><a href="#que-es" data-i18n="toc.que_es">¿Qué es y para qué sirve?</a></li>
+      <li><a href="#prerrequisitos" data-i18n="toc.prerrequisitos">Prerrequisitos</a></li>
+      <li><a href="#configuracion-fabricante" data-i18n="toc.configuracion_fabricante">Configuración en Twilio (paso a paso)</a></li>
+      <li><a href="#permisos" data-i18n="toc.permisos">Permisos y credenciales</a></li>
+      <li><a href="#configuracion-ruvic" data-i18n="toc.configuracion_ruvic">Configuración en Ruvic</a></li>
+      <li><a href="#verificacion" data-i18n="toc.verificacion">Verificación</a></li>
+      <li><a href="#solucion-problemas" data-i18n="toc.solucion_problemas">Solución de problemas</a></li>
+      <li><a href="#faq-seguridad" data-i18n="toc.faq_seguridad">Preguntas frecuentes y notas de seguridad</a></li>
     </ol>
   </nav>
 
-  <!-- ============ 1. QUÉ ES ============ -->
-  <section id="que-es">
-    <h2><span class="lang-es">1. ¿Qué es y para qué sirve?</span><span class="lang-en">1. What is it and what is it for?</span></h2>
+  <h1 data-i18n="guide_title">Conector Twilio SMS</h1>
+  <p class="guide-updated" data-i18n="guide_updated">Última actualización: 16 de julio de 2026</p>
 
-    <div class="lang-es">
-      <p>El conector Twilio SMS permite que el agente de Ruvic <strong>envíe mensajes de texto (SMS)</strong> a cualquier número de teléfono y <strong>consulte si fueron entregados</strong>. Es ideal para mensajes transaccionales. Una vez configurado, puedes pedirle al agente cosas como:</p>
-      <ul>
-        <li>“Envía un código de verificación por SMS al número del cliente.”</li>
-        <li>“Cuando el pedido se despache, notifícalo por SMS al comprador.”</li>
-        <li>“¿El SMS de alerta que enviamos hace un momento llegó?”</li>
-      </ul>
-      <p>Operaciones soportadas:</p>
-    </div>
-    <div class="lang-en">
-      <p>The Twilio SMS connector lets the Ruvic agent <strong>send text messages (SMS)</strong> to any phone number and <strong>check whether they were delivered</strong>. It's ideal for transactional messages. Once configured, you can ask the agent things like:</p>
-      <ul>
-        <li>“Send a verification code by SMS to the customer's number.”</li>
-        <li>“When the order ships, notify the buyer by SMS.”</li>
-        <li>“Did the alert SMS we just sent get delivered?”</li>
-      </ul>
-      <p>Supported operations:</p>
-    </div>
+  <!-- ============ 1. QUÉ ES ============ -->
+  <section>
+    <h2 id="que-es" data-i18n="section.que_es">1. ¿Qué es y para qué sirve?</h2>
+
+    <p data-i18n="section.que_es.body">El conector Twilio SMS permite que el agente de Ruvic <strong>envíe mensajes de texto (SMS)</strong> a cualquier número de teléfono y <strong>consulte si fueron entregados</strong>. Es ideal para mensajes transaccionales. Una vez configurado, puedes pedirle al agente cosas como:</p>
+    <ul>
+      <li data-i18n="section.que_es.ex1">“Envía un código de verificación por SMS al número del cliente.”</li>
+      <li data-i18n="section.que_es.ex2">“Cuando el pedido se despache, notifícalo por SMS al comprador.”</li>
+      <li data-i18n="section.que_es.ex3">“¿El SMS de alerta que enviamos hace un momento llegó?”</li>
+    </ul>
+    <p data-i18n="section.que_es.ops">Operaciones soportadas:</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Operación</span><span class="lang-en">Operation</span></th>
-          <th><span class="lang-es">Qué hace</span><span class="lang-en">What it does</span></th>
+          <th data-i18n="table.operacion">Operación</th>
+          <th data-i18n="table.que_hace">Qué hace</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><code>sms.send</code></td>
-          <td><span class="lang-es">Envía un SMS a un número en formato internacional</span><span class="lang-en">Sends an SMS to a number in international format</span></td>
+          <td data-i18n="op.send">Envía un SMS a un número en formato internacional</td>
         </tr>
         <tr>
           <td><code>sms.get_status</code></td>
-          <td><span class="lang-es">Consulta el estado de entrega de un mensaje enviado</span><span class="lang-en">Checks the delivery status of a sent message</span></td>
+          <td data-i18n="op.get_status">Consulta el estado de entrega de un mensaje enviado</td>
         </tr>
         <tr>
           <td><code>sms.list</code></td>
-          <td><span class="lang-es">Lista los mensajes recientes de la cuenta (con filtros)</span><span class="lang-en">Lists the account's recent messages (with filters)</span></td>
+          <td data-i18n="op.list">Lista los mensajes recientes de la cuenta (con filtros)</td>
         </tr>
       </tbody>
     </table>
 
     <div class="callout callout-info">
-      <span class="callout-title"><span class="lang-es">Envío, no recepción</span><span class="lang-en">Sending, not receiving</span></span>
-      <span class="lang-es">Este conector es de solo salida: envía SMS y consulta su estado. Recibir SMS entrantes requeriría un endpoint público permanente, incompatible con el modelo de ejecución de Ruvic.</span>
-      <span class="lang-en">This connector is outbound-only: it sends SMS and checks their status. Receiving inbound SMS would require a permanent public endpoint, incompatible with Ruvic's execution model.</span>
+      <span class="callout-title" data-i18n="callout.envio.title">Envío, no recepción</span>
+      <span data-i18n="callout.envio.body">Este conector es de solo salida: envía SMS y consulta su estado. Recibir SMS entrantes requeriría un endpoint público permanente, incompatible con el modelo de ejecución de Ruvic.</span>
     </div>
   </section>
 
   <!-- ============ 2. PRERREQUISITOS ============ -->
-  <section id="prerrequisitos">
-    <h2><span class="lang-es">2. Prerrequisitos</span><span class="lang-en">2. Prerequisites</span></h2>
+  <section>
+    <h2 id="prerrequisitos" data-i18n="section.prerrequisitos">2. Prerrequisitos</h2>
 
-    <div class="lang-es">
-      <ul>
-        <li>Una <strong>cuenta de Twilio</strong> (<a href="https://www.twilio.com/console">twilio.com/console</a>). Sirve una cuenta trial para pruebas, con limitaciones (ver más abajo).</li>
-        <li>Un <strong>remitente</strong>: un número de teléfono de Twilio habilitado para SMS, o un <strong>Messaging Service</strong>.</li>
-        <li>Según el país destino, las <strong>verificaciones regulatorias</strong> correspondientes (verificación toll-free en EE. UU./Canadá, registro 10DLC, o bundle regulatorio en otros países).</li>
-        <li>Saldo en la cuenta: cada SMS enviado tiene costo (salvo credenciales de prueba).</li>
-      </ul>
-    </div>
-    <div class="lang-en">
-      <ul>
-        <li>A <strong>Twilio account</strong> (<a href="https://www.twilio.com/console">twilio.com/console</a>). A trial account works for testing, with limitations (see below).</li>
-        <li>A <strong>sender</strong>: a Twilio phone number enabled for SMS, or a <strong>Messaging Service</strong>.</li>
-        <li>Depending on the destination country, the relevant <strong>regulatory verifications</strong> (toll-free verification in the US/Canada, 10DLC registration, or a regulatory bundle elsewhere).</li>
-        <li>Account balance: every SMS sent has a cost (except with test credentials).</li>
-      </ul>
-    </div>
+    <ul>
+      <li data-i18n="section.prerrequisitos.p1">Una <strong>cuenta de Twilio</strong> (<a href="https://www.twilio.com/console">twilio.com/console</a>). Sirve una cuenta trial para pruebas, con limitaciones (ver más abajo).</li>
+      <li data-i18n="section.prerrequisitos.p2">Un <strong>remitente</strong>: un número de teléfono de Twilio habilitado para SMS, o un <strong>Messaging Service</strong>.</li>
+      <li data-i18n="section.prerrequisitos.p3">Según el país destino, las <strong>verificaciones regulatorias</strong> correspondientes (verificación toll-free en EE. UU./Canadá, registro 10DLC, o bundle regulatorio en otros países).</li>
+      <li data-i18n="section.prerrequisitos.p4">Saldo en la cuenta: cada SMS enviado tiene costo (salvo credenciales de prueba).</li>
+    </ul>
 
     <div class="callout callout-warning">
-      <span class="callout-title"><span class="lang-es">Cuentas trial</span><span class="lang-en">Trial accounts</span></span>
-      <span class="lang-es">Una cuenta trial de Twilio solo puede enviar a números previamente verificados en la consola, y antepone un texto de prueba a cada mensaje. Para producción, actualiza la cuenta.</span>
-      <span class="lang-en">A Twilio trial account can only send to numbers previously verified in the console, and prepends a trial notice to each message. For production, upgrade the account.</span>
+      <span class="callout-title" data-i18n="callout.trial.title">Cuentas trial</span>
+      <span data-i18n="callout.trial.body">Una cuenta trial de Twilio solo puede enviar a números previamente verificados en la consola, y antepone un texto de prueba a cada mensaje. Para producción, actualiza la cuenta.</span>
     </div>
   </section>
 
   <!-- ============ 3. CONFIGURACIÓN EN EL FABRICANTE ============ -->
-  <section id="fabricante">
-    <h2><span class="lang-es">3. Configuración en Twilio (paso a paso)</span><span class="lang-en">3. Twilio-side setup (step by step)</span></h2>
+  <section>
+    <h2 id="configuracion-fabricante" data-i18n="section.configuracion_fabricante">3. Configuración en Twilio (paso a paso)</h2>
 
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es">
-          <strong>Consigue un remitente.</strong>
-          <p>En la consola de Twilio, ve a <strong>Phone Numbers</strong> y compra (o usa) un número habilitado para <em>SMS</em>. Anótalo en formato E.164 (ej. <code>+15017122661</code>). Alternativamente, crea un <strong>Messaging Service</strong> en <strong>Messaging → Services</strong> y anota su SID (empieza por <code>MG</code>).</p>
-        </div>
-        <div class="lang-en">
-          <strong>Get a sender.</strong>
-          <p>In the Twilio console, go to <strong>Phone Numbers</strong> and buy (or use) a number enabled for <em>SMS</em>. Note it in E.164 format (e.g. <code>+15017122661</code>). Alternatively, create a <strong>Messaging Service</strong> under <strong>Messaging → Services</strong> and note its SID (starts with <code>MG</code>).</p>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: número SMS o Messaging Service en la consola de Twilio — reemplazar por assets/img/twilio-sender.png ]</span>
-          <span class="lang-en">[ Screenshot: SMS number or Messaging Service in the Twilio console — replace with assets/img/twilio-sender.png ]</span>
-        </div>
+        <strong data-i18n="step1.label">Consigue un remitente.</strong>
+        <p data-i18n="step1.body">En la consola de Twilio, ve a <strong>Phone Numbers</strong> y compra (o usa) un número habilitado para <em>SMS</em>. Anótalo en formato E.164 (ej. <code>+15017122661</code>). Alternativamente, crea un <strong>Messaging Service</strong> en <strong>Messaging → Services</strong> y anota su SID (empieza por <code>MG</code>).</p>
+        <div class="screenshot-placeholder" data-i18n="step1.shot">[ Captura: número SMS o Messaging Service en la consola de Twilio — reemplazar por assets/img/twilio-sender.png ]</div>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>(Cuenta trial) Verifica el número destino.</strong>
-          <p>Si tu cuenta es trial, ve a <strong>Phone Numbers → Verified Caller IDs</strong> y verifica cada número al que quieras enviar SMS de prueba. Sin esto, el envío fallará con el código <code>21608</code>.</p>
-        </div>
-        <div class="lang-en">
-          <strong>(Trial account) Verify the destination number.</strong>
-          <p>If your account is trial, go to <strong>Phone Numbers → Verified Caller IDs</strong> and verify each number you want to send test SMS to. Without this, sending fails with code <code>21608</code>.</p>
-        </div>
+        <strong data-i18n="step2.label">(Cuenta trial) Verifica el número destino.</strong>
+        <p data-i18n="step2.body">Si tu cuenta es trial, ve a <strong>Phone Numbers → Verified Caller IDs</strong> y verifica cada número al que quieras enviar SMS de prueba. Sin esto, el envío fallará con el código <code>21608</code>.</p>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>Elige tus credenciales — Opción A: Account SID + Auth Token.</strong>
-          <p>En el panel principal de la consola verás el <strong>Account SID</strong> (empieza por <code>AC</code>) y el <strong>Auth Token</strong>. Cópialos. Es lo más rápido, ideal para pruebas.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Choose your credentials — Option A: Account SID + Auth Token.</strong>
-          <p>On the console's main dashboard you'll see the <strong>Account SID</strong> (starts with <code>AC</code>) and the <strong>Auth Token</strong>. Copy them. This is the fastest path, ideal for testing.</p>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: Account SID y Auth Token en el panel (token ofuscado) — reemplazar por assets/img/twilio-credentials.png ]</span>
-          <span class="lang-en">[ Screenshot: Account SID and Auth Token on the dashboard (token obfuscated) — replace with assets/img/twilio-credentials.png ]</span>
-        </div>
+        <strong data-i18n="step3.label">Elige tus credenciales — Opción A: Account SID + Auth Token.</strong>
+        <p data-i18n="step3.body">En el panel principal de la consola verás el <strong>Account SID</strong> (empieza por <code>AC</code>) y el <strong>Auth Token</strong>. Cópialos. Es lo más rápido, ideal para pruebas.</p>
+        <div class="screenshot-placeholder" data-i18n="step3.shot">[ Captura: Account SID y Auth Token en el panel (token ofuscado) — reemplazar por assets/img/twilio-credentials.png ]</div>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>Opción B (recomendada para producción): crea una API Key.</strong>
-          <p>Ve a <strong>Account → API keys &amp; tokens</strong> → <strong>Create API key</strong>. Se generan un <strong>API Key SID</strong> (empieza por <code>SK</code>) y un <strong>Secret</strong>. El Secret se muestra <strong>una sola vez</strong>: cópialo en ese momento. Las API keys se pueden revocar individualmente sin afectar el resto de la cuenta.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Option B (recommended for production): create an API Key.</strong>
-          <p>Go to <strong>Account → API keys &amp; tokens</strong> → <strong>Create API key</strong>. This generates an <strong>API Key SID</strong> (starts with <code>SK</code>) and a <strong>Secret</strong>. The Secret is shown <strong>only once</strong>: copy it right then. API keys can be revoked individually without affecting the rest of the account.</p>
-        </div>
+        <strong data-i18n="step4.label">Opción B (recomendada para producción): crea una API Key.</strong>
+        <p data-i18n="step4.body">Ve a <strong>Account → API keys &amp; tokens</strong> → <strong>Create API key</strong>. Se generan un <strong>API Key SID</strong> (empieza por <code>SK</code>) y un <strong>Secret</strong>. El Secret se muestra <strong>una sola vez</strong>: cópialo en ese momento. Las API keys se pueden revocar individualmente sin afectar el resto de la cuenta.</p>
       </li>
     </ol>
 
     <div class="callout callout-info">
-      <span class="callout-title"><span class="lang-es">Verifica el flujo actual</span><span class="lang-en">Verify the current flow</span></span>
-      <span class="lang-es">La consola de Twilio cambia con frecuencia. Confirma los nombres exactos de los menús contra la consola real al momento de configurar.</span>
-      <span class="lang-en">The Twilio console changes often. Confirm the exact menu names against the live console when configuring.</span>
+      <span class="callout-title" data-i18n="callout.flujo.title">Verifica el flujo actual</span>
+      <span data-i18n="callout.flujo.body">La consola de Twilio cambia con frecuencia. Confirma los nombres exactos de los menús contra la consola real al momento de configurar.</span>
     </div>
   </section>
 
   <!-- ============ 4. PERMISOS ============ -->
-  <section id="permisos">
-    <h2><span class="lang-es">4. Permisos y credenciales</span><span class="lang-en">4. Permissions and credentials</span></h2>
+  <section>
+    <h2 id="permisos" data-i18n="section.permisos">4. Permisos y credenciales</h2>
 
-    <div class="lang-es">
-      <p>El conector solo necesita credenciales que permitan enviar mensajes y leer su estado. Para producción se recomienda una API Key sobre el Auth Token, por el principio de mínimo privilegio y revocación granular.</p>
-    </div>
-    <div class="lang-en">
-      <p>The connector only needs credentials that allow sending messages and reading their status. For production, an API Key is recommended over the Auth Token, for least-privilege and granular revocation.</p>
-    </div>
+    <p data-i18n="section.permisos.body">El conector solo necesita credenciales que permitan enviar mensajes y leer su estado. Para producción se recomienda una API Key sobre el Auth Token, por el principio de mínimo privilegio y revocación granular.</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Credencial</span><span class="lang-en">Credential</span></th>
-          <th><span class="lang-es">Para qué la usa el conector</span><span class="lang-en">Why the connector needs it</span></th>
+          <th data-i18n="table.credencial">Credencial</th>
+          <th data-i18n="table.para_que">Para qué la usa el conector</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">Account SID</span><span class="lang-en">Account SID</span></td>
-          <td><span class="lang-es">Identifica la cuenta a la que pertenecen los mensajes (siempre requerido)</span><span class="lang-en">Identifies the account the messages belong to (always required)</span></td>
+          <td data-i18n="cred.account_sid.name">Account SID</td>
+          <td data-i18n="cred.account_sid.why">Identifica la cuenta a la que pertenecen los mensajes (siempre requerido)</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Auth Token <em>o</em> API Key SID + Secret</span><span class="lang-en">Auth Token <em>or</em> API Key SID + Secret</span></td>
-          <td><span class="lang-es">Autentica las llamadas a la API (enviar y consultar)</span><span class="lang-en">Authenticates the API calls (send and query)</span></td>
+          <td data-i18n="cred.auth.name">Auth Token <em>o</em> API Key SID + Secret</td>
+          <td data-i18n="cred.auth.why">Autentica las llamadas a la API (enviar y consultar)</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Número remitente <em>o</em> Messaging Service SID</span><span class="lang-en">Sender number <em>or</em> Messaging Service SID</span></td>
-          <td><span class="lang-es">Define desde qué remitente sale el SMS</span><span class="lang-en">Defines the sender the SMS goes out from</span></td>
+          <td data-i18n="cred.sender.name">Número remitente <em>o</em> Messaging Service SID</td>
+          <td data-i18n="cred.sender.why">Define desde qué remitente sale el SMS</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <!-- ============ 5. CONFIGURACIÓN EN RUVIC ============ -->
-  <section id="ruvic">
-    <h2><span class="lang-es">5. Configuración en Ruvic</span><span class="lang-en">5. Setup in Ruvic</span></h2>
+  <section>
+    <h2 id="configuracion-ruvic" data-i18n="section.configuracion_ruvic">5. Configuración en Ruvic</h2>
 
-    <div class="lang-es">
-      <p>Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Twilio SMS</strong> y pulsa <strong>Configurar</strong>. Elige el modo que preparaste en la sección 3 y diligencia sus campos. En ambos modos debes indicar además el remitente (número O Messaging Service):</p>
-    </div>
-    <div class="lang-en">
-      <p>Go to <strong>Settings → Connectors</strong>, find the <strong>Twilio SMS</strong> card and click <strong>Configure</strong>. Choose the mode you set up in section 3 and fill in its fields. In both modes you must also provide the sender (number OR Messaging Service):</p>
-    </div>
+    <p data-i18n="section.configuracion_ruvic.body">Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Twilio SMS</strong> y pulsa <strong>Configurar</strong>. Elige el modo que preparaste en la sección 3 y diligencia sus campos. En ambos modos debes indicar además el remitente (número O Messaging Service):</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Campo del formulario</span><span class="lang-en">Form field</span></th>
-          <th><span class="lang-es">Valor (obtenido en la sección 3)</span><span class="lang-en">Value (from section 3)</span></th>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">Account SID</span><span class="lang-en">Account SID</span></td>
-          <td><span class="lang-es">El Account SID (empieza por <code>AC</code>)</span><span class="lang-en">The Account SID (starts with <code>AC</code>)</span></td>
+          <td data-i18n="ruvic.account_sid.field">Account SID</td>
+          <td data-i18n="ruvic.account_sid.value">El Account SID (empieza por <code>AC</code>)</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Auth Token <em>(modo A)</em></span><span class="lang-en">Auth Token <em>(mode A)</em></span></td>
-          <td><span class="lang-es">El Auth Token del panel. Se guarda como secreto</span><span class="lang-en">The Auth Token from the dashboard. Stored as a secret</span></td>
+          <td data-i18n="ruvic.auth_token.field">Auth Token <em>(modo A)</em></td>
+          <td data-i18n="ruvic.auth_token.value">El Auth Token del panel. Se guarda como secreto</td>
         </tr>
         <tr>
-          <td><span class="lang-es">API Key SID + Secret <em>(modo B)</em></span><span class="lang-en">API Key SID + Secret <em>(mode B)</em></span></td>
-          <td><span class="lang-es">El SID (<code>SK…</code>) y el Secret de la API Key. El Secret se guarda como secreto</span><span class="lang-en">The API Key SID (<code>SK…</code>) and Secret. The Secret is stored as a secret</span></td>
+          <td data-i18n="ruvic.api_key.field">API Key SID + Secret <em>(modo B)</em></td>
+          <td data-i18n="ruvic.api_key.value">El SID (<code>SK…</code>) y el Secret de la API Key. El Secret se guarda como secreto</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Número remitente</span><span class="lang-en">Sender number</span></td>
-          <td><span class="lang-es">Tu número de Twilio en E.164 (ej. <code>+15017122661</code>)</span><span class="lang-en">Your Twilio number in E.164 (e.g. <code>+15017122661</code>)</span></td>
+          <td data-i18n="ruvic.from.field">Número remitente</td>
+          <td data-i18n="ruvic.from.value">Tu número de Twilio en E.164 (ej. <code>+15017122661</code>)</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Messaging Service SID</span><span class="lang-en">Messaging Service SID</span></td>
-          <td><span class="lang-es">Alternativa al número (<code>MG…</code>). Si defines ambos, prevalece este</span><span class="lang-en">Alternative to the number (<code>MG…</code>). If you set both, this one wins</span></td>
+          <td data-i18n="ruvic.mgsid.field">Messaging Service SID</td>
+          <td data-i18n="ruvic.mgsid.value">Alternativa al número (<code>MG…</code>). Si defines ambos, prevalece este</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Timeout de peticiones</span><span class="lang-en">Request timeout</span></td>
-          <td><span class="lang-es">Opcional; <code>15</code> segundos por defecto</span><span class="lang-en">Optional; defaults to <code>15</code> seconds</span></td>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>15</code> segundos por defecto</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="lang-es"><p>Guarda y pulsa <span class="ruvic-button">Probar conexión</span> — la plataforma validará las credenciales consultando la cuenta, <strong>sin enviar ningún SMS</strong>.</p></div>
-    <div class="lang-en"><p>Save and click <span class="ruvic-button">Test connection</span> — the platform will validate the credentials by querying the account, <strong>without sending any SMS</strong>.</p></div>
+    <p data-i18n="section.configuracion_ruvic.test">Guarda y pulsa <span class="ruvic-button" data-i18n="btn.test">Probar conexión</span> — la plataforma validará las credenciales consultando la cuenta, <strong>sin enviar ningún SMS</strong>.</p>
 
-    <div class="screenshot-placeholder">
-      <span class="lang-es">[ Captura: formulario del conector Twilio SMS en Settings → Conectores — reemplazar por assets/img/twilio-form.png ]</span>
-      <span class="lang-en">[ Screenshot: Twilio SMS connector form in Settings → Connectors — replace with assets/img/twilio-form.png ]</span>
-    </div>
+    <div class="screenshot-placeholder" data-i18n="ruvic.shot">[ Captura: formulario del conector Twilio SMS en Settings → Conectores — reemplazar por assets/img/twilio-form.png ]</div>
   </section>
 
   <!-- ============ 6. VERIFICACIÓN ============ -->
-  <section id="verificacion">
-    <h2><span class="lang-es">6. Verificación</span><span class="lang-en">6. Verification</span></h2>
+  <section>
+    <h2 id="verificacion" data-i18n="section.verificacion">6. Verificación</h2>
 
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es"><strong>Test de conexión exitoso.</strong><p>El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa a la cuenta Twilio AC…”</em>, indicando el modo y el remitente. La tarjeta del conector cambia a estado <strong>Configurado</strong>. Este test no envía SMS ni genera costo.</p></div>
-        <div class="lang-en"><strong>Successful connection test.</strong><p>The <em>Test connection</em> button should return: <em>“Successful connection to Twilio account AC…”</em>, indicating the mode and sender. The connector card switches to <strong>Configured</strong>. This test sends no SMS and incurs no cost.</p></div>
+        <strong data-i18n="verif.step1.label">Test de conexión exitoso.</strong>
+        <p data-i18n="verif.step1.body">El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa a la cuenta Twilio AC…”</em>, indicando el modo y el remitente. La tarjeta del conector cambia a estado <strong>Configurado</strong>. Este test no envía SMS ni genera costo.</p>
       </li>
       <li>
-        <div class="lang-es"><strong>Automatización mínima de prueba.</strong><p>Abre una conversación nueva con el agente y pídele (usa un número verificado si tu cuenta es trial):</p><blockquote><em>“Envía un SMS al +57… que diga: Conector Ruvic configurado ✅, y luego dime si fue entregado.”</em></blockquote><p>Debe llegar el SMS y el agente reportar el estado. Si ocurre, el conector quedó operativo de punta a punta.</p></div>
-        <div class="lang-en"><strong>Minimal test automation.</strong><p>Open a new conversation with the agent and ask (use a verified number if your account is trial):</p><blockquote><em>“Send an SMS to +57… saying: Ruvic connector configured ✅, then tell me if it was delivered.”</em></blockquote><p>The SMS should arrive and the agent report the status. If so, the connector is fully operational.</p></div>
+        <strong data-i18n="verif.step2.label">Automatización mínima de prueba.</strong>
+        <p data-i18n="verif.step2.body">Abre una conversación nueva con el agente y pídele (usa un número verificado si tu cuenta es trial):</p>
+        <blockquote data-i18n="verif.step2.quote"><em>“Envía un SMS al +57… que diga: Conector Ruvic configurado ✅, y luego dime si fue entregado.”</em></blockquote>
+        <p data-i18n="verif.step2.after">Debe llegar el SMS y el agente reportar el estado. Si ocurre, el conector quedó operativo de punta a punta.</p>
       </li>
     </ol>
   </section>
 
   <!-- ============ 7. SOLUCIÓN DE PROBLEMAS ============ -->
-  <section id="problemas">
-    <h2><span class="lang-es">7. Solución de problemas</span><span class="lang-en">7. Troubleshooting</span></h2>
+  <section>
+    <h2 id="solucion-problemas" data-i18n="section.solucion_problemas">7. Solución de problemas</h2>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Mensaje / síntoma</span><span class="lang-en">Message / symptom</span></th>
-          <th><span class="lang-es">Causa probable y solución</span><span class="lang-en">Likely cause and fix</span></th>
+          <th data-i18n="table.sintoma">Mensaje / síntoma</th>
+          <th data-i18n="table.causa">Causa probable y solución</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">“Autenticación fallida (HTTP 401)”</span><span class="lang-en">“Authentication failed (HTTP 401)”</span></td>
-          <td><span class="lang-es">Account SID, Auth Token o API Key incorrectos. Revísalos en la consola y vuelve a guardar el formulario.</span><span class="lang-en">Wrong Account SID, Auth Token or API Key. Check them in the console and re-save the form.</span></td>
+          <td data-i18n="tr.auth.sym">“Autenticación fallida (HTTP 401)”</td>
+          <td data-i18n="tr.auth.fix">Account SID, Auth Token o API Key incorrectos. Revísalos en la consola y vuelve a guardar el formulario.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Código <code>21211</code> — número 'to' inválido</span><span class="lang-en">Code <code>21211</code> — invalid 'to' number</span></td>
-          <td><span class="lang-es">El número destino no está en formato E.164. Debe empezar por <code>+</code> y el código de país (ej. <code>+573001234567</code>).</span><span class="lang-en">The destination number isn't in E.164 format. It must start with <code>+</code> and the country code (e.g. <code>+573001234567</code>).</span></td>
+          <td data-i18n="tr.21211.sym">Código <code>21211</code> — número 'to' inválido</td>
+          <td data-i18n="tr.21211.fix">El número destino no está en formato E.164. Debe empezar por <code>+</code> y el código de país (ej. <code>+573001234567</code>).</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Código <code>21608</code> — número no verificado</span><span class="lang-en">Code <code>21608</code> — unverified number</span></td>
-          <td><span class="lang-es">Cuenta trial enviando a un número no verificado. Verifícalo en <em>Verified Caller IDs</em> o actualiza la cuenta.</span><span class="lang-en">Trial account sending to an unverified number. Verify it in <em>Verified Caller IDs</em> or upgrade the account.</span></td>
+          <td data-i18n="tr.21608.sym">Código <code>21608</code> — número no verificado</td>
+          <td data-i18n="tr.21608.fix">Cuenta trial enviando a un número no verificado. Verifícalo en <em>Verified Caller IDs</em> o actualiza la cuenta.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Código <code>21610</code> — destinatario dado de baja</span><span class="lang-en">Code <code>21610</code> — recipient unsubscribed</span></td>
-          <td><span class="lang-es">El destinatario respondió STOP y bloqueó los mensajes de ese remitente. No se le puede enviar hasta que reactive.</span><span class="lang-en">The recipient replied STOP and blocked messages from that sender. You can't message them until they opt back in.</span></td>
+          <td data-i18n="tr.21610.sym">Código <code>21610</code> — destinatario dado de baja</td>
+          <td data-i18n="tr.21610.fix">El destinatario respondió STOP y bloqueó los mensajes de ese remitente. No se le puede enviar hasta que reactive.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">El SMS queda en <code>queued</code> o <code>undelivered</code></span><span class="lang-en">The SMS stays <code>queued</code> or <code>undelivered</code></span></td>
-          <td><span class="lang-es">Falta verificación regulatoria (toll-free/10DLC) o el número destino no recibe SMS. Revisa el <code>error_code</code> con <em>consultar estado</em> y las verificaciones del remitente.</span><span class="lang-en">Missing regulatory verification (toll-free/10DLC) or the destination can't receive SMS. Check the <code>error_code</code> via <em>get status</em> and the sender's verifications.</span></td>
+          <td data-i18n="tr.queued.sym">El SMS queda en <code>queued</code> o <code>undelivered</code></td>
+          <td data-i18n="tr.queued.fix">Falta verificación regulatoria (toll-free/10DLC) o el número destino no recibe SMS. Revisa el <code>error_code</code> con <em>consultar estado</em> y las verificaciones del remitente.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“Falta el remitente” al guardar</span><span class="lang-en">“Missing sender” on save</span></td>
-          <td><span class="lang-es">No se indicó ni número ni Messaging Service. Completa uno de los dos campos.</span><span class="lang-en">Neither a number nor a Messaging Service was provided. Fill in one of the two fields.</span></td>
+          <td data-i18n="tr.sender.sym">“Falta el remitente” al guardar</td>
+          <td data-i18n="tr.sender.fix">No se indicó ni número ni Messaging Service. Completa uno de los dos campos.</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <!-- ============ 8. FAQ Y SEGURIDAD ============ -->
-  <section id="faq">
-    <h2><span class="lang-es">8. Preguntas frecuentes y notas de seguridad</span><span class="lang-en">8. FAQ and security notes</span></h2>
+  <section>
+    <h2 id="faq-seguridad" data-i18n="section.faq_seguridad">8. Preguntas frecuentes y notas de seguridad</h2>
 
-    <h3><span class="lang-es">¿Auth Token o API Key?</span><span class="lang-en">Auth Token or API Key?</span></h3>
-    <div class="lang-es"><p>Para pruebas, el Auth Token es lo más rápido. Para producción, Twilio recomienda una API Key: se puede revocar de forma individual sin rotar el Auth Token de toda la cuenta, lo que limita el impacto si se compromete.</p></div>
-    <div class="lang-en"><p>For testing, the Auth Token is fastest. For production, Twilio recommends an API Key: it can be revoked individually without rotating the whole account's Auth Token, limiting the blast radius if compromised.</p></div>
+    <h3 data-i18n="faq.mode.q">¿Auth Token o API Key?</h3>
+    <p data-i18n="faq.mode.a">Para pruebas, el Auth Token es lo más rápido. Para producción, Twilio recomienda una API Key: se puede revocar de forma individual sin rotar el Auth Token de toda la cuenta, lo que limita el impacto si se compromete.</p>
 
-    <h3><span class="lang-es">¿El agente confirma que el SMS llegó?</span><span class="lang-en">Does the agent confirm the SMS arrived?</span></h3>
-    <div class="lang-es"><p>La entrega es asíncrona: al enviar, el estado es <code>queued</code>/<code>sending</code>. Para confirmar la entrega, el agente consulta el estado unos segundos después (operación <code>sms.get_status</code>), que evoluciona a <code>delivered</code>, <code>undelivered</code> o <code>failed</code>.</p></div>
-    <div class="lang-en"><p>Delivery is asynchronous: on send, the status is <code>queued</code>/<code>sending</code>. To confirm delivery, the agent checks the status a few seconds later (<code>sms.get_status</code>), which evolves to <code>delivered</code>, <code>undelivered</code> or <code>failed</code>.</p></div>
+    <h3 data-i18n="faq.confirm.q">¿El agente confirma que el SMS llegó?</h3>
+    <p data-i18n="faq.confirm.a">La entrega es asíncrona: al enviar, el estado es <code>queued</code>/<code>sending</code>. Para confirmar la entrega, el agente consulta el estado unos segundos después (operación <code>sms.get_status</code>), que evoluciona a <code>delivered</code>, <code>undelivered</code> o <code>failed</code>.</p>
 
-    <h3><span class="lang-es">¿Dónde quedan guardadas las credenciales?</span><span class="lang-en">Where are the credentials stored?</span></h3>
-    <div class="lang-es"><p>El Auth Token y el API Key Secret se guardan como secretos en el almacén de credenciales de la plataforma. La interfaz nunca vuelve a mostrarlos; solo indica “definido”. El Account SID y el número remitente no son secretos.</p></div>
-    <div class="lang-en"><p>The Auth Token and API Key Secret are stored as secrets in the platform's credential store. The UI never displays them again; it only shows “set”. The Account SID and sender number are not secret.</p></div>
+    <h3 data-i18n="faq.store.q">¿Dónde quedan guardadas las credenciales?</h3>
+    <p data-i18n="faq.store.a">El Auth Token y el API Key Secret se guardan como secretos en el almacén de credenciales de la plataforma. La interfaz nunca vuelve a mostrarlos; solo indica “definido”. El Account SID y el número remitente no son secretos.</p>
 
-    <h3><span class="lang-es">Rotación de credenciales</span><span class="lang-en">Credential rotation</span></h3>
-    <div class="lang-es"><p><strong>API Key</strong>: crea una nueva en la consola, actualízala en el formulario y elimina la anterior. <strong>Auth Token</strong>: usa la rotación de Auth Token secundario de Twilio para no interrumpir el servicio, luego promueve el nuevo y actualízalo en el formulario.</p></div>
-    <div class="lang-en"><p><strong>API Key</strong>: create a new one in the console, update it in the form and delete the old one. <strong>Auth Token</strong>: use Twilio's secondary Auth Token rotation to avoid downtime, then promote the new one and update it in the form.</p></div>
+    <h3 data-i18n="faq.rot.q">Rotación de credenciales</h3>
+    <p data-i18n="faq.rot.a"><strong>API Key</strong>: crea una nueva en la consola, actualízala en el formulario y elimina la anterior. <strong>Auth Token</strong>: usa la rotación de Auth Token secundario de Twilio para no interrumpir el servicio, luego promueve el nuevo y actualízalo en el formulario.</p>
 
-    <h3><span class="lang-es">¿Qué hago si una credencial se compromete?</span><span class="lang-en">What if a credential is compromised?</span></h3>
-    <div class="lang-es"><ol><li><strong>API Key</strong>: elimínala de inmediato en <em>API keys &amp; tokens</em> (deja de funcionar al instante) y crea otra.</li><li><strong>Auth Token</strong>: rótalo desde la consola (afecta a toda la cuenta).</li><li>Actualiza la nueva credencial en el formulario del conector y revisa el historial de mensajes por envíos no autorizados.</li></ol></div>
-    <div class="lang-en"><ol><li><strong>API Key</strong>: delete it immediately in <em>API keys &amp; tokens</em> (stops working instantly) and create another.</li><li><strong>Auth Token</strong>: rotate it from the console (affects the whole account).</li><li>Update the new credential in the connector form and review the message history for unauthorized sends.</li></ol></div>
+    <h3 data-i18n="faq.comp.q">¿Qué hago si una credencial se compromete?</h3>
+    <ol>
+      <li data-i18n="faq.comp.a1"><strong>API Key</strong>: elimínala de inmediato en <em>API keys &amp; tokens</em> (deja de funcionar al instante) y crea otra.</li>
+      <li data-i18n="faq.comp.a2"><strong>Auth Token</strong>: rótalo desde la consola (afecta a toda la cuenta).</li>
+      <li data-i18n="faq.comp.a3">Actualiza la nueva credencial en el formulario del conector y revisa el historial de mensajes por envíos no autorizados.</li>
+    </ol>
 
     <div class="callout callout-warning">
-      <span class="callout-title"><span class="lang-es">Buenas prácticas</span><span class="lang-en">Best practices</span></span>
-      <span class="lang-es">Usa API keys dedicadas para Ruvic; no compartas tokens ni secrets por canales no seguros ni los publiques en repositorios; envía solo a destinatarios que hayan dado consentimiento; y trata los códigos OTP como datos sensibles (no los registres en logs ni los repitas innecesariamente).</span>
-      <span class="lang-en">Use dedicated API keys for Ruvic; never share tokens or secrets over insecure channels or commit them to repositories; only message recipients who have opted in; and treat OTP codes as sensitive data (don't log them or repeat them unnecessarily).</span>
+      <span class="callout-title" data-i18n="callout.bp.title">Buenas prácticas</span>
+      <span data-i18n="callout.bp.body">Usa API keys dedicadas para Ruvic; no compartas tokens ni secrets por canales no seguros ni los publiques en repositorios; envía solo a destinatarios que hayan dado consentimiento; y trata los códigos OTP como datos sensibles (no los registres en logs ni los repitas innecesariamente).</span>
     </div>
   </section>
 
 </main>
 
-<footer class="ruvic-footer">
-  <div class="tagline">Opera, factura, escala — aunque tu equipo no esté</div>
-  <div>Ruvic Engine · @ruvic_ai</div>
-</footer>
-
 <script>
-  // Toggle de idioma ES/EN — parte de la plantilla, no modificar.
+  // Objeto I18N: mismas llaves en es/en. El PORTAL aplica el idioma del
+  // usuario (localStorage ruvic-docs-lang) sobre [data-i18n],
+  // [data-i18n-placeholder] y [data-i18n-alt]. No añadir toggle propio.
+  const I18N = {
+    es: {
+      doc_title: "Conector Twilio SMS — Ruvic",
+      guide_title: "Conector Twilio SMS",
+      guide_updated: "Última actualización: 16 de julio de 2026",
+      toc_title: "Contenido",
+      "toc.que_es": "¿Qué es y para qué sirve?",
+      "toc.prerrequisitos": "Prerrequisitos",
+      "toc.configuracion_fabricante": "Configuración en Twilio (paso a paso)",
+      "toc.permisos": "Permisos y credenciales",
+      "toc.configuracion_ruvic": "Configuración en Ruvic",
+      "toc.verificacion": "Verificación",
+      "toc.solucion_problemas": "Solución de problemas",
+      "toc.faq_seguridad": "Preguntas frecuentes y notas de seguridad",
+
+      "section.que_es": "1. ¿Qué es y para qué sirve?",
+      "section.que_es.body": "El conector Twilio SMS permite que el agente de Ruvic <strong>envíe mensajes de texto (SMS)</strong> a cualquier número de teléfono y <strong>consulte si fueron entregados</strong>. Es ideal para mensajes transaccionales. Una vez configurado, puedes pedirle al agente cosas como:",
+      "section.que_es.ex1": "“Envía un código de verificación por SMS al número del cliente.”",
+      "section.que_es.ex2": "“Cuando el pedido se despache, notifícalo por SMS al comprador.”",
+      "section.que_es.ex3": "“¿El SMS de alerta que enviamos hace un momento llegó?”",
+      "section.que_es.ops": "Operaciones soportadas:",
+      "table.operacion": "Operación",
+      "table.que_hace": "Qué hace",
+      "op.send": "Envía un SMS a un número en formato internacional",
+      "op.get_status": "Consulta el estado de entrega de un mensaje enviado",
+      "op.list": "Lista los mensajes recientes de la cuenta (con filtros)",
+      "callout.envio.title": "Envío, no recepción",
+      "callout.envio.body": "Este conector es de solo salida: envía SMS y consulta su estado. Recibir SMS entrantes requeriría un endpoint público permanente, incompatible con el modelo de ejecución de Ruvic.",
+
+      "section.prerrequisitos": "2. Prerrequisitos",
+      "section.prerrequisitos.p1": "Una <strong>cuenta de Twilio</strong> (<a href=\"https://www.twilio.com/console\">twilio.com/console</a>). Sirve una cuenta trial para pruebas, con limitaciones (ver más abajo).",
+      "section.prerrequisitos.p2": "Un <strong>remitente</strong>: un número de teléfono de Twilio habilitado para SMS, o un <strong>Messaging Service</strong>.",
+      "section.prerrequisitos.p3": "Según el país destino, las <strong>verificaciones regulatorias</strong> correspondientes (verificación toll-free en EE. UU./Canadá, registro 10DLC, o bundle regulatorio en otros países).",
+      "section.prerrequisitos.p4": "Saldo en la cuenta: cada SMS enviado tiene costo (salvo credenciales de prueba).",
+      "callout.trial.title": "Cuentas trial",
+      "callout.trial.body": "Una cuenta trial de Twilio solo puede enviar a números previamente verificados en la consola, y antepone un texto de prueba a cada mensaje. Para producción, actualiza la cuenta.",
+
+      "section.configuracion_fabricante": "3. Configuración en Twilio (paso a paso)",
+      "step1.label": "Consigue un remitente.",
+      "step1.body": "En la consola de Twilio, ve a <strong>Phone Numbers</strong> y compra (o usa) un número habilitado para <em>SMS</em>. Anótalo en formato E.164 (ej. <code>+15017122661</code>). Alternativamente, crea un <strong>Messaging Service</strong> en <strong>Messaging → Services</strong> y anota su SID (empieza por <code>MG</code>).",
+      "step1.shot": "[ Captura: número SMS o Messaging Service en la consola de Twilio — reemplazar por assets/img/twilio-sender.png ]",
+      "step2.label": "(Cuenta trial) Verifica el número destino.",
+      "step2.body": "Si tu cuenta es trial, ve a <strong>Phone Numbers → Verified Caller IDs</strong> y verifica cada número al que quieras enviar SMS de prueba. Sin esto, el envío fallará con el código <code>21608</code>.",
+      "step3.label": "Elige tus credenciales — Opción A: Account SID + Auth Token.",
+      "step3.body": "En el panel principal de la consola verás el <strong>Account SID</strong> (empieza por <code>AC</code>) y el <strong>Auth Token</strong>. Cópialos. Es lo más rápido, ideal para pruebas.",
+      "step3.shot": "[ Captura: Account SID y Auth Token en el panel (token ofuscado) — reemplazar por assets/img/twilio-credentials.png ]",
+      "step4.label": "Opción B (recomendada para producción): crea una API Key.",
+      "step4.body": "Ve a <strong>Account → API keys &amp; tokens</strong> → <strong>Create API key</strong>. Se generan un <strong>API Key SID</strong> (empieza por <code>SK</code>) y un <strong>Secret</strong>. El Secret se muestra <strong>una sola vez</strong>: cópialo en ese momento. Las API keys se pueden revocar individualmente sin afectar el resto de la cuenta.",
+      "callout.flujo.title": "Verifica el flujo actual",
+      "callout.flujo.body": "La consola de Twilio cambia con frecuencia. Confirma los nombres exactos de los menús contra la consola real al momento de configurar.",
+
+      "section.permisos": "4. Permisos y credenciales",
+      "section.permisos.body": "El conector solo necesita credenciales que permitan enviar mensajes y leer su estado. Para producción se recomienda una API Key sobre el Auth Token, por el principio de mínimo privilegio y revocación granular.",
+      "table.credencial": "Credencial",
+      "table.para_que": "Para qué la usa el conector",
+      "cred.account_sid.name": "Account SID",
+      "cred.account_sid.why": "Identifica la cuenta a la que pertenecen los mensajes (siempre requerido)",
+      "cred.auth.name": "Auth Token <em>o</em> API Key SID + Secret",
+      "cred.auth.why": "Autentica las llamadas a la API (enviar y consultar)",
+      "cred.sender.name": "Número remitente <em>o</em> Messaging Service SID",
+      "cred.sender.why": "Define desde qué remitente sale el SMS",
+
+      "section.configuracion_ruvic": "5. Configuración en Ruvic",
+      "section.configuracion_ruvic.body": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Twilio SMS</strong> y pulsa <strong>Configurar</strong>. Elige el modo que preparaste en la sección 3 y diligencia sus campos. En ambos modos debes indicar además el remitente (número O Messaging Service):",
+      "table.campo": "Campo del formulario",
+      "table.valor": "Valor (obtenido en la sección 3)",
+      "ruvic.account_sid.field": "Account SID",
+      "ruvic.account_sid.value": "El Account SID (empieza por <code>AC</code>)",
+      "ruvic.auth_token.field": "Auth Token <em>(modo A)</em>",
+      "ruvic.auth_token.value": "El Auth Token del panel. Se guarda como secreto",
+      "ruvic.api_key.field": "API Key SID + Secret <em>(modo B)</em>",
+      "ruvic.api_key.value": "El SID (<code>SK…</code>) y el Secret de la API Key. El Secret se guarda como secreto",
+      "ruvic.from.field": "Número remitente",
+      "ruvic.from.value": "Tu número de Twilio en E.164 (ej. <code>+15017122661</code>)",
+      "ruvic.mgsid.field": "Messaging Service SID",
+      "ruvic.mgsid.value": "Alternativa al número (<code>MG…</code>). Si defines ambos, prevalece este",
+      "ruvic.timeout.field": "Timeout de peticiones",
+      "ruvic.timeout.value": "Opcional; <code>15</code> segundos por defecto",
+      "section.configuracion_ruvic.test": "Guarda y pulsa <span class=\"ruvic-button\">Probar conexión</span> — la plataforma validará las credenciales consultando la cuenta, <strong>sin enviar ningún SMS</strong>.",
+      "btn.test": "Probar conexión",
+      "ruvic.shot": "[ Captura: formulario del conector Twilio SMS en Settings → Conectores — reemplazar por assets/img/twilio-form.png ]",
+
+      "section.verificacion": "6. Verificación",
+      "verif.step1.label": "Test de conexión exitoso.",
+      "verif.step1.body": "El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa a la cuenta Twilio AC…”</em>, indicando el modo y el remitente. La tarjeta del conector cambia a estado <strong>Configurado</strong>. Este test no envía SMS ni genera costo.",
+      "verif.step2.label": "Automatización mínima de prueba.",
+      "verif.step2.body": "Abre una conversación nueva con el agente y pídele (usa un número verificado si tu cuenta es trial):",
+      "verif.step2.quote": "<em>“Envía un SMS al +57… que diga: Conector Ruvic configurado ✅, y luego dime si fue entregado.”</em>",
+      "verif.step2.after": "Debe llegar el SMS y el agente reportar el estado. Si ocurre, el conector quedó operativo de punta a punta.",
+
+      "section.solucion_problemas": "7. Solución de problemas",
+      "table.sintoma": "Mensaje / síntoma",
+      "table.causa": "Causa probable y solución",
+      "tr.auth.sym": "“Autenticación fallida (HTTP 401)”",
+      "tr.auth.fix": "Account SID, Auth Token o API Key incorrectos. Revísalos en la consola y vuelve a guardar el formulario.",
+      "tr.21211.sym": "Código <code>21211</code> — número 'to' inválido",
+      "tr.21211.fix": "El número destino no está en formato E.164. Debe empezar por <code>+</code> y el código de país (ej. <code>+573001234567</code>).",
+      "tr.21608.sym": "Código <code>21608</code> — número no verificado",
+      "tr.21608.fix": "Cuenta trial enviando a un número no verificado. Verifícalo en <em>Verified Caller IDs</em> o actualiza la cuenta.",
+      "tr.21610.sym": "Código <code>21610</code> — destinatario dado de baja",
+      "tr.21610.fix": "El destinatario respondió STOP y bloqueó los mensajes de ese remitente. No se le puede enviar hasta que reactive.",
+      "tr.queued.sym": "El SMS queda en <code>queued</code> o <code>undelivered</code>",
+      "tr.queued.fix": "Falta verificación regulatoria (toll-free/10DLC) o el número destino no recibe SMS. Revisa el <code>error_code</code> con <em>consultar estado</em> y las verificaciones del remitente.",
+      "tr.sender.sym": "“Falta el remitente” al guardar",
+      "tr.sender.fix": "No se indicó ni número ni Messaging Service. Completa uno de los dos campos.",
+
+      "section.faq_seguridad": "8. Preguntas frecuentes y notas de seguridad",
+      "faq.mode.q": "¿Auth Token o API Key?",
+      "faq.mode.a": "Para pruebas, el Auth Token es lo más rápido. Para producción, Twilio recomienda una API Key: se puede revocar de forma individual sin rotar el Auth Token de toda la cuenta, lo que limita el impacto si se compromete.",
+      "faq.confirm.q": "¿El agente confirma que el SMS llegó?",
+      "faq.confirm.a": "La entrega es asíncrona: al enviar, el estado es <code>queued</code>/<code>sending</code>. Para confirmar la entrega, el agente consulta el estado unos segundos después (operación <code>sms.get_status</code>), que evoluciona a <code>delivered</code>, <code>undelivered</code> o <code>failed</code>.",
+      "faq.store.q": "¿Dónde quedan guardadas las credenciales?",
+      "faq.store.a": "El Auth Token y el API Key Secret se guardan como secretos en el almacén de credenciales de la plataforma. La interfaz nunca vuelve a mostrarlos; solo indica “definido”. El Account SID y el número remitente no son secretos.",
+      "faq.rot.q": "Rotación de credenciales",
+      "faq.rot.a": "<strong>API Key</strong>: crea una nueva en la consola, actualízala en el formulario y elimina la anterior. <strong>Auth Token</strong>: usa la rotación de Auth Token secundario de Twilio para no interrumpir el servicio, luego promueve el nuevo y actualízalo en el formulario.",
+      "faq.comp.q": "¿Qué hago si una credencial se compromete?",
+      "faq.comp.a1": "<strong>API Key</strong>: elimínala de inmediato en <em>API keys &amp; tokens</em> (deja de funcionar al instante) y crea otra.",
+      "faq.comp.a2": "<strong>Auth Token</strong>: rótalo desde la consola (afecta a toda la cuenta).",
+      "faq.comp.a3": "Actualiza la nueva credencial en el formulario del conector y revisa el historial de mensajes por envíos no autorizados.",
+      "callout.bp.title": "Buenas prácticas",
+      "callout.bp.body": "Usa API keys dedicadas para Ruvic; no compartas tokens ni secrets por canales no seguros ni los publiques en repositorios; envía solo a destinatarios que hayan dado consentimiento; y trata los códigos OTP como datos sensibles (no los registres en logs ni los repitas innecesariamente).",
+    },
+    en: {
+      doc_title: "Twilio SMS Connector — Ruvic",
+      guide_title: "Twilio SMS Connector",
+      guide_updated: "Last updated: July 16, 2026",
+      toc_title: "Contents",
+      "toc.que_es": "What it is and what it's for",
+      "toc.prerrequisitos": "Prerequisites",
+      "toc.configuracion_fabricante": "Twilio-side setup (step by step)",
+      "toc.permisos": "Permissions and credentials",
+      "toc.configuracion_ruvic": "Configuration in Ruvic",
+      "toc.verificacion": "Verification",
+      "toc.solucion_problemas": "Troubleshooting",
+      "toc.faq_seguridad": "FAQ and security notes",
+
+      "section.que_es": "1. What it is and what it's for",
+      "section.que_es.body": "The Twilio SMS connector lets the Ruvic agent <strong>send text messages (SMS)</strong> to any phone number and <strong>check whether they were delivered</strong>. It's ideal for transactional messages. Once configured, you can ask the agent things like:",
+      "section.que_es.ex1": "“Send a verification code by SMS to the customer's number.”",
+      "section.que_es.ex2": "“When the order ships, notify the buyer by SMS.”",
+      "section.que_es.ex3": "“Did the alert SMS we just sent get delivered?”",
+      "section.que_es.ops": "Supported operations:",
+      "table.operacion": "Operation",
+      "table.que_hace": "What it does",
+      "op.send": "Sends an SMS to a number in international format",
+      "op.get_status": "Checks the delivery status of a sent message",
+      "op.list": "Lists the account's recent messages (with filters)",
+      "callout.envio.title": "Sending, not receiving",
+      "callout.envio.body": "This connector is outbound-only: it sends SMS and checks their status. Receiving inbound SMS would require a permanent public endpoint, incompatible with Ruvic's execution model.",
+
+      "section.prerrequisitos": "2. Prerequisites",
+      "section.prerrequisitos.p1": "A <strong>Twilio account</strong> (<a href=\"https://www.twilio.com/console\">twilio.com/console</a>). A trial account works for testing, with limitations (see below).",
+      "section.prerrequisitos.p2": "A <strong>sender</strong>: a Twilio phone number enabled for SMS, or a <strong>Messaging Service</strong>.",
+      "section.prerrequisitos.p3": "Depending on the destination country, the relevant <strong>regulatory verifications</strong> (toll-free verification in the US/Canada, 10DLC registration, or a regulatory bundle elsewhere).",
+      "section.prerrequisitos.p4": "Account balance: every SMS sent has a cost (except with test credentials).",
+      "callout.trial.title": "Trial accounts",
+      "callout.trial.body": "A Twilio trial account can only send to numbers previously verified in the console, and prepends a trial notice to each message. For production, upgrade the account.",
+
+      "section.configuracion_fabricante": "3. Twilio-side setup (step by step)",
+      "step1.label": "Get a sender.",
+      "step1.body": "In the Twilio console, go to <strong>Phone Numbers</strong> and buy (or use) a number enabled for <em>SMS</em>. Note it in E.164 format (e.g. <code>+15017122661</code>). Alternatively, create a <strong>Messaging Service</strong> under <strong>Messaging → Services</strong> and note its SID (starts with <code>MG</code>).",
+      "step1.shot": "[ Screenshot: SMS number or Messaging Service in the Twilio console — replace with assets/img/twilio-sender.png ]",
+      "step2.label": "(Trial account) Verify the destination number.",
+      "step2.body": "If your account is trial, go to <strong>Phone Numbers → Verified Caller IDs</strong> and verify each number you want to send test SMS to. Without this, sending fails with code <code>21608</code>.",
+      "step3.label": "Choose your credentials — Option A: Account SID + Auth Token.",
+      "step3.body": "On the console's main dashboard you'll see the <strong>Account SID</strong> (starts with <code>AC</code>) and the <strong>Auth Token</strong>. Copy them. This is the fastest path, ideal for testing.",
+      "step3.shot": "[ Screenshot: Account SID and Auth Token on the dashboard (token obfuscated) — replace with assets/img/twilio-credentials.png ]",
+      "step4.label": "Option B (recommended for production): create an API Key.",
+      "step4.body": "Go to <strong>Account → API keys &amp; tokens</strong> → <strong>Create API key</strong>. This generates an <strong>API Key SID</strong> (starts with <code>SK</code>) and a <strong>Secret</strong>. The Secret is shown <strong>only once</strong>: copy it right then. API keys can be revoked individually without affecting the rest of the account.",
+      "callout.flujo.title": "Verify the current flow",
+      "callout.flujo.body": "The Twilio console changes often. Confirm the exact menu names against the live console when configuring.",
+
+      "section.permisos": "4. Permissions and credentials",
+      "section.permisos.body": "The connector only needs credentials that allow sending messages and reading their status. For production, an API Key is recommended over the Auth Token, for least-privilege and granular revocation.",
+      "table.credencial": "Credential",
+      "table.para_que": "Why the connector needs it",
+      "cred.account_sid.name": "Account SID",
+      "cred.account_sid.why": "Identifies the account the messages belong to (always required)",
+      "cred.auth.name": "Auth Token <em>or</em> API Key SID + Secret",
+      "cred.auth.why": "Authenticates the API calls (send and query)",
+      "cred.sender.name": "Sender number <em>or</em> Messaging Service SID",
+      "cred.sender.why": "Defines the sender the SMS goes out from",
+
+      "section.configuracion_ruvic": "5. Configuration in Ruvic",
+      "section.configuracion_ruvic.body": "Go to <strong>Settings → Connectors</strong>, find the <strong>Twilio SMS</strong> card and click <strong>Configure</strong>. Choose the mode you set up in section 3 and fill in its fields. In both modes you must also provide the sender (number OR Messaging Service):",
+      "table.campo": "Form field",
+      "table.valor": "Value (from section 3)",
+      "ruvic.account_sid.field": "Account SID",
+      "ruvic.account_sid.value": "The Account SID (starts with <code>AC</code>)",
+      "ruvic.auth_token.field": "Auth Token <em>(mode A)</em>",
+      "ruvic.auth_token.value": "The Auth Token from the dashboard. Stored as a secret",
+      "ruvic.api_key.field": "API Key SID + Secret <em>(mode B)</em>",
+      "ruvic.api_key.value": "The API Key SID (<code>SK…</code>) and Secret. The Secret is stored as a secret",
+      "ruvic.from.field": "Sender number",
+      "ruvic.from.value": "Your Twilio number in E.164 (e.g. <code>+15017122661</code>)",
+      "ruvic.mgsid.field": "Messaging Service SID",
+      "ruvic.mgsid.value": "Alternative to the number (<code>MG…</code>). If you set both, this one wins",
+      "ruvic.timeout.field": "Request timeout",
+      "ruvic.timeout.value": "Optional; defaults to <code>15</code> seconds",
+      "section.configuracion_ruvic.test": "Save and click <span class=\"ruvic-button\">Test connection</span> — the platform will validate the credentials by querying the account, <strong>without sending any SMS</strong>.",
+      "btn.test": "Test connection",
+      "ruvic.shot": "[ Screenshot: Twilio SMS connector form in Settings → Connectors — replace with assets/img/twilio-form.png ]",
+
+      "section.verificacion": "6. Verification",
+      "verif.step1.label": "Successful connection test.",
+      "verif.step1.body": "The <em>Test connection</em> button should return: <em>“Successful connection to Twilio account AC…”</em>, indicating the mode and sender. The connector card switches to <strong>Configured</strong>. This test sends no SMS and incurs no cost.",
+      "verif.step2.label": "Minimal test automation.",
+      "verif.step2.body": "Open a new conversation with the agent and ask (use a verified number if your account is trial):",
+      "verif.step2.quote": "<em>“Send an SMS to +57… saying: Ruvic connector configured ✅, then tell me if it was delivered.”</em>",
+      "verif.step2.after": "The SMS should arrive and the agent report the status. If so, the connector is fully operational.",
+
+      "section.solucion_problemas": "7. Troubleshooting",
+      "table.sintoma": "Message / symptom",
+      "table.causa": "Likely cause and fix",
+      "tr.auth.sym": "“Authentication failed (HTTP 401)”",
+      "tr.auth.fix": "Wrong Account SID, Auth Token or API Key. Check them in the console and re-save the form.",
+      "tr.21211.sym": "Code <code>21211</code> — invalid 'to' number",
+      "tr.21211.fix": "The destination number isn't in E.164 format. It must start with <code>+</code> and the country code (e.g. <code>+573001234567</code>).",
+      "tr.21608.sym": "Code <code>21608</code> — unverified number",
+      "tr.21608.fix": "Trial account sending to an unverified number. Verify it in <em>Verified Caller IDs</em> or upgrade the account.",
+      "tr.21610.sym": "Code <code>21610</code> — recipient unsubscribed",
+      "tr.21610.fix": "The recipient replied STOP and blocked messages from that sender. You can't message them until they opt back in.",
+      "tr.queued.sym": "The SMS stays <code>queued</code> or <code>undelivered</code>",
+      "tr.queued.fix": "Missing regulatory verification (toll-free/10DLC) or the destination can't receive SMS. Check the <code>error_code</code> via <em>get status</em> and the sender's verifications.",
+      "tr.sender.sym": "“Missing sender” on save",
+      "tr.sender.fix": "Neither a number nor a Messaging Service was provided. Fill in one of the two fields.",
+
+      "section.faq_seguridad": "8. FAQ and security notes",
+      "faq.mode.q": "Auth Token or API Key?",
+      "faq.mode.a": "For testing, the Auth Token is fastest. For production, Twilio recommends an API Key: it can be revoked individually without rotating the whole account's Auth Token, limiting the blast radius if compromised.",
+      "faq.confirm.q": "Does the agent confirm the SMS arrived?",
+      "faq.confirm.a": "Delivery is asynchronous: on send, the status is <code>queued</code>/<code>sending</code>. To confirm delivery, the agent checks the status a few seconds later (<code>sms.get_status</code>), which evolves to <code>delivered</code>, <code>undelivered</code> or <code>failed</code>.",
+      "faq.store.q": "Where are the credentials stored?",
+      "faq.store.a": "The Auth Token and API Key Secret are stored as secrets in the platform's credential store. The UI never displays them again; it only shows “set”. The Account SID and sender number are not secret.",
+      "faq.rot.q": "Credential rotation",
+      "faq.rot.a": "<strong>API Key</strong>: create a new one in the console, update it in the form and delete the old one. <strong>Auth Token</strong>: use Twilio's secondary Auth Token rotation to avoid downtime, then promote the new one and update it in the form.",
+      "faq.comp.q": "What if a credential is compromised?",
+      "faq.comp.a1": "<strong>API Key</strong>: delete it immediately in <em>API keys &amp; tokens</em> (stops working instantly) and create another.",
+      "faq.comp.a2": "<strong>Auth Token</strong>: rotate it from the console (affects the whole account).",
+      "faq.comp.a3": "Update the new credential in the connector form and review the message history for unauthorized sends.",
+      "callout.bp.title": "Best practices",
+      "callout.bp.body": "Use dedicated API keys for Ruvic; never share tokens or secrets over insecure channels or commit them to repositories; only message recipients who have opted in; and treat OTP codes as sensitive data (don't log them or repeat them unnecessarily).",
+    },
+  };
+
+  // Fallback local: si el portal NO está presente (preview local), aplica
+  // el idioma guardado para poder previsualizar. El portal, cuando existe,
+  // maneja el toggle y vuelve a aplicar el idioma del usuario.
   (function () {
-    var buttons = document.querySelectorAll("[data-set-lang]");
-    function setLang(lang) {
-      document.documentElement.setAttribute("data-lang", lang);
+    function apply(lang) {
+      var dict = I18N[lang] || I18N.es;
       document.documentElement.setAttribute("lang", lang);
-      buttons.forEach(function (btn) {
-        btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n")];
+        if (v != null) el.innerHTML = v;
       });
-      try { localStorage.setItem("ruvic-docs-lang", lang); } catch (e) {}
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-placeholder")];
+        if (v != null) el.setAttribute("placeholder", v);
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-alt")];
+        if (v != null) el.setAttribute("alt", v);
+      });
     }
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        setLang(btn.getAttribute("data-set-lang"));
-      });
-    });
-    try {
-      var saved = localStorage.getItem("ruvic-docs-lang");
-      if (saved === "en" || saved === "es") setLang(saved);
-    } catch (e) {}
+    var saved = "es";
+    try { saved = localStorage.getItem("ruvic-docs-lang") || "es"; } catch (e) {}
+    if (saved !== "es") apply(saved);
   })();
 </script>
 

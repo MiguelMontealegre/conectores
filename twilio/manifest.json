@@ -1,9 +1,13 @@
 {
   "id": "twilio_sms",
   "name": "Twilio SMS",
+  "name_en": "Twilio SMS",
   "version": "1.0.0",
   "description": "Envío de SMS transaccionales por Twilio y consulta del estado de entrega de los mensajes",
+  "description_en": "Send transactional SMS via Twilio and check the delivery status of messages",
   "category": "messaging",
+  "category_en": "messaging",
+  "keywords": ["twilio", "sms", "texto", "text message", "mensajería", "messaging", "otp", "código", "verification code", "notificaciones", "notifications", "api key"],
   "library": {
     "package": "ruvic-twilio-sms-connector",
     "install": "pip install git+https://github.com/tu-org/conector-twilio-sms.git#subdirectory=lib",

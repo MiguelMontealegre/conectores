@@ -1,9 +1,13 @@
 {
   "id": "gchat",
   "name": "Google Chat",
+  "name_en": "Google Chat",
   "version": "1.0.0",
   "description": "Mensajería a espacios de Google Chat: envío de mensajes vía webhook entrante o Chat API con cuenta de servicio",
+  "description_en": "Messaging to Google Chat spaces: send messages via an incoming webhook or the Chat API with a service account",
   "category": "messaging",
+  "category_en": "messaging",
+  "keywords": ["google chat", "chat", "mensajería", "messaging", "webhook", "chat api", "cuenta de servicio", "service account", "espacios", "spaces", "google workspace"],
   "library": {
     "package": "ruvic-gchat-connector",
     "install": "pip install git+https://github.com/tu-org/conector-gchat.git#subdirectory=lib",

@@ -1,9 +1,13 @@
 {
   "id": "telegram",
   "name": "Telegram",
+  "name_en": "Telegram",
   "version": "1.0.0",
   "description": "Envío de mensajes y archivos a chats, grupos y canales de Telegram, y recepción de actualizaciones, mediante un bot",
+  "description_en": "Send messages and files to Telegram chats, groups and channels, and receive updates, through a bot",
   "category": "messaging",
+  "category_en": "messaging",
+  "keywords": ["telegram", "bot", "botfather", "mensajería", "messaging", "chat", "grupo", "group", "canal", "channel", "archivos", "files"],
   "library": {
     "package": "ruvic-telegram-connector",
     "install": "pip install git+https://github.com/tu-org/conector-telegram.git#subdirectory=lib",

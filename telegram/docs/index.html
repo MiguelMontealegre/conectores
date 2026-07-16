@@ -3,427 +3,560 @@
   ============================================================
   Guía de configuración del conector Telegram — Ruvic
   ============================================================
-  Basada en la PLANTILLA OFICIAL (conector PostgreSQL):
-  misma estructura de 8 secciones, bilingüe ES/EN, y reutiliza
-  assets/ruvic.css SIN modificarlo. Reemplaza los
-  .screenshot-placeholder por capturas reales en assets/img/.
+  Sigue la guía oficial de documentación Ruvic:
+  - i18n por llaves data-i18n + objeto I18N (es/en). El texto
+    por defecto del HTML está en español.
+  - Sin toggle propio ni cabecera propia: el PORTAL aplica el
+    idioma del usuario (localStorage ruvic-docs-lang) sobre
+    [data-i18n], [data-i18n-placeholder] y [data-i18n-alt].
+  - ids de sección canónicos y estables (no se traducen).
+  - assets/ruvic.css es solo para preview local; al publicar se
+    reescribe a la hoja canónica del portal.
+  Reemplaza los .screenshot-placeholder por capturas reales en
+  assets/img/.
   ============================================================
 -->
-<html lang="es" data-lang="es">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conector Telegram — Guía de configuración | Ruvic</title>
+  <title data-i18n="doc_title">Conector Telegram — Ruvic</title>
   <link rel="stylesheet" href="assets/ruvic.css">
 </head>
 <body>
-
-<header class="ruvic-header">
-  <div class="ruvic-header-inner">
-    <!-- Reemplazar por <img class="ruvic-logo" src="assets/img/ruvic-logo.svg" alt="Ruvic"> cuando el logo esté en assets -->
-    <p class="ruvic-wordmark">Ruvic</p>
-
-    <h1>
-      <span class="lang-es">Conector Telegram — Guía de configuración</span>
-      <span class="lang-en">Telegram Connector — Setup Guide</span>
-    </h1>
-    <p class="subtitle">
-      <span class="lang-es">Conecta un bot de Telegram a Ruvic Engine para que el agente envíe mensajes y archivos a chats, grupos y canales, y reciba mensajes entrantes.</span>
-      <span class="lang-en">Connect a Telegram bot to Ruvic Engine so the agent can send messages and files to chats, groups and channels, and receive incoming messages.</span>
-    </p>
-
-    <div class="meta">
-      <span class="ruvic-badge">Telegram</span>
-      <span class="ruvic-badge">
-        <span class="lang-es">Mensajería</span>
-        <span class="lang-en">Messaging</span>
-      </span>
-      <span class="ruvic-badge">v1.0.0</span>
-    </div>
-
-    <div class="lang-switch" role="group" aria-label="Idioma / Language">
-      <button type="button" data-set-lang="es" class="active">ES</button>
-      <button type="button" data-set-lang="en">EN</button>
-    </div>
-  </div>
-</header>
 
 <main class="ruvic-container">
 
   <!-- ============ ÍNDICE ============ -->
   <nav class="ruvic-toc" aria-label="Índice">
-    <h2><span class="lang-es">Contenido</span><span class="lang-en">Contents</span></h2>
+    <h2 data-i18n="toc_title">Contenido</h2>
     <ol>
-      <li><a href="#que-es"><span class="lang-es">¿Qué es y para qué sirve?</span><span class="lang-en">What is it and what is it for?</span></a></li>
-      <li><a href="#prerrequisitos"><span class="lang-es">Prerrequisitos</span><span class="lang-en">Prerequisites</span></a></li>
-      <li><a href="#fabricante"><span class="lang-es">Configuración en Telegram (paso a paso)</span><span class="lang-en">Telegram-side setup (step by step)</span></a></li>
-      <li><a href="#permisos"><span class="lang-es">Permisos requeridos</span><span class="lang-en">Required permissions</span></a></li>
-      <li><a href="#ruvic"><span class="lang-es">Configuración en Ruvic</span><span class="lang-en">Setup in Ruvic</span></a></li>
-      <li><a href="#verificacion"><span class="lang-es">Verificación</span><span class="lang-en">Verification</span></a></li>
-      <li><a href="#problemas"><span class="lang-es">Solución de problemas</span><span class="lang-en">Troubleshooting</span></a></li>
-      <li><a href="#faq"><span class="lang-es">Preguntas frecuentes y notas de seguridad</span><span class="lang-en">FAQ and security notes</span></a></li>
+      <li><a href="#que-es" data-i18n="toc.que_es">¿Qué es y para qué sirve?</a></li>
+      <li><a href="#prerrequisitos" data-i18n="toc.prerrequisitos">Prerrequisitos</a></li>
+      <li><a href="#configuracion-fabricante" data-i18n="toc.configuracion_fabricante">Configuración en Telegram (paso a paso)</a></li>
+      <li><a href="#permisos" data-i18n="toc.permisos">Permisos requeridos</a></li>
+      <li><a href="#configuracion-ruvic" data-i18n="toc.configuracion_ruvic">Configuración en Ruvic</a></li>
+      <li><a href="#verificacion" data-i18n="toc.verificacion">Verificación</a></li>
+      <li><a href="#solucion-problemas" data-i18n="toc.solucion_problemas">Solución de problemas</a></li>
+      <li><a href="#faq-seguridad" data-i18n="toc.faq_seguridad">Preguntas frecuentes y notas de seguridad</a></li>
     </ol>
   </nav>
 
-  <!-- ============ 1. QUÉ ES ============ -->
-  <section id="que-es">
-    <h2><span class="lang-es">1. ¿Qué es y para qué sirve?</span><span class="lang-en">1. What is it and what is it for?</span></h2>
+  <h1 data-i18n="guide_title">Conector Telegram</h1>
+  <p class="guide-updated" data-i18n="guide_updated">Última actualización: 16 de julio de 2026</p>
 
-    <div class="lang-es">
-      <p>El conector Telegram permite que el agente de Ruvic se comunique a través de un <strong>bot de Telegram</strong>: enviar mensajes y archivos a personas, grupos y canales, y leer los mensajes que llegan al bot. Una vez configurado, puedes pedirle al agente cosas como:</p>
-      <ul>
-        <li>“Cuando termine el reporte de ventas, envíalo al grupo de Operaciones por Telegram.”</li>
-        <li>“Avísame por Telegram si algún servidor supera el 90% de disco.”</li>
-        <li>“Revisa los mensajes que llegaron al bot y resúmeme las solicitudes.”</li>
-      </ul>
-      <p>Operaciones soportadas:</p>
-    </div>
-    <div class="lang-en">
-      <p>The Telegram connector lets the Ruvic agent communicate through a <strong>Telegram bot</strong>: send messages and files to people, groups and channels, and read the messages the bot receives. Once configured, you can ask the agent things like:</p>
-      <ul>
-        <li>“When the sales report is ready, send it to the Operations group on Telegram.”</li>
-        <li>“Notify me on Telegram if any server goes above 90% disk usage.”</li>
-        <li>“Check the messages the bot received and summarize the requests.”</li>
-      </ul>
-      <p>Supported operations:</p>
-    </div>
+  <!-- ============ 1. QUÉ ES ============ -->
+  <section>
+    <h2 id="que-es" data-i18n="section.que_es">1. ¿Qué es y para qué sirve?</h2>
+
+    <p data-i18n="section.que_es.body">El conector Telegram permite que el agente de Ruvic se comunique a través de un <strong>bot de Telegram</strong>: enviar mensajes y archivos a personas, grupos y canales, y leer los mensajes que llegan al bot. Una vez configurado, puedes pedirle al agente cosas como:</p>
+    <ul>
+      <li data-i18n="section.que_es.ex1">“Cuando termine el reporte de ventas, envíalo al grupo de Operaciones por Telegram.”</li>
+      <li data-i18n="section.que_es.ex2">“Avísame por Telegram si algún servidor supera el 90% de disco.”</li>
+      <li data-i18n="section.que_es.ex3">“Revisa los mensajes que llegaron al bot y resúmeme las solicitudes.”</li>
+    </ul>
+    <p data-i18n="section.que_es.ops">Operaciones soportadas:</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Operación</span><span class="lang-en">Operation</span></th>
-          <th><span class="lang-es">Qué hace</span><span class="lang-en">What it does</span></th>
+          <th data-i18n="table.operacion">Operación</th>
+          <th data-i18n="table.que_hace">Qué hace</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><code>chat.send_message</code></td>
-          <td><span class="lang-es">Envía un mensaje de texto a un chat, grupo o canal</span><span class="lang-en">Sends a text message to a chat, group or channel</span></td>
+          <td data-i18n="op.send_message">Envía un mensaje de texto a un chat, grupo o canal</td>
         </tr>
         <tr>
           <td><code>chat.send_file</code></td>
-          <td><span class="lang-es">Envía un archivo (documento, foto, video o audio)</span><span class="lang-en">Sends a file (document, photo, video or audio)</span></td>
+          <td data-i18n="op.send_file">Envía un archivo (documento, foto, video o audio)</td>
         </tr>
         <tr>
           <td><code>chat.get_updates</code></td>
-          <td><span class="lang-es">Recibe los mensajes y actualizaciones entrantes del bot</span><span class="lang-en">Receives the bot's incoming messages and updates</span></td>
+          <td data-i18n="op.get_updates">Recibe los mensajes y actualizaciones entrantes del bot</td>
         </tr>
         <tr>
           <td><code>chat.get_info</code></td>
-          <td><span class="lang-es">Consulta la información de un chat, grupo o canal</span><span class="lang-en">Gets information about a chat, group or channel</span></td>
+          <td data-i18n="op.get_info">Consulta la información de un chat, grupo o canal</td>
         </tr>
       </tbody>
     </table>
 
     <div class="callout callout-info">
-      <span class="callout-title"><span class="lang-es">Todo pasa por un bot</span><span class="lang-en">Everything goes through a bot</span></span>
-      <span class="lang-es">Ruvic no usa tu cuenta personal de Telegram: actúa mediante un bot dedicado que tú creas. El bot solo ve los chats a los que lo agregas y los mensajes que le envían directamente.</span>
-      <span class="lang-en">Ruvic does not use your personal Telegram account: it acts through a dedicated bot you create. The bot only sees the chats you add it to and the messages sent directly to it.</span>
+      <span class="callout-title" data-i18n="callout.bot.title">Todo pasa por un bot</span>
+      <span data-i18n="callout.bot.body">Ruvic no usa tu cuenta personal de Telegram: actúa mediante un bot dedicado que tú creas. El bot solo ve los chats a los que lo agregas y los mensajes que le envían directamente.</span>
     </div>
   </section>
 
   <!-- ============ 2. PRERREQUISITOS ============ -->
-  <section id="prerrequisitos">
-    <h2><span class="lang-es">2. Prerrequisitos</span><span class="lang-en">2. Prerequisites</span></h2>
+  <section>
+    <h2 id="prerrequisitos" data-i18n="section.prerrequisitos">2. Prerrequisitos</h2>
 
-    <div class="lang-es">
-      <ul>
-        <li>Una <strong>cuenta de Telegram</strong> (la app en tu teléfono o Telegram Desktop) para hablar con BotFather.</li>
-        <li>El <strong>chat, grupo o canal destino</strong> donde el bot enviará mensajes, y permiso para agregar el bot ahí (ser administrador del grupo/canal, o iniciar tú el chat privado con el bot).</li>
-        <li>Nada de infraestructura extra: no se necesita servidor propio; Ruvic se comunica con la API pública de Telegram (<code>api.telegram.org</code>).</li>
-      </ul>
-    </div>
-    <div class="lang-en">
-      <ul>
-        <li>A <strong>Telegram account</strong> (the phone app or Telegram Desktop) to talk to BotFather.</li>
-        <li>The <strong>target chat, group or channel</strong> where the bot will send messages, and permission to add the bot there (be a group/channel admin, or start the private chat with the bot yourself).</li>
-        <li>No extra infrastructure: no server needed; Ruvic talks to Telegram's public API (<code>api.telegram.org</code>).</li>
-      </ul>
-    </div>
+    <ul>
+      <li data-i18n="section.prerrequisitos.p1">Una <strong>cuenta de Telegram</strong> (la app en tu teléfono o Telegram Desktop) para hablar con BotFather.</li>
+      <li data-i18n="section.prerrequisitos.p2">El <strong>chat, grupo o canal destino</strong> donde el bot enviará mensajes, y permiso para agregar el bot ahí (ser administrador del grupo/canal, o iniciar tú el chat privado con el bot).</li>
+      <li data-i18n="section.prerrequisitos.p3">Nada de infraestructura extra: no se necesita servidor propio; Ruvic se comunica con la API pública de Telegram (<code>api.telegram.org</code>).</li>
+    </ul>
   </section>
 
   <!-- ============ 3. CONFIGURACIÓN EN EL FABRICANTE ============ -->
-  <section id="fabricante">
-    <h2><span class="lang-es">3. Configuración en Telegram (paso a paso)</span><span class="lang-en">3. Telegram-side setup (step by step)</span></h2>
+  <section>
+    <h2 id="configuracion-fabricante" data-i18n="section.configuracion_fabricante">3. Configuración en Telegram (paso a paso)</h2>
 
-    <div class="lang-es">
-      <p>Vas a crear un <strong>bot dedicado</strong> con BotFather (el bot oficial de Telegram para gestionar bots), obtener su <strong>token</strong> y el <strong>ID del chat</strong> destino. Todo se hace dentro de la app de Telegram.</p>
-    </div>
-    <div class="lang-en">
-      <p>You will create a <strong>dedicated bot</strong> with BotFather (Telegram's official bot for managing bots), get its <strong>token</strong> and the target <strong>chat ID</strong>. Everything is done inside the Telegram app.</p>
-    </div>
+    <p data-i18n="section.configuracion_fabricante.intro">Vas a crear un <strong>bot dedicado</strong> con BotFather (el bot oficial de Telegram para gestionar bots), obtener su <strong>token</strong> y el <strong>ID del chat</strong> destino. Todo se hace dentro de la app de Telegram.</p>
 
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es">
-          <strong>Crea el bot con BotFather.</strong>
-          <p>En Telegram, busca <code>@BotFather</code>, ábrelo y envía <code>/newbot</code>. Te pedirá un nombre visible y un <em>username</em> único que debe terminar en <code>bot</code> (ej. <code>ruvic_ops_bot</code>).</p>
-        </div>
-        <div class="lang-en">
-          <strong>Create the bot with BotFather.</strong>
-          <p>In Telegram, search for <code>@BotFather</code>, open it and send <code>/newbot</code>. It will ask for a display name and a unique <em>username</em> that must end in <code>bot</code> (e.g. <code>ruvic_ops_bot</code>).</p>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: conversación con BotFather ejecutando /newbot — reemplazar por assets/img/telegram-newbot.png ]</span>
-          <span class="lang-en">[ Screenshot: BotFather conversation running /newbot — replace with assets/img/telegram-newbot.png ]</span>
-        </div>
+        <strong data-i18n="step1.label">Crea el bot con BotFather.</strong>
+        <p data-i18n="step1.body">En Telegram, busca <code>@BotFather</code>, ábrelo y envía <code>/newbot</code>. Te pedirá un nombre visible y un <em>username</em> único que debe terminar en <code>bot</code> (ej. <code>ruvic_ops_bot</code>).</p>
+        <div class="screenshot-placeholder" data-i18n="step1.shot">[ Captura: conversación con BotFather ejecutando /newbot — reemplazar por assets/img/telegram-newbot.png ]</div>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>Copia el token del bot.</strong>
-          <p>Al terminar, BotFather te entrega un <strong>token</strong> con el formato <code>123456789:AAH8x...</code>. Guárdalo: es la credencial que irá en el formulario de Ruvic (campo <em>Token del bot</em>). Trátalo como una contraseña — quien lo tenga controla el bot.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Copy the bot token.</strong>
-          <p>When done, BotFather gives you a <strong>token</strong> in the form <code>123456789:AAH8x...</code>. Save it: it is the credential that goes in the Ruvic form (<em>Bot token</em> field). Treat it like a password — anyone who has it controls the bot.</p>
-        </div>
+        <strong data-i18n="step2.label">Copia el token del bot.</strong>
+        <p data-i18n="step2.body">Al terminar, BotFather te entrega un <strong>token</strong> con el formato <code>123456789:AAH8x...</code>. Guárdalo: es la credencial que irá en el formulario de Ruvic (campo <em>Token del bot</em>). Trátalo como una contraseña — quien lo tenga controla el bot.</p>
 <pre><code>123456789:AAH8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>Agrega el bot al destino.</strong>
-          <ul>
-            <li><strong>Chat privado</strong>: abre el chat con tu bot y pulsa <em>Iniciar</em> (los bots no pueden escribirle a alguien que nunca les habló).</li>
-            <li><strong>Grupo</strong>: agrega el bot como miembro del grupo.</li>
-            <li><strong>Canal</strong>: agrega el bot como <strong>administrador</strong> con permiso de publicar.</li>
-          </ul>
-        </div>
-        <div class="lang-en">
-          <strong>Add the bot to the target.</strong>
-          <ul>
-            <li><strong>Private chat</strong>: open the chat with your bot and tap <em>Start</em> (bots can't message someone who never wrote to them first).</li>
-            <li><strong>Group</strong>: add the bot as a member of the group.</li>
-            <li><strong>Channel</strong>: add the bot as an <strong>administrator</strong> with permission to post.</li>
-          </ul>
-        </div>
+        <strong data-i18n="step3.label">Agrega el bot al destino.</strong>
+        <ul>
+          <li data-i18n="step3.item1"><strong>Chat privado</strong>: abre el chat con tu bot y pulsa <em>Iniciar</em> (los bots no pueden escribirle a alguien que nunca les habló).</li>
+          <li data-i18n="step3.item2"><strong>Grupo</strong>: agrega el bot como miembro del grupo.</li>
+          <li data-i18n="step3.item3"><strong>Canal</strong>: agrega el bot como <strong>administrador</strong> con permiso de publicar.</li>
+        </ul>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>Obtén el ID del chat destino.</strong>
-          <p>Escribe cualquier mensaje en el chat/grupo donde está el bot. Luego abre en el navegador (reemplaza <code>&lt;TOKEN&gt;</code> por tu token):</p>
-        </div>
-        <div class="lang-en">
-          <strong>Get the target chat ID.</strong>
-          <p>Send any message in the chat/group where the bot is. Then open in your browser (replace <code>&lt;TOKEN&gt;</code> with your token):</p>
-        </div>
+        <strong data-i18n="step4.label">Obtén el ID del chat destino.</strong>
+        <p data-i18n="step4.body">Escribe cualquier mensaje en el chat/grupo donde está el bot. Luego abre en el navegador (reemplaza <code>&lt;TOKEN&gt;</code> por tu token):</p>
 <pre><code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code></pre>
-        <div class="lang-es"><p>En la respuesta JSON, busca <code>"chat":{"id": ...}</code>. Ese número es el ID: positivo para chats privados, y negativo empezando por <code>-100</code> para supergrupos y canales. Lo usarás en el campo <em>Chat por defecto</em>.</p></div>
-        <div class="lang-en"><p>In the JSON response, find <code>"chat":{"id": ...}</code>. That number is the ID: positive for private chats, negative starting with <code>-100</code> for supergroups and channels. You'll use it in the <em>Default chat</em> field.</p></div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: respuesta de getUpdates con el chat.id resaltado (datos ofuscados) — reemplazar por assets/img/telegram-chatid.png ]</span>
-          <span class="lang-en">[ Screenshot: getUpdates response with chat.id highlighted (data obfuscated) — replace with assets/img/telegram-chatid.png ]</span>
-        </div>
+        <p data-i18n="step4.after">En la respuesta JSON, busca <code>"chat":{"id": ...}</code>. Ese número es el ID: positivo para chats privados, y negativo empezando por <code>-100</code> para supergrupos y canales. Lo usarás en el campo <em>Chat por defecto</em>.</p>
+        <div class="screenshot-placeholder" data-i18n="step4.shot">[ Captura: respuesta de getUpdates con el chat.id resaltado (datos ofuscados) — reemplazar por assets/img/telegram-chatid.png ]</div>
       </li>
-
       <li>
-        <div class="lang-es">
-          <strong>(Opcional) Permite leer todos los mensajes de un grupo.</strong>
-          <p>Por defecto, en grupos el bot solo ve comandos y menciones (<em>privacy mode</em>). Si necesitas que <code>get_updates</code> lea todos los mensajes, en BotFather envía <code>/setprivacy</code>, elige tu bot y selecciona <strong>Disable</strong>. Luego quita y vuelve a agregar el bot al grupo para que aplique.</p>
-        </div>
-        <div class="lang-en">
-          <strong>(Optional) Allow reading all group messages.</strong>
-          <p>By default, in groups the bot only sees commands and mentions (<em>privacy mode</em>). If you need <code>get_updates</code> to read all messages, in BotFather send <code>/setprivacy</code>, choose your bot and select <strong>Disable</strong>. Then remove and re-add the bot to the group for it to take effect.</p>
-        </div>
+        <strong data-i18n="step5.label">(Opcional) Permite leer todos los mensajes de un grupo.</strong>
+        <p data-i18n="step5.body">Por defecto, en grupos el bot solo ve comandos y menciones (<em>privacy mode</em>). Si necesitas que <code>get_updates</code> lea todos los mensajes, en BotFather envía <code>/setprivacy</code>, elige tu bot y selecciona <strong>Disable</strong>. Luego quita y vuelve a agregar el bot al grupo para que aplique.</p>
       </li>
     </ol>
   </section>
 
   <!-- ============ 4. PERMISOS ============ -->
-  <section id="permisos">
-    <h2><span class="lang-es">4. Permisos requeridos</span><span class="lang-en">4. Required permissions</span></h2>
+  <section>
+    <h2 id="permisos" data-i18n="section.permisos">4. Permisos requeridos</h2>
 
-    <div class="lang-es">
-      <p>Principio de mínimo privilegio: el bot solo necesita estar presente en el destino y, según el caso, poder publicar o leer. No requiere permisos de administración salvo para publicar en canales.</p>
-    </div>
-    <div class="lang-en">
-      <p>Least-privilege principle: the bot only needs to be present in the target and, depending on the case, be able to post or read. No admin permissions required except to post in channels.</p>
-    </div>
+    <p data-i18n="section.permisos.body">Principio de mínimo privilegio: el bot solo necesita estar presente en el destino y, según el caso, poder publicar o leer. No requiere permisos de administración salvo para publicar en canales.</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Permiso / condición</span><span class="lang-en">Permission / condition</span></th>
-          <th><span class="lang-es">Para qué lo usa el conector</span><span class="lang-en">Why the connector needs it</span></th>
+          <th data-i18n="table.permiso_cond">Permiso / condición</th>
+          <th data-i18n="table.para_que">Para qué lo usa el conector</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">Bot miembro del chat/grupo</span><span class="lang-en">Bot is a member of the chat/group</span></td>
-          <td><span class="lang-es">Enviar mensajes y archivos (<code>send_message</code>, <code>send_file</code>) y leer actualizaciones (<code>get_updates</code>)</span><span class="lang-en">Send messages and files (<code>send_message</code>, <code>send_file</code>) and read updates (<code>get_updates</code>)</span></td>
+          <td data-i18n="perm.member.name">Bot miembro del chat/grupo</td>
+          <td data-i18n="perm.member.why">Enviar mensajes y archivos (<code>send_message</code>, <code>send_file</code>) y leer actualizaciones (<code>get_updates</code>)</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Administrador con permiso de publicar (solo canales)</span><span class="lang-en">Administrator with post permission (channels only)</span></td>
-          <td><span class="lang-es">Publicar mensajes en un canal (los canales no admiten miembros normales que publiquen)</span><span class="lang-en">Post messages to a channel (channels don't allow regular members to post)</span></td>
+          <td data-i18n="perm.admin.name">Administrador con permiso de publicar (solo canales)</td>
+          <td data-i18n="perm.admin.why">Publicar mensajes en un canal (los canales no admiten miembros normales que publiquen)</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Privacy mode desactivado (opcional, grupos)</span><span class="lang-en">Privacy mode disabled (optional, groups)</span></td>
-          <td><span class="lang-es">Leer todos los mensajes del grupo, no solo comandos y menciones</span><span class="lang-en">Read all group messages, not just commands and mentions</span></td>
+          <td data-i18n="perm.privacy.name">Privacy mode desactivado (opcional, grupos)</td>
+          <td data-i18n="perm.privacy.why">Leer todos los mensajes del grupo, no solo comandos y menciones</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <!-- ============ 5. CONFIGURACIÓN EN RUVIC ============ -->
-  <section id="ruvic">
-    <h2><span class="lang-es">5. Configuración en Ruvic</span><span class="lang-en">5. Setup in Ruvic</span></h2>
+  <section>
+    <h2 id="configuracion-ruvic" data-i18n="section.configuracion_ruvic">5. Configuración en Ruvic</h2>
 
-    <div class="lang-es">
-      <p>Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Telegram</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores que obtuviste en la sección 3:</p>
-    </div>
-    <div class="lang-en">
-      <p>Go to <strong>Settings → Connectors</strong>, find the <strong>Telegram</strong> card and click <strong>Configure</strong>. Fill in the form with the values from section 3:</p>
-    </div>
+    <p data-i18n="section.configuracion_ruvic.body">Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Telegram</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores que obtuviste en la sección 3:</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Campo del formulario</span><span class="lang-en">Form field</span></th>
-          <th><span class="lang-es">Valor (obtenido en la sección 3)</span><span class="lang-en">Value (from section 3)</span></th>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">Token del bot</span><span class="lang-en">Bot token</span></td>
-          <td><span class="lang-es">El token de BotFather (paso 2). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo</span><span class="lang-en">The BotFather token (step 2). Stored as a secret: the UI will never display it again</span></td>
+          <td data-i18n="ruvic.token.field">Token del bot</td>
+          <td data-i18n="ruvic.token.value">El token de BotFather (paso 2). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Chat por defecto</span><span class="lang-en">Default chat</span></td>
-          <td><span class="lang-es">El ID del chat destino (paso 4), ej. <code>-1001234567890</code>. Opcional: si se omite, el agente deberá indicar el destino en cada envío</span><span class="lang-en">The target chat ID (step 4), e.g. <code>-1001234567890</code>. Optional: if omitted, the agent must specify the target on each send</span></td>
+          <td data-i18n="ruvic.chat.field">Chat por defecto</td>
+          <td data-i18n="ruvic.chat.value">El ID del chat destino (paso 4), ej. <code>-1001234567890</code>. Opcional: si se omite, el agente deberá indicar el destino en cada envío</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Timeout de peticiones</span><span class="lang-en">Request timeout</span></td>
-          <td><span class="lang-es">Opcional; <code>15</code> segundos por defecto</span><span class="lang-en">Optional; defaults to <code>15</code> seconds</span></td>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>15</code> segundos por defecto</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="lang-es"><p>Guarda y pulsa <span class="ruvic-button">Probar conexión</span> — la plataforma validará el token con Telegram y, si configuraste un chat por defecto, verificará que el bot tenga acceso a él.</p></div>
-    <div class="lang-en"><p>Save and click <span class="ruvic-button">Test connection</span> — the platform will validate the token with Telegram and, if you set a default chat, verify the bot has access to it.</p></div>
+    <p data-i18n="section.configuracion_ruvic.test">Guarda y pulsa <span class="ruvic-button" data-i18n="btn.test">Probar conexión</span> — la plataforma validará el token con Telegram y, si configuraste un chat por defecto, verificará que el bot tenga acceso a él.</p>
 
-    <div class="screenshot-placeholder">
-      <span class="lang-es">[ Captura: formulario del conector Telegram en Settings → Conectores — reemplazar por assets/img/telegram-form.png ]</span>
-      <span class="lang-en">[ Screenshot: Telegram connector form in Settings → Connectors — replace with assets/img/telegram-form.png ]</span>
-    </div>
+    <div class="screenshot-placeholder" data-i18n="ruvic.shot">[ Captura: formulario del conector Telegram en Settings → Conectores — reemplazar por assets/img/telegram-form.png ]</div>
   </section>
 
   <!-- ============ 6. VERIFICACIÓN ============ -->
-  <section id="verificacion">
-    <h2><span class="lang-es">6. Verificación</span><span class="lang-en">6. Verification</span></h2>
+  <section>
+    <h2 id="verificacion" data-i18n="section.verificacion">6. Verificación</h2>
 
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es"><strong>Test de conexión exitoso.</strong><p>El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como @tu_bot”</em> (y, si configuraste un chat por defecto, mencionará el acceso a ese chat). La tarjeta del conector cambia a estado <strong>Configurado</strong>.</p></div>
-        <div class="lang-en"><strong>Successful connection test.</strong><p>The <em>Test connection</em> button should return: <em>“Successful connection as @your_bot”</em> (and, if you set a default chat, it will mention access to that chat). The connector card switches to <strong>Configured</strong>.</p></div>
+        <strong data-i18n="verif.step1.label">Test de conexión exitoso.</strong>
+        <p data-i18n="verif.step1.body">El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como @tu_bot”</em> (y, si configuraste un chat por defecto, mencionará el acceso a ese chat). La tarjeta del conector cambia a estado <strong>Configurado</strong>.</p>
       </li>
       <li>
-        <div class="lang-es"><strong>Automatización mínima de prueba.</strong><p>Abre una conversación nueva con el agente y pídele:</p><blockquote><em>“Envía un mensaje de prueba por Telegram que diga: Conector configurado ✅.”</em></blockquote><p>El mensaje debe aparecer en el chat destino. Si llega, el conector quedó operativo de punta a punta.</p></div>
-        <div class="lang-en"><strong>Minimal test automation.</strong><p>Open a new conversation with the agent and ask:</p><blockquote><em>“Send a test message on Telegram saying: Connector configured ✅.”</em></blockquote><p>The message should appear in the target chat. If it arrives, the connector is fully operational.</p></div>
+        <strong data-i18n="verif.step2.label">Automatización mínima de prueba.</strong>
+        <p data-i18n="verif.step2.body">Abre una conversación nueva con el agente y pídele:</p>
+        <blockquote data-i18n="verif.step2.quote"><em>“Envía un mensaje de prueba por Telegram que diga: Conector configurado ✅.”</em></blockquote>
+        <p data-i18n="verif.step2.after">El mensaje debe aparecer en el chat destino. Si llega, el conector quedó operativo de punta a punta.</p>
       </li>
     </ol>
   </section>
 
   <!-- ============ 7. SOLUCIÓN DE PROBLEMAS ============ -->
-  <section id="problemas">
-    <h2><span class="lang-es">7. Solución de problemas</span><span class="lang-en">7. Troubleshooting</span></h2>
+  <section>
+    <h2 id="solucion-problemas" data-i18n="section.solucion_problemas">7. Solución de problemas</h2>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Mensaje / síntoma</span><span class="lang-en">Message / symptom</span></th>
-          <th><span class="lang-es">Causa probable y solución</span><span class="lang-en">Likely cause and fix</span></th>
+          <th data-i18n="table.sintoma">Mensaje / síntoma</th>
+          <th data-i18n="table.causa">Causa probable y solución</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">“Token de bot inválido o revocado”</span><span class="lang-en">“Invalid or revoked bot token”</span></td>
-          <td><span class="lang-es">Token mal copiado o revocado en BotFather. Genera uno nuevo con <code>/token</code> en BotFather y vuelve a guardarlo en el formulario.</span><span class="lang-en">Token mistyped or revoked in BotFather. Generate a new one with <code>/token</code> in BotFather and re-save it in the form.</span></td>
+          <td data-i18n="tr.token.sym">“Token de bot inválido o revocado”</td>
+          <td data-i18n="tr.token.fix">Token mal copiado o revocado en BotFather. Genera uno nuevo con <code>/token</code> en BotFather y vuelve a guardarlo en el formulario.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“El bot no tiene acceso al chat por defecto”</span><span class="lang-en">“The bot has no access to the default chat”</span></td>
-          <td><span class="lang-es">El bot no está en ese chat o el ID es incorrecto. Agrega el bot al chat/grupo (paso 3) y verifica el ID con getUpdates (paso 4).</span><span class="lang-en">The bot isn't in that chat or the ID is wrong. Add the bot to the chat/group (step 3) and verify the ID with getUpdates (step 4).</span></td>
+          <td data-i18n="tr.access.sym">“El bot no tiene acceso al chat por defecto”</td>
+          <td data-i18n="tr.access.fix">El bot no está en ese chat o el ID es incorrecto. Agrega el bot al chat/grupo (paso 3) y verifica el ID con getUpdates (paso 4).</td>
         </tr>
         <tr>
-          <td><span class="lang-es">El mensaje falla al enviar a un usuario</span><span class="lang-en">Sending to a user fails</span></td>
-          <td><span class="lang-es">La persona no ha iniciado el chat con el bot. Los bots no pueden escribir primero: pídele que abra el bot y pulse <em>Iniciar</em>.</span><span class="lang-en">The person hasn't started the chat with the bot. Bots can't message first: ask them to open the bot and tap <em>Start</em>.</span></td>
+          <td data-i18n="tr.user.sym">El mensaje falla al enviar a un usuario</td>
+          <td data-i18n="tr.user.fix">La persona no ha iniciado el chat con el bot. Los bots no pueden escribir primero: pídele que abra el bot y pulse <em>Iniciar</em>.</td>
         </tr>
         <tr>
-          <td><span class="lang-es"><code>getUpdates</code> devuelve una lista vacía</span><span class="lang-en"><code>getUpdates</code> returns an empty list</span></td>
-          <td><span class="lang-es">El bot no ha recibido mensajes aún (escríbele algo), o tiene un webhook activo. Elimínalo abriendo <code>/deleteWebhook</code> en la URL de la API y reintenta.</span><span class="lang-en">The bot hasn't received messages yet (send it something), or a webhook is active. Delete it by opening <code>/deleteWebhook</code> on the API URL and retry.</span></td>
+          <td data-i18n="tr.empty.sym"><code>getUpdates</code> devuelve una lista vacía</td>
+          <td data-i18n="tr.empty.fix">El bot no ha recibido mensajes aún (escríbele algo), o tiene un webhook activo. Elimínalo abriendo <code>/deleteWebhook</code> en la URL de la API y reintenta.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“Límite de peticiones; reintenta en N s”</span><span class="lang-en">“Rate limited; retry in N s”</span></td>
-          <td><span class="lang-es">Se enviaron demasiados mensajes muy rápido. El conector reintenta solo; si persiste, espacia los envíos (Telegram limita ~20 msg/min al mismo grupo).</span><span class="lang-en">Too many messages sent too fast. The connector retries on its own; if it persists, space out the sends (Telegram limits ~20 msg/min to the same group).</span></td>
+          <td data-i18n="tr.rate.sym">“Límite de peticiones; reintenta en N s”</td>
+          <td data-i18n="tr.rate.fix">Se enviaron demasiados mensajes muy rápido. El conector reintenta solo; si persiste, espacia los envíos (Telegram limita ~20 msg/min al mismo grupo).</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“El archivo pesa más de 50 MB”</span><span class="lang-en">“The file is larger than 50 MB”</span></td>
-          <td><span class="lang-es">La Bot API limita las subidas a 50 MB. Comprime o divide el archivo, o comparte un enlace de descarga en su lugar.</span><span class="lang-en">The Bot API caps uploads at 50 MB. Compress or split the file, or share a download link instead.</span></td>
+          <td data-i18n="tr.size.sym">“El archivo pesa más de 50 MB”</td>
+          <td data-i18n="tr.size.fix">La Bot API limita las subidas a 50 MB. Comprime o divide el archivo, o comparte un enlace de descarga en su lugar.</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <!-- ============ 8. FAQ Y SEGURIDAD ============ -->
-  <section id="faq">
-    <h2><span class="lang-es">8. Preguntas frecuentes y notas de seguridad</span><span class="lang-en">8. FAQ and security notes</span></h2>
+  <section>
+    <h2 id="faq-seguridad" data-i18n="section.faq_seguridad">8. Preguntas frecuentes y notas de seguridad</h2>
 
-    <h3><span class="lang-es">¿Ruvic accede a mi cuenta personal de Telegram?</span><span class="lang-en">Does Ruvic access my personal Telegram account?</span></h3>
-    <div class="lang-es"><p>No. Todo ocurre a través del bot que creaste. El bot solo ve los chats a los que lo agregas y los mensajes que le envían; nunca accede a tus chats personales.</p></div>
-    <div class="lang-en"><p>No. Everything happens through the bot you created. The bot only sees the chats you add it to and the messages sent to it; it never accesses your personal chats.</p></div>
+    <h3 data-i18n="faq.personal.q">¿Ruvic accede a mi cuenta personal de Telegram?</h3>
+    <p data-i18n="faq.personal.a">No. Todo ocurre a través del bot que creaste. El bot solo ve los chats a los que lo agregas y los mensajes que le envían; nunca accede a tus chats personales.</p>
 
-    <h3><span class="lang-es">¿Dónde queda guardado el token?</span><span class="lang-en">Where is the token stored?</span></h3>
-    <div class="lang-es"><p>Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo en el formulario; para conservarlo al editar otros campos, deja el campo vacío.</p></div>
-    <div class="lang-en"><p>As a secret in the platform's credential store, tied to your user. The UI never displays it again; it only shows “set”. To change it, type a new one in the form; to keep it while editing other fields, leave the field empty.</p></div>
+    <h3 data-i18n="faq.store.q">¿Dónde queda guardado el token?</h3>
+    <p data-i18n="faq.store.a">Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo en el formulario; para conservarlo al editar otros campos, deja el campo vacío.</p>
 
-    <h3><span class="lang-es">Rotación de credenciales</span><span class="lang-en">Credential rotation</span></h3>
-    <div class="lang-es"><p>Para rotar el token, envía <code>/token</code> a BotFather, elige tu bot y genera uno nuevo; actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>. El token anterior deja de funcionar al instante.</p></div>
-    <div class="lang-en"><p>To rotate the token, send <code>/token</code> to BotFather, pick your bot and generate a new one; update it in the connector form and click <em>Test connection</em>. The old token stops working immediately.</p></div>
+    <h3 data-i18n="faq.rot.q">Rotación de credenciales</h3>
+    <p data-i18n="faq.rot.a">Para rotar el token, envía <code>/token</code> a BotFather, elige tu bot y genera uno nuevo; actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>. El token anterior deja de funcionar al instante.</p>
 
-    <h3><span class="lang-es">¿Qué hago si el token se compromete?</span><span class="lang-en">What if the token is compromised?</span></h3>
-    <div class="lang-es"><ol><li>En BotFather, envía <code>/revoke</code>, elige el bot y revoca el token de inmediato (invalida el actual y genera uno nuevo).</li><li>Actualiza el nuevo token en el formulario del conector.</li><li>Revisa en el chat/grupo si hubo mensajes no autorizados enviados por el bot.</li></ol></div>
-    <div class="lang-en"><ol><li>In BotFather, send <code>/revoke</code>, pick the bot and revoke the token immediately (invalidates the current one and issues a new one).</li><li>Update the new token in the connector form.</li><li>Check the chat/group for any unauthorized messages sent by the bot.</li></ol></div>
+    <h3 data-i18n="faq.comp.q">¿Qué hago si el token se compromete?</h3>
+    <ol>
+      <li data-i18n="faq.comp.a1">En BotFather, envía <code>/revoke</code>, elige el bot y revoca el token de inmediato (invalida el actual y genera uno nuevo).</li>
+      <li data-i18n="faq.comp.a2">Actualiza el nuevo token en el formulario del conector.</li>
+      <li data-i18n="faq.comp.a3">Revisa en el chat/grupo si hubo mensajes no autorizados enviados por el bot.</li>
+    </ol>
 
-    <h3><span class="lang-es">¿Expira el token?</span><span class="lang-en">Does the token expire?</span></h3>
-    <div class="lang-es"><p>No caduca por sí solo: sigue válido hasta que lo revoques en BotFather. Aun así, se recomienda rotarlo periódicamente según tu política de seguridad.</p></div>
-    <div class="lang-en"><p>It does not expire on its own: it stays valid until you revoke it in BotFather. Still, rotating it periodically per your security policy is recommended.</p></div>
+    <h3 data-i18n="faq.exp.q">¿Expira el token?</h3>
+    <p data-i18n="faq.exp.a">No caduca por sí solo: sigue válido hasta que lo revoques en BotFather. Aun así, se recomienda rotarlo periódicamente según tu política de seguridad.</p>
 
     <div class="callout callout-warning">
-      <span class="callout-title"><span class="lang-es">Buenas prácticas</span><span class="lang-en">Best practices</span></span>
-      <span class="lang-es">Usa un bot dedicado solo para Ruvic; no compartas el token por canales no seguros ni lo publiques en repositorios; agrega el bot únicamente a los chats estrictamente necesarios; y mantén el privacy mode activado salvo que realmente necesites leer todos los mensajes de un grupo.</span>
-      <span class="lang-en">Use a dedicated bot only for Ruvic; never share the token over insecure channels or commit it to repositories; add the bot only to the chats strictly needed; and keep privacy mode enabled unless you truly need to read all group messages.</span>
+      <span class="callout-title" data-i18n="callout.bp.title">Buenas prácticas</span>
+      <span data-i18n="callout.bp.body">Usa un bot dedicado solo para Ruvic; no compartas el token por canales no seguros ni lo publiques en repositorios; agrega el bot únicamente a los chats estrictamente necesarios; y mantén el privacy mode activado salvo que realmente necesites leer todos los mensajes de un grupo.</span>
     </div>
   </section>
 
 </main>
 
-<footer class="ruvic-footer">
-  <div class="tagline">Opera, factura, escala — aunque tu equipo no esté</div>
-  <div>Ruvic Engine · @ruvic_ai</div>
-</footer>
-
 <script>
-  // Toggle de idioma ES/EN — parte de la plantilla, no modificar.
+  // Objeto I18N: mismas llaves en es/en. El PORTAL aplica el idioma del
+  // usuario (localStorage ruvic-docs-lang) sobre [data-i18n],
+  // [data-i18n-placeholder] y [data-i18n-alt]. No añadir toggle propio.
+  const I18N = {
+    es: {
+      doc_title: "Conector Telegram — Ruvic",
+      guide_title: "Conector Telegram",
+      guide_updated: "Última actualización: 16 de julio de 2026",
+      toc_title: "Contenido",
+      "toc.que_es": "¿Qué es y para qué sirve?",
+      "toc.prerrequisitos": "Prerrequisitos",
+      "toc.configuracion_fabricante": "Configuración en Telegram (paso a paso)",
+      "toc.permisos": "Permisos requeridos",
+      "toc.configuracion_ruvic": "Configuración en Ruvic",
+      "toc.verificacion": "Verificación",
+      "toc.solucion_problemas": "Solución de problemas",
+      "toc.faq_seguridad": "Preguntas frecuentes y notas de seguridad",
+
+      "section.que_es": "1. ¿Qué es y para qué sirve?",
+      "section.que_es.body": "El conector Telegram permite que el agente de Ruvic se comunique a través de un <strong>bot de Telegram</strong>: enviar mensajes y archivos a personas, grupos y canales, y leer los mensajes que llegan al bot. Una vez configurado, puedes pedirle al agente cosas como:",
+      "section.que_es.ex1": "“Cuando termine el reporte de ventas, envíalo al grupo de Operaciones por Telegram.”",
+      "section.que_es.ex2": "“Avísame por Telegram si algún servidor supera el 90% de disco.”",
+      "section.que_es.ex3": "“Revisa los mensajes que llegaron al bot y resúmeme las solicitudes.”",
+      "section.que_es.ops": "Operaciones soportadas:",
+      "table.operacion": "Operación",
+      "table.que_hace": "Qué hace",
+      "op.send_message": "Envía un mensaje de texto a un chat, grupo o canal",
+      "op.send_file": "Envía un archivo (documento, foto, video o audio)",
+      "op.get_updates": "Recibe los mensajes y actualizaciones entrantes del bot",
+      "op.get_info": "Consulta la información de un chat, grupo o canal",
+      "callout.bot.title": "Todo pasa por un bot",
+      "callout.bot.body": "Ruvic no usa tu cuenta personal de Telegram: actúa mediante un bot dedicado que tú creas. El bot solo ve los chats a los que lo agregas y los mensajes que le envían directamente.",
+
+      "section.prerrequisitos": "2. Prerrequisitos",
+      "section.prerrequisitos.p1": "Una <strong>cuenta de Telegram</strong> (la app en tu teléfono o Telegram Desktop) para hablar con BotFather.",
+      "section.prerrequisitos.p2": "El <strong>chat, grupo o canal destino</strong> donde el bot enviará mensajes, y permiso para agregar el bot ahí (ser administrador del grupo/canal, o iniciar tú el chat privado con el bot).",
+      "section.prerrequisitos.p3": "Nada de infraestructura extra: no se necesita servidor propio; Ruvic se comunica con la API pública de Telegram (<code>api.telegram.org</code>).",
+
+      "section.configuracion_fabricante": "3. Configuración en Telegram (paso a paso)",
+      "section.configuracion_fabricante.intro": "Vas a crear un <strong>bot dedicado</strong> con BotFather (el bot oficial de Telegram para gestionar bots), obtener su <strong>token</strong> y el <strong>ID del chat</strong> destino. Todo se hace dentro de la app de Telegram.",
+      "step1.label": "Crea el bot con BotFather.",
+      "step1.body": "En Telegram, busca <code>@BotFather</code>, ábrelo y envía <code>/newbot</code>. Te pedirá un nombre visible y un <em>username</em> único que debe terminar en <code>bot</code> (ej. <code>ruvic_ops_bot</code>).",
+      "step1.shot": "[ Captura: conversación con BotFather ejecutando /newbot — reemplazar por assets/img/telegram-newbot.png ]",
+      "step2.label": "Copia el token del bot.",
+      "step2.body": "Al terminar, BotFather te entrega un <strong>token</strong> con el formato <code>123456789:AAH8x...</code>. Guárdalo: es la credencial que irá en el formulario de Ruvic (campo <em>Token del bot</em>). Trátalo como una contraseña — quien lo tenga controla el bot.",
+      "step3.label": "Agrega el bot al destino.",
+      "step3.item1": "<strong>Chat privado</strong>: abre el chat con tu bot y pulsa <em>Iniciar</em> (los bots no pueden escribirle a alguien que nunca les habló).",
+      "step3.item2": "<strong>Grupo</strong>: agrega el bot como miembro del grupo.",
+      "step3.item3": "<strong>Canal</strong>: agrega el bot como <strong>administrador</strong> con permiso de publicar.",
+      "step4.label": "Obtén el ID del chat destino.",
+      "step4.body": "Escribe cualquier mensaje en el chat/grupo donde está el bot. Luego abre en el navegador (reemplaza <code>&lt;TOKEN&gt;</code> por tu token):",
+      "step4.after": "En la respuesta JSON, busca <code>\"chat\":{\"id\": ...}</code>. Ese número es el ID: positivo para chats privados, y negativo empezando por <code>-100</code> para supergrupos y canales. Lo usarás en el campo <em>Chat por defecto</em>.",
+      "step4.shot": "[ Captura: respuesta de getUpdates con el chat.id resaltado (datos ofuscados) — reemplazar por assets/img/telegram-chatid.png ]",
+      "step5.label": "(Opcional) Permite leer todos los mensajes de un grupo.",
+      "step5.body": "Por defecto, en grupos el bot solo ve comandos y menciones (<em>privacy mode</em>). Si necesitas que <code>get_updates</code> lea todos los mensajes, en BotFather envía <code>/setprivacy</code>, elige tu bot y selecciona <strong>Disable</strong>. Luego quita y vuelve a agregar el bot al grupo para que aplique.",
+
+      "section.permisos": "4. Permisos requeridos",
+      "section.permisos.body": "Principio de mínimo privilegio: el bot solo necesita estar presente en el destino y, según el caso, poder publicar o leer. No requiere permisos de administración salvo para publicar en canales.",
+      "table.permiso_cond": "Permiso / condición",
+      "table.para_que": "Para qué lo usa el conector",
+      "perm.member.name": "Bot miembro del chat/grupo",
+      "perm.member.why": "Enviar mensajes y archivos (<code>send_message</code>, <code>send_file</code>) y leer actualizaciones (<code>get_updates</code>)",
+      "perm.admin.name": "Administrador con permiso de publicar (solo canales)",
+      "perm.admin.why": "Publicar mensajes en un canal (los canales no admiten miembros normales que publiquen)",
+      "perm.privacy.name": "Privacy mode desactivado (opcional, grupos)",
+      "perm.privacy.why": "Leer todos los mensajes del grupo, no solo comandos y menciones",
+
+      "section.configuracion_ruvic": "5. Configuración en Ruvic",
+      "section.configuracion_ruvic.body": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Telegram</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores que obtuviste en la sección 3:",
+      "table.campo": "Campo del formulario",
+      "table.valor": "Valor (obtenido en la sección 3)",
+      "ruvic.token.field": "Token del bot",
+      "ruvic.token.value": "El token de BotFather (paso 2). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo",
+      "ruvic.chat.field": "Chat por defecto",
+      "ruvic.chat.value": "El ID del chat destino (paso 4), ej. <code>-1001234567890</code>. Opcional: si se omite, el agente deberá indicar el destino en cada envío",
+      "ruvic.timeout.field": "Timeout de peticiones",
+      "ruvic.timeout.value": "Opcional; <code>15</code> segundos por defecto",
+      "section.configuracion_ruvic.test": "Guarda y pulsa <span class=\"ruvic-button\">Probar conexión</span> — la plataforma validará el token con Telegram y, si configuraste un chat por defecto, verificará que el bot tenga acceso a él.",
+      "btn.test": "Probar conexión",
+      "ruvic.shot": "[ Captura: formulario del conector Telegram en Settings → Conectores — reemplazar por assets/img/telegram-form.png ]",
+
+      "section.verificacion": "6. Verificación",
+      "verif.step1.label": "Test de conexión exitoso.",
+      "verif.step1.body": "El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como @tu_bot”</em> (y, si configuraste un chat por defecto, mencionará el acceso a ese chat). La tarjeta del conector cambia a estado <strong>Configurado</strong>.",
+      "verif.step2.label": "Automatización mínima de prueba.",
+      "verif.step2.body": "Abre una conversación nueva con el agente y pídele:",
+      "verif.step2.quote": "<em>“Envía un mensaje de prueba por Telegram que diga: Conector configurado ✅.”</em>",
+      "verif.step2.after": "El mensaje debe aparecer en el chat destino. Si llega, el conector quedó operativo de punta a punta.",
+
+      "section.solucion_problemas": "7. Solución de problemas",
+      "table.sintoma": "Mensaje / síntoma",
+      "table.causa": "Causa probable y solución",
+      "tr.token.sym": "“Token de bot inválido o revocado”",
+      "tr.token.fix": "Token mal copiado o revocado en BotFather. Genera uno nuevo con <code>/token</code> en BotFather y vuelve a guardarlo en el formulario.",
+      "tr.access.sym": "“El bot no tiene acceso al chat por defecto”",
+      "tr.access.fix": "El bot no está en ese chat o el ID es incorrecto. Agrega el bot al chat/grupo (paso 3) y verifica el ID con getUpdates (paso 4).",
+      "tr.user.sym": "El mensaje falla al enviar a un usuario",
+      "tr.user.fix": "La persona no ha iniciado el chat con el bot. Los bots no pueden escribir primero: pídele que abra el bot y pulse <em>Iniciar</em>.",
+      "tr.empty.sym": "<code>getUpdates</code> devuelve una lista vacía",
+      "tr.empty.fix": "El bot no ha recibido mensajes aún (escríbele algo), o tiene un webhook activo. Elimínalo abriendo <code>/deleteWebhook</code> en la URL de la API y reintenta.",
+      "tr.rate.sym": "“Límite de peticiones; reintenta en N s”",
+      "tr.rate.fix": "Se enviaron demasiados mensajes muy rápido. El conector reintenta solo; si persiste, espacia los envíos (Telegram limita ~20 msg/min al mismo grupo).",
+      "tr.size.sym": "“El archivo pesa más de 50 MB”",
+      "tr.size.fix": "La Bot API limita las subidas a 50 MB. Comprime o divide el archivo, o comparte un enlace de descarga en su lugar.",
+
+      "section.faq_seguridad": "8. Preguntas frecuentes y notas de seguridad",
+      "faq.personal.q": "¿Ruvic accede a mi cuenta personal de Telegram?",
+      "faq.personal.a": "No. Todo ocurre a través del bot que creaste. El bot solo ve los chats a los que lo agregas y los mensajes que le envían; nunca accede a tus chats personales.",
+      "faq.store.q": "¿Dónde queda guardado el token?",
+      "faq.store.a": "Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo en el formulario; para conservarlo al editar otros campos, deja el campo vacío.",
+      "faq.rot.q": "Rotación de credenciales",
+      "faq.rot.a": "Para rotar el token, envía <code>/token</code> a BotFather, elige tu bot y genera uno nuevo; actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>. El token anterior deja de funcionar al instante.",
+      "faq.comp.q": "¿Qué hago si el token se compromete?",
+      "faq.comp.a1": "En BotFather, envía <code>/revoke</code>, elige el bot y revoca el token de inmediato (invalida el actual y genera uno nuevo).",
+      "faq.comp.a2": "Actualiza el nuevo token en el formulario del conector.",
+      "faq.comp.a3": "Revisa en el chat/grupo si hubo mensajes no autorizados enviados por el bot.",
+      "faq.exp.q": "¿Expira el token?",
+      "faq.exp.a": "No caduca por sí solo: sigue válido hasta que lo revoques en BotFather. Aun así, se recomienda rotarlo periódicamente según tu política de seguridad.",
+      "callout.bp.title": "Buenas prácticas",
+      "callout.bp.body": "Usa un bot dedicado solo para Ruvic; no compartas el token por canales no seguros ni lo publiques en repositorios; agrega el bot únicamente a los chats estrictamente necesarios; y mantén el privacy mode activado salvo que realmente necesites leer todos los mensajes de un grupo.",
+    },
+    en: {
+      doc_title: "Telegram Connector — Ruvic",
+      guide_title: "Telegram Connector",
+      guide_updated: "Last updated: July 16, 2026",
+      toc_title: "Contents",
+      "toc.que_es": "What it is and what it's for",
+      "toc.prerrequisitos": "Prerequisites",
+      "toc.configuracion_fabricante": "Telegram-side setup (step by step)",
+      "toc.permisos": "Required permissions",
+      "toc.configuracion_ruvic": "Configuration in Ruvic",
+      "toc.verificacion": "Verification",
+      "toc.solucion_problemas": "Troubleshooting",
+      "toc.faq_seguridad": "FAQ and security notes",
+
+      "section.que_es": "1. What it is and what it's for",
+      "section.que_es.body": "The Telegram connector lets the Ruvic agent communicate through a <strong>Telegram bot</strong>: send messages and files to people, groups and channels, and read the messages the bot receives. Once configured, you can ask the agent things like:",
+      "section.que_es.ex1": "“When the sales report is ready, send it to the Operations group on Telegram.”",
+      "section.que_es.ex2": "“Notify me on Telegram if any server goes above 90% disk usage.”",
+      "section.que_es.ex3": "“Check the messages the bot received and summarize the requests.”",
+      "section.que_es.ops": "Supported operations:",
+      "table.operacion": "Operation",
+      "table.que_hace": "What it does",
+      "op.send_message": "Sends a text message to a chat, group or channel",
+      "op.send_file": "Sends a file (document, photo, video or audio)",
+      "op.get_updates": "Receives the bot's incoming messages and updates",
+      "op.get_info": "Gets information about a chat, group or channel",
+      "callout.bot.title": "Everything goes through a bot",
+      "callout.bot.body": "Ruvic does not use your personal Telegram account: it acts through a dedicated bot you create. The bot only sees the chats you add it to and the messages sent directly to it.",
+
+      "section.prerrequisitos": "2. Prerequisites",
+      "section.prerrequisitos.p1": "A <strong>Telegram account</strong> (the phone app or Telegram Desktop) to talk to BotFather.",
+      "section.prerrequisitos.p2": "The <strong>target chat, group or channel</strong> where the bot will send messages, and permission to add the bot there (be a group/channel admin, or start the private chat with the bot yourself).",
+      "section.prerrequisitos.p3": "No extra infrastructure: no server needed; Ruvic talks to Telegram's public API (<code>api.telegram.org</code>).",
+
+      "section.configuracion_fabricante": "3. Telegram-side setup (step by step)",
+      "section.configuracion_fabricante.intro": "You will create a <strong>dedicated bot</strong> with BotFather (Telegram's official bot for managing bots), get its <strong>token</strong> and the target <strong>chat ID</strong>. Everything is done inside the Telegram app.",
+      "step1.label": "Create the bot with BotFather.",
+      "step1.body": "In Telegram, search for <code>@BotFather</code>, open it and send <code>/newbot</code>. It will ask for a display name and a unique <em>username</em> that must end in <code>bot</code> (e.g. <code>ruvic_ops_bot</code>).",
+      "step1.shot": "[ Screenshot: BotFather conversation running /newbot — replace with assets/img/telegram-newbot.png ]",
+      "step2.label": "Copy the bot token.",
+      "step2.body": "When done, BotFather gives you a <strong>token</strong> in the form <code>123456789:AAH8x...</code>. Save it: it is the credential that goes in the Ruvic form (<em>Bot token</em> field). Treat it like a password — anyone who has it controls the bot.",
+      "step3.label": "Add the bot to the target.",
+      "step3.item1": "<strong>Private chat</strong>: open the chat with your bot and tap <em>Start</em> (bots can't message someone who never wrote to them first).",
+      "step3.item2": "<strong>Group</strong>: add the bot as a member of the group.",
+      "step3.item3": "<strong>Channel</strong>: add the bot as an <strong>administrator</strong> with permission to post.",
+      "step4.label": "Get the target chat ID.",
+      "step4.body": "Send any message in the chat/group where the bot is. Then open in your browser (replace <code>&lt;TOKEN&gt;</code> with your token):",
+      "step4.after": "In the JSON response, find <code>\"chat\":{\"id\": ...}</code>. That number is the ID: positive for private chats, negative starting with <code>-100</code> for supergroups and channels. You'll use it in the <em>Default chat</em> field.",
+      "step4.shot": "[ Screenshot: getUpdates response with chat.id highlighted (data obfuscated) — replace with assets/img/telegram-chatid.png ]",
+      "step5.label": "(Optional) Allow reading all group messages.",
+      "step5.body": "By default, in groups the bot only sees commands and mentions (<em>privacy mode</em>). If you need <code>get_updates</code> to read all messages, in BotFather send <code>/setprivacy</code>, choose your bot and select <strong>Disable</strong>. Then remove and re-add the bot to the group for it to take effect.",
+
+      "section.permisos": "4. Required permissions",
+      "section.permisos.body": "Least-privilege principle: the bot only needs to be present in the target and, depending on the case, be able to post or read. No admin permissions required except to post in channels.",
+      "table.permiso_cond": "Permission / condition",
+      "table.para_que": "Why the connector needs it",
+      "perm.member.name": "Bot is a member of the chat/group",
+      "perm.member.why": "Send messages and files (<code>send_message</code>, <code>send_file</code>) and read updates (<code>get_updates</code>)",
+      "perm.admin.name": "Administrator with post permission (channels only)",
+      "perm.admin.why": "Post messages to a channel (channels don't allow regular members to post)",
+      "perm.privacy.name": "Privacy mode disabled (optional, groups)",
+      "perm.privacy.why": "Read all group messages, not just commands and mentions",
+
+      "section.configuracion_ruvic": "5. Configuration in Ruvic",
+      "section.configuracion_ruvic.body": "Go to <strong>Settings → Connectors</strong>, find the <strong>Telegram</strong> card and click <strong>Configure</strong>. Fill in the form with the values from section 3:",
+      "table.campo": "Form field",
+      "table.valor": "Value (from section 3)",
+      "ruvic.token.field": "Bot token",
+      "ruvic.token.value": "The BotFather token (step 2). Stored as a secret: the UI will never display it again",
+      "ruvic.chat.field": "Default chat",
+      "ruvic.chat.value": "The target chat ID (step 4), e.g. <code>-1001234567890</code>. Optional: if omitted, the agent must specify the target on each send",
+      "ruvic.timeout.field": "Request timeout",
+      "ruvic.timeout.value": "Optional; defaults to <code>15</code> seconds",
+      "section.configuracion_ruvic.test": "Save and click <span class=\"ruvic-button\">Test connection</span> — the platform will validate the token with Telegram and, if you set a default chat, verify the bot has access to it.",
+      "btn.test": "Test connection",
+      "ruvic.shot": "[ Screenshot: Telegram connector form in Settings → Connectors — replace with assets/img/telegram-form.png ]",
+
+      "section.verificacion": "6. Verification",
+      "verif.step1.label": "Successful connection test.",
+      "verif.step1.body": "The <em>Test connection</em> button should return: <em>“Successful connection as @your_bot”</em> (and, if you set a default chat, it will mention access to that chat). The connector card switches to <strong>Configured</strong>.",
+      "verif.step2.label": "Minimal test automation.",
+      "verif.step2.body": "Open a new conversation with the agent and ask:",
+      "verif.step2.quote": "<em>“Send a test message on Telegram saying: Connector configured ✅.”</em>",
+      "verif.step2.after": "The message should appear in the target chat. If it arrives, the connector is fully operational.",
+
+      "section.solucion_problemas": "7. Troubleshooting",
+      "table.sintoma": "Message / symptom",
+      "table.causa": "Likely cause and fix",
+      "tr.token.sym": "“Invalid or revoked bot token”",
+      "tr.token.fix": "Token mistyped or revoked in BotFather. Generate a new one with <code>/token</code> in BotFather and re-save it in the form.",
+      "tr.access.sym": "“The bot has no access to the default chat”",
+      "tr.access.fix": "The bot isn't in that chat or the ID is wrong. Add the bot to the chat/group (step 3) and verify the ID with getUpdates (step 4).",
+      "tr.user.sym": "Sending to a user fails",
+      "tr.user.fix": "The person hasn't started the chat with the bot. Bots can't message first: ask them to open the bot and tap <em>Start</em>.",
+      "tr.empty.sym": "<code>getUpdates</code> returns an empty list",
+      "tr.empty.fix": "The bot hasn't received messages yet (send it something), or a webhook is active. Delete it by opening <code>/deleteWebhook</code> on the API URL and retry.",
+      "tr.rate.sym": "“Rate limited; retry in N s”",
+      "tr.rate.fix": "Too many messages sent too fast. The connector retries on its own; if it persists, space out the sends (Telegram limits ~20 msg/min to the same group).",
+      "tr.size.sym": "“The file is larger than 50 MB”",
+      "tr.size.fix": "The Bot API caps uploads at 50 MB. Compress or split the file, or share a download link instead.",
+
+      "section.faq_seguridad": "8. FAQ and security notes",
+      "faq.personal.q": "Does Ruvic access my personal Telegram account?",
+      "faq.personal.a": "No. Everything happens through the bot you created. The bot only sees the chats you add it to and the messages sent to it; it never accesses your personal chats.",
+      "faq.store.q": "Where is the token stored?",
+      "faq.store.a": "As a secret in the platform's credential store, tied to your user. The UI never displays it again; it only shows “set”. To change it, type a new one in the form; to keep it while editing other fields, leave the field empty.",
+      "faq.rot.q": "Credential rotation",
+      "faq.rot.a": "To rotate the token, send <code>/token</code> to BotFather, pick your bot and generate a new one; update it in the connector form and click <em>Test connection</em>. The old token stops working immediately.",
+      "faq.comp.q": "What if the token is compromised?",
+      "faq.comp.a1": "In BotFather, send <code>/revoke</code>, pick the bot and revoke the token immediately (invalidates the current one and issues a new one).",
+      "faq.comp.a2": "Update the new token in the connector form.",
+      "faq.comp.a3": "Check the chat/group for any unauthorized messages sent by the bot.",
+      "faq.exp.q": "Does the token expire?",
+      "faq.exp.a": "It does not expire on its own: it stays valid until you revoke it in BotFather. Still, rotating it periodically per your security policy is recommended.",
+      "callout.bp.title": "Best practices",
+      "callout.bp.body": "Use a dedicated bot only for Ruvic; never share the token over insecure channels or commit it to repositories; add the bot only to the chats strictly needed; and keep privacy mode enabled unless you truly need to read all group messages.",
+    },
+  };
+
+  // Fallback local: si el portal NO está presente (preview local), aplica
+  // el idioma guardado para poder previsualizar. El portal, cuando existe,
+  // maneja el toggle y vuelve a aplicar el idioma del usuario.
   (function () {
-    var buttons = document.querySelectorAll("[data-set-lang]");
-    function setLang(lang) {
-      document.documentElement.setAttribute("data-lang", lang);
+    function apply(lang) {
+      var dict = I18N[lang] || I18N.es;
       document.documentElement.setAttribute("lang", lang);
-      buttons.forEach(function (btn) {
-        btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n")];
+        if (v != null) el.innerHTML = v;
       });
-      try { localStorage.setItem("ruvic-docs-lang", lang); } catch (e) {}
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-placeholder")];
+        if (v != null) el.setAttribute("placeholder", v);
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-alt")];
+        if (v != null) el.setAttribute("alt", v);
+      });
     }
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        setLang(btn.getAttribute("data-set-lang"));
-      });
-    });
-    try {
-      var saved = localStorage.getItem("ruvic-docs-lang");
-      if (saved === "en" || saved === "es") setLang(saved);
-    } catch (e) {}
+    var saved = "es";
+    try { saved = localStorage.getItem("ruvic-docs-lang") || "es"; } catch (e) {}
+    if (saved !== "es") apply(saved);
   })();
 </script>
 

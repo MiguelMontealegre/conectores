@@ -3,504 +3,652 @@
   ============================================================
   Guía de configuración del conector Google Chat — Ruvic
   ============================================================
-  Basada en la PLANTILLA OFICIAL (conector PostgreSQL):
-  misma estructura de 8 secciones, bilingüe ES/EN, y reutiliza
-  assets/ruvic.css SIN modificarlo. Reemplaza los
-  .screenshot-placeholder por capturas reales en assets/img/.
-
-  Nota: este conector tiene DOS modos de autenticación
-  (webhook y cuenta de servicio); las secciones 3, 4 y 5 los
-  cubren por separado.
+  Sigue la guía oficial de documentación Ruvic:
+  - i18n por llaves data-i18n + objeto I18N (es/en). El texto
+    por defecto del HTML está en español.
+  - Sin toggle propio ni cabecera propia: el PORTAL aplica el
+    idioma del usuario (localStorage ruvic-docs-lang) sobre
+    [data-i18n], [data-i18n-placeholder] y [data-i18n-alt].
+  - ids de sección canónicos y estables (no se traducen).
+  - assets/ruvic.css es solo para preview local; al publicar se
+    reescribe a la hoja canónica del portal.
+  Reemplaza los .screenshot-placeholder por capturas reales en
+  assets/img/.
   ============================================================
 -->
-<html lang="es" data-lang="es">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conector Google Chat — Guía de configuración | Ruvic</title>
+  <title data-i18n="doc_title">Conector Google Chat — Ruvic</title>
   <link rel="stylesheet" href="assets/ruvic.css">
 </head>
 <body>
-
-<header class="ruvic-header">
-  <div class="ruvic-header-inner">
-    <!-- Reemplazar por <img class="ruvic-logo" src="assets/img/ruvic-logo.svg" alt="Ruvic"> cuando el logo esté en assets -->
-    <p class="ruvic-wordmark">Ruvic</p>
-
-    <h1>
-      <span class="lang-es">Conector Google Chat — Guía de configuración</span>
-      <span class="lang-en">Google Chat Connector — Setup Guide</span>
-    </h1>
-    <p class="subtitle">
-      <span class="lang-es">Conecta Google Chat a Ruvic Engine para que el agente envíe mensajes a los espacios de tu equipo, ya sea con un webhook simple o con la Chat API.</span>
-      <span class="lang-en">Connect Google Chat to Ruvic Engine so the agent can send messages to your team's spaces, either with a simple webhook or with the Chat API.</span>
-    </p>
-
-    <div class="meta">
-      <span class="ruvic-badge">Google Chat</span>
-      <span class="ruvic-badge">
-        <span class="lang-es">Mensajería</span>
-        <span class="lang-en">Messaging</span>
-      </span>
-      <span class="ruvic-badge">v1.0.0</span>
-    </div>
-
-    <div class="lang-switch" role="group" aria-label="Idioma / Language">
-      <button type="button" data-set-lang="es" class="active">ES</button>
-      <button type="button" data-set-lang="en">EN</button>
-    </div>
-  </div>
-</header>
 
 <main class="ruvic-container">
 
   <!-- ============ ÍNDICE ============ -->
   <nav class="ruvic-toc" aria-label="Índice">
-    <h2><span class="lang-es">Contenido</span><span class="lang-en">Contents</span></h2>
+    <h2 data-i18n="toc_title">Contenido</h2>
     <ol>
-      <li><a href="#que-es"><span class="lang-es">¿Qué es y para qué sirve?</span><span class="lang-en">What is it and what is it for?</span></a></li>
-      <li><a href="#prerrequisitos"><span class="lang-es">Prerrequisitos</span><span class="lang-en">Prerequisites</span></a></li>
-      <li><a href="#fabricante"><span class="lang-es">Configuración en Google (paso a paso)</span><span class="lang-en">Google-side setup (step by step)</span></a></li>
-      <li><a href="#permisos"><span class="lang-es">Permisos requeridos</span><span class="lang-en">Required permissions</span></a></li>
-      <li><a href="#ruvic"><span class="lang-es">Configuración en Ruvic</span><span class="lang-en">Setup in Ruvic</span></a></li>
-      <li><a href="#verificacion"><span class="lang-es">Verificación</span><span class="lang-en">Verification</span></a></li>
-      <li><a href="#problemas"><span class="lang-es">Solución de problemas</span><span class="lang-en">Troubleshooting</span></a></li>
-      <li><a href="#faq"><span class="lang-es">Preguntas frecuentes y notas de seguridad</span><span class="lang-en">FAQ and security notes</span></a></li>
+      <li><a href="#que-es" data-i18n="toc.que_es">¿Qué es y para qué sirve?</a></li>
+      <li><a href="#prerrequisitos" data-i18n="toc.prerrequisitos">Prerrequisitos</a></li>
+      <li><a href="#configuracion-fabricante" data-i18n="toc.configuracion_fabricante">Configuración en Google (paso a paso)</a></li>
+      <li><a href="#permisos" data-i18n="toc.permisos">Permisos requeridos</a></li>
+      <li><a href="#configuracion-ruvic" data-i18n="toc.configuracion_ruvic">Configuración en Ruvic</a></li>
+      <li><a href="#verificacion" data-i18n="toc.verificacion">Verificación</a></li>
+      <li><a href="#solucion-problemas" data-i18n="toc.solucion_problemas">Solución de problemas</a></li>
+      <li><a href="#faq-seguridad" data-i18n="toc.faq_seguridad">Preguntas frecuentes y notas de seguridad</a></li>
     </ol>
   </nav>
 
-  <!-- ============ 1. QUÉ ES ============ -->
-  <section id="que-es">
-    <h2><span class="lang-es">1. ¿Qué es y para qué sirve?</span><span class="lang-en">1. What is it and what is it for?</span></h2>
+  <h1 data-i18n="guide_title">Conector Google Chat</h1>
+  <p class="guide-updated" data-i18n="guide_updated">Última actualización: 16 de julio de 2026</p>
 
-    <div class="lang-es">
-      <p>El conector Google Chat permite que el agente de Ruvic <strong>envíe mensajes a los espacios (salas) de Google Chat</strong> de tu organización. Una vez configurado, puedes pedirle al agente cosas como:</p>
-      <ul>
-        <li>“Cuando termine el despliegue, avisa en el espacio de Ingeniería de Google Chat.”</li>
-        <li>“Publica el resumen de ventas de hoy en el espacio de Dirección.”</li>
-        <li>“Si una tarea de facturación falla, notifícalo en el espacio de Operaciones.”</li>
-      </ul>
-      <p>Operaciones soportadas:</p>
-    </div>
-    <div class="lang-en">
-      <p>The Google Chat connector lets the Ruvic agent <strong>send messages to your organization's Google Chat spaces (rooms)</strong>. Once configured, you can ask the agent things like:</p>
-      <ul>
-        <li>“When the deploy finishes, post in the Engineering space on Google Chat.”</li>
-        <li>“Publish today's sales summary in the Leadership space.”</li>
-        <li>“If a billing job fails, notify the Operations space.”</li>
-      </ul>
-      <p>Supported operations:</p>
-    </div>
+  <!-- ============ 1. QUÉ ES ============ -->
+  <section>
+    <h2 id="que-es" data-i18n="section.que_es">1. ¿Qué es y para qué sirve?</h2>
+
+    <p data-i18n="section.que_es.body">El conector Google Chat permite que el agente de Ruvic <strong>envíe mensajes a los espacios (salas) de Google Chat</strong> de tu organización. Una vez configurado, puedes pedirle al agente cosas como:</p>
+    <ul>
+      <li data-i18n="section.que_es.ex1">“Cuando termine el despliegue, avisa en el espacio de Ingeniería de Google Chat.”</li>
+      <li data-i18n="section.que_es.ex2">“Publica el resumen de ventas de hoy en el espacio de Dirección.”</li>
+      <li data-i18n="section.que_es.ex3">“Si una tarea de facturación falla, notifícalo en el espacio de Operaciones.”</li>
+    </ul>
+    <p data-i18n="section.que_es.ops">Operaciones soportadas:</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Operación</span><span class="lang-en">Operation</span></th>
-          <th><span class="lang-es">Qué hace</span><span class="lang-en">What it does</span></th>
+          <th data-i18n="table.operacion">Operación</th>
+          <th data-i18n="table.que_hace">Qué hace</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><code>chat.send_message</code></td>
-          <td><span class="lang-es">Envía un mensaje de texto a un espacio (soporta hilos)</span><span class="lang-en">Sends a text message to a space (supports threads)</span></td>
+          <td data-i18n="op.send_message">Envía un mensaje de texto a un espacio (soporta hilos)</td>
         </tr>
         <tr>
           <td><code>chat.list_spaces</code></td>
-          <td><span class="lang-es">Lista los espacios donde la app está agregada (solo modo cuenta de servicio)</span><span class="lang-en">Lists the spaces where the app is added (service-account mode only)</span></td>
+          <td data-i18n="op.list_spaces">Lista los espacios donde la app está agregada (solo modo cuenta de servicio)</td>
         </tr>
         <tr>
           <td><code>chat.get_space</code></td>
-          <td><span class="lang-es">Consulta la información de un espacio (solo modo cuenta de servicio)</span><span class="lang-en">Gets information about a space (service-account mode only)</span></td>
+          <td data-i18n="op.get_space">Consulta la información de un espacio (solo modo cuenta de servicio)</td>
         </tr>
       </tbody>
     </table>
 
     <div class="callout callout-info">
-      <span class="callout-title"><span class="lang-es">Dos modos de conexión</span><span class="lang-en">Two connection modes</span></span>
-      <span class="lang-es">El conector ofrece dos formas de conectarse. El <strong>webhook</strong> es el camino rápido: sin proyecto de Google Cloud, pero solo envía a un espacio. La <strong>cuenta de servicio (Chat API)</strong> requiere configurar Google Cloud, pero permite enviar a cualquier espacio donde agregues la app, listar espacios y consultar su información. Elige uno según tus necesidades.</span>
-      <span class="lang-en">The connector offers two ways to connect. The <strong>webhook</strong> is the fast path: no Google Cloud project, but it sends to a single space only. The <strong>service account (Chat API)</strong> requires Google Cloud setup, but lets you send to any space where you add the app, list spaces and query their info. Pick one based on your needs.</span>
+      <span class="callout-title" data-i18n="callout.modos.title">Dos modos de conexión</span>
+      <span data-i18n="callout.modos.body">El conector ofrece dos formas de conectarse. El <strong>webhook</strong> es el camino rápido: sin proyecto de Google Cloud, pero solo envía a un espacio. La <strong>cuenta de servicio (Chat API)</strong> requiere configurar Google Cloud, pero permite enviar a cualquier espacio donde agregues la app, listar espacios y consultar su información. Elige uno según tus necesidades.</span>
     </div>
   </section>
 
   <!-- ============ 2. PRERREQUISITOS ============ -->
-  <section id="prerrequisitos">
-    <h2><span class="lang-es">2. Prerrequisitos</span><span class="lang-en">2. Prerequisites</span></h2>
+  <section>
+    <h2 id="prerrequisitos" data-i18n="section.prerrequisitos">2. Prerrequisitos</h2>
 
-    <div class="lang-es">
-      <p><strong>Comunes a ambos modos:</strong></p>
-      <ul>
-        <li>Una cuenta de <strong>Google Workspace</strong> con acceso a Google Chat y al menos un <strong>espacio</strong> destino.</li>
-        <li>Permiso para gestionar apps/webhooks en ese espacio (normalmente, ser miembro con derechos de administración del espacio).</li>
-      </ul>
-      <p><strong>Solo para el modo cuenta de servicio:</strong></p>
-      <ul>
-        <li>Acceso a <strong>Google Cloud Console</strong> con permiso para crear proyectos, habilitar APIs y crear cuentas de servicio.</li>
-        <li>En organizaciones restringidas, que el administrador de Workspace permita apps de Chat de terceros/internas.</li>
-      </ul>
-    </div>
-    <div class="lang-en">
-      <p><strong>Common to both modes:</strong></p>
-      <ul>
-        <li>A <strong>Google Workspace</strong> account with access to Google Chat and at least one target <strong>space</strong>.</li>
-        <li>Permission to manage apps/webhooks in that space (usually being a member with space management rights).</li>
-      </ul>
-      <p><strong>Service-account mode only:</strong></p>
-      <ul>
-        <li>Access to <strong>Google Cloud Console</strong> with permission to create projects, enable APIs and create service accounts.</li>
-        <li>In restricted organizations, the Workspace admin must allow third-party/internal Chat apps.</li>
-      </ul>
-    </div>
+    <p data-i18n="section.prerrequisitos.comunes"><strong>Comunes a ambos modos:</strong></p>
+    <ul>
+      <li data-i18n="section.prerrequisitos.c1">Una cuenta de <strong>Google Workspace</strong> con acceso a Google Chat y al menos un <strong>espacio</strong> destino.</li>
+      <li data-i18n="section.prerrequisitos.c2">Permiso para gestionar apps/webhooks en ese espacio (normalmente, ser miembro con derechos de administración del espacio).</li>
+    </ul>
+    <p data-i18n="section.prerrequisitos.sa"><strong>Solo para el modo cuenta de servicio:</strong></p>
+    <ul>
+      <li data-i18n="section.prerrequisitos.s1">Acceso a <strong>Google Cloud Console</strong> con permiso para crear proyectos, habilitar APIs y crear cuentas de servicio.</li>
+      <li data-i18n="section.prerrequisitos.s2">En organizaciones restringidas, que el administrador de Workspace permita apps de Chat de terceros/internas.</li>
+    </ul>
   </section>
 
   <!-- ============ 3. CONFIGURACIÓN EN EL FABRICANTE ============ -->
-  <section id="fabricante">
-    <h2><span class="lang-es">3. Configuración en Google (paso a paso)</span><span class="lang-en">3. Google-side setup (step by step)</span></h2>
+  <section>
+    <h2 id="configuracion-fabricante" data-i18n="section.configuracion_fabricante">3. Configuración en Google (paso a paso)</h2>
 
     <div class="callout callout-info">
-      <span class="callout-title"><span class="lang-es">Elige tu ruta</span><span class="lang-en">Choose your path</span></span>
-      <span class="lang-es">Sigue <strong>solo la Opción A (webhook)</strong> o <strong>solo la Opción B (cuenta de servicio)</strong>, según el modo que vayas a usar. No necesitas ambas.</span>
-      <span class="lang-en">Follow <strong>only Option A (webhook)</strong> or <strong>only Option B (service account)</strong>, depending on the mode you'll use. You don't need both.</span>
+      <span class="callout-title" data-i18n="callout.ruta.title">Elige tu ruta</span>
+      <span data-i18n="callout.ruta.body">Sigue <strong>solo la Opción A (webhook)</strong> o <strong>solo la Opción B (cuenta de servicio)</strong>, según el modo que vayas a usar. No necesitas ambas.</span>
     </div>
 
-    <h3><span class="lang-es">Opción A — Webhook entrante (rápido, un espacio)</span><span class="lang-en">Option A — Incoming webhook (fast, single space)</span></h3>
+    <h3 data-i18n="opcion_a.title">Opción A — Webhook entrante (rápido, un espacio)</h3>
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es">
-          <strong>Abre el espacio destino en Google Chat.</strong>
-          <p>En <code>chat.google.com</code> (o Gmail con Chat activado), entra al <strong>espacio</strong> donde quieres que el agente publique. Los webhooks solo existen en espacios, no en mensajes directos.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Open the target space in Google Chat.</strong>
-          <p>In <code>chat.google.com</code> (or Gmail with Chat enabled), open the <strong>space</strong> where you want the agent to post. Webhooks only exist in spaces, not in direct messages.</p>
-        </div>
+        <strong data-i18n="a.step1.label">Abre el espacio destino en Google Chat.</strong>
+        <p data-i18n="a.step1.body">En <code>chat.google.com</code> (o Gmail con Chat activado), entra al <strong>espacio</strong> donde quieres que el agente publique. Los webhooks solo existen en espacios, no en mensajes directos.</p>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Añade un webhook.</strong>
-          <p>Pulsa el nombre del espacio &rarr; <strong>Apps e integraciones</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>Añadir webhook</strong>. Asigna un nombre (ej. “Ruvic”) y, opcionalmente, un avatar.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Add a webhook.</strong>
-          <p>Click the space name &rarr; <strong>Apps &amp; integrations</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>Add webhook</strong>. Give it a name (e.g. “Ruvic”) and optionally an avatar.</p>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: diálogo “Añadir webhook” en un espacio de Google Chat — reemplazar por assets/img/gchat-webhook.png ]</span>
-          <span class="lang-en">[ Screenshot: “Add webhook” dialog in a Google Chat space — replace with assets/img/gchat-webhook.png ]</span>
-        </div>
+        <strong data-i18n="a.step2.label">Añade un webhook.</strong>
+        <p data-i18n="a.step2.body">Pulsa el nombre del espacio &rarr; <strong>Apps e integraciones</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>Añadir webhook</strong>. Asigna un nombre (ej. “Ruvic”) y, opcionalmente, un avatar.</p>
+        <div class="screenshot-placeholder" data-i18n="a.step2.shot">[ Captura: diálogo “Añadir webhook” en un espacio de Google Chat — reemplazar por assets/img/gchat-webhook.png ]</div>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Copia la URL del webhook.</strong>
-          <p>Google genera una URL que incluye los parámetros <code>key</code> y <code>token</code>. Cópiala <strong>completa</strong>: es la credencial que irá en el formulario de Ruvic (campo <em>URL del webhook</em>). Trátala como un secreto.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Copy the webhook URL.</strong>
-          <p>Google generates a URL that includes the <code>key</code> and <code>token</code> parameters. Copy it <strong>in full</strong>: it is the credential that goes in the Ruvic form (<em>Webhook URL</em> field). Treat it as a secret.</p>
-        </div>
+        <strong data-i18n="a.step3.label">Copia la URL del webhook.</strong>
+        <p data-i18n="a.step3.body">Google genera una URL que incluye los parámetros <code>key</code> y <code>token</code>. Cópiala <strong>completa</strong>: es la credencial que irá en el formulario de Ruvic (campo <em>URL del webhook</em>). Trátala como un secreto.</p>
 <pre><code>https://chat.googleapis.com/v1/spaces/AAAA/messages?key=...&amp;token=...</code></pre>
       </li>
     </ol>
 
-    <h3><span class="lang-es">Opción B — Cuenta de servicio (Chat API)</span><span class="lang-en">Option B — Service account (Chat API)</span></h3>
+    <h3 data-i18n="opcion_b.title">Opción B — Cuenta de servicio (Chat API)</h3>
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es">
-          <strong>Crea o elige un proyecto en Google Cloud.</strong>
-          <p>Entra a <a href="https://console.cloud.google.com">Google Cloud Console</a> y selecciona (o crea) el proyecto donde vivirá la app de Chat.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Create or pick a project in Google Cloud.</strong>
-          <p>Go to <a href="https://console.cloud.google.com">Google Cloud Console</a> and select (or create) the project where the Chat app will live.</p>
-        </div>
+        <strong data-i18n="b.step1.label">Crea o elige un proyecto en Google Cloud.</strong>
+        <p data-i18n="b.step1.body">Entra a <a href="https://console.cloud.google.com">Google Cloud Console</a> y selecciona (o crea) el proyecto donde vivirá la app de Chat.</p>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Habilita la Google Chat API.</strong>
-          <p><strong>APIs y servicios</strong> &rarr; <strong>Biblioteca</strong> &rarr; busca <em>Google Chat API</em> &rarr; <strong>Habilitar</strong>.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Enable the Google Chat API.</strong>
-          <p><strong>APIs &amp; Services</strong> &rarr; <strong>Library</strong> &rarr; search <em>Google Chat API</em> &rarr; <strong>Enable</strong>.</p>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: página de la Google Chat API con el botón Habilitar — reemplazar por assets/img/gchat-enable-api.png ]</span>
-          <span class="lang-en">[ Screenshot: Google Chat API page with the Enable button — replace with assets/img/gchat-enable-api.png ]</span>
-        </div>
+        <strong data-i18n="b.step2.label">Habilita la Google Chat API.</strong>
+        <p data-i18n="b.step2.body"><strong>APIs y servicios</strong> &rarr; <strong>Biblioteca</strong> &rarr; busca <em>Google Chat API</em> &rarr; <strong>Habilitar</strong>.</p>
+        <div class="screenshot-placeholder" data-i18n="b.step2.shot">[ Captura: página de la Google Chat API con el botón Habilitar — reemplazar por assets/img/gchat-enable-api.png ]</div>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Crea una cuenta de servicio y su clave JSON.</strong>
-          <p><strong>IAM y administración</strong> &rarr; <strong>Cuentas de servicio</strong> &rarr; <strong>Crear cuenta de servicio</strong>. Luego, en la cuenta creada: <strong>Claves</strong> &rarr; <strong>Agregar clave</strong> &rarr; <strong>Crear clave nueva</strong> &rarr; <strong>JSON</strong>. Se descarga un archivo <code>.json</code>: su contenido completo irá en el formulario de Ruvic. Guárdalo de forma segura.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Create a service account and its JSON key.</strong>
-          <p><strong>IAM &amp; Admin</strong> &rarr; <strong>Service Accounts</strong> &rarr; <strong>Create service account</strong>. Then, on the created account: <strong>Keys</strong> &rarr; <strong>Add key</strong> &rarr; <strong>Create new key</strong> &rarr; <strong>JSON</strong>. A <code>.json</code> file downloads: its full contents go into the Ruvic form. Store it securely.</p>
-        </div>
-        <div class="screenshot-placeholder">
-          <span class="lang-es">[ Captura: creación de la clave JSON de la cuenta de servicio — reemplazar por assets/img/gchat-sa-key.png ]</span>
-          <span class="lang-en">[ Screenshot: creating the service account JSON key — replace with assets/img/gchat-sa-key.png ]</span>
-        </div>
+        <strong data-i18n="b.step3.label">Crea una cuenta de servicio y su clave JSON.</strong>
+        <p data-i18n="b.step3.body"><strong>IAM y administración</strong> &rarr; <strong>Cuentas de servicio</strong> &rarr; <strong>Crear cuenta de servicio</strong>. Luego, en la cuenta creada: <strong>Claves</strong> &rarr; <strong>Agregar clave</strong> &rarr; <strong>Crear clave nueva</strong> &rarr; <strong>JSON</strong>. Se descarga un archivo <code>.json</code>: su contenido completo irá en el formulario de Ruvic. Guárdalo de forma segura.</p>
+        <div class="screenshot-placeholder" data-i18n="b.step3.shot">[ Captura: creación de la clave JSON de la cuenta de servicio — reemplazar por assets/img/gchat-sa-key.png ]</div>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Configura la app de Chat.</strong>
-          <p><strong>APIs y servicios</strong> &rarr; <strong>Google Chat API</strong> &rarr; <strong>Configuración</strong>: completa el nombre de la app, avatar y descripción, y habilita que pueda usarse en espacios. Sin este paso, la API responde error de permisos.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Configure the Chat app.</strong>
-          <p><strong>APIs &amp; Services</strong> &rarr; <strong>Google Chat API</strong> &rarr; <strong>Configuration</strong>: fill in the app name, avatar and description, and enable it for spaces. Without this step, the API returns a permissions error.</p>
-        </div>
+        <strong data-i18n="b.step4.label">Configura la app de Chat.</strong>
+        <p data-i18n="b.step4.body"><strong>APIs y servicios</strong> &rarr; <strong>Google Chat API</strong> &rarr; <strong>Configuración</strong>: completa el nombre de la app, avatar y descripción, y habilita que pueda usarse en espacios. Sin este paso, la API responde error de permisos.</p>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Agrega la app a cada espacio destino.</strong>
-          <p>En Google Chat, entra al espacio &rarr; <strong>＋ Añadir personas y apps</strong> &rarr; busca el nombre de tu app de Chat y agrégala. Repite en cada espacio donde el agente deba publicar.</p>
-        </div>
-        <div class="lang-en">
-          <strong>Add the app to each target space.</strong>
-          <p>In Google Chat, open the space &rarr; <strong>＋ Add people &amp; apps</strong> &rarr; search your Chat app's name and add it. Repeat for every space where the agent should post.</p>
-        </div>
+        <strong data-i18n="b.step5.label">Agrega la app a cada espacio destino.</strong>
+        <p data-i18n="b.step5.body">En Google Chat, entra al espacio &rarr; <strong>＋ Añadir personas y apps</strong> &rarr; busca el nombre de tu app de Chat y agrégala. Repite en cada espacio donde el agente deba publicar.</p>
       </li>
       <li>
-        <div class="lang-es">
-          <strong>Anota el ID del espacio por defecto (opcional).</strong>
-          <p>Abre el espacio en el navegador; el ID aparece en la URL con el formato <code>spaces/AAAAAAAAAAA</code>. Lo usarás en el campo <em>Espacio por defecto</em> (o el agente lo descubrirá con <code>list_spaces</code>).</p>
-        </div>
-        <div class="lang-en">
-          <strong>Note the default space ID (optional).</strong>
-          <p>Open the space in the browser; the ID appears in the URL as <code>spaces/AAAAAAAAAAA</code>. You'll use it in the <em>Default space</em> field (or the agent can discover it with <code>list_spaces</code>).</p>
-        </div>
+        <strong data-i18n="b.step6.label">Anota el ID del espacio por defecto (opcional).</strong>
+        <p data-i18n="b.step6.body">Abre el espacio en el navegador; el ID aparece en la URL con el formato <code>spaces/AAAAAAAAAAA</code>. Lo usarás en el campo <em>Espacio por defecto</em> (o el agente lo descubrirá con <code>list_spaces</code>).</p>
       </li>
     </ol>
 
     <div class="callout callout-warning">
-      <span class="callout-title"><span class="lang-es">Verifica el flujo actual</span><span class="lang-en">Verify the current flow</span></span>
-      <span class="lang-es">Los menús de Google Cloud y Google Chat cambian con frecuencia. Confirma cada paso contra la consola real al momento de configurar; los nombres exactos de los botones pueden variar.</span>
-      <span class="lang-en">Google Cloud and Google Chat menus change often. Confirm each step against the live console when configuring; exact button names may vary.</span>
+      <span class="callout-title" data-i18n="callout.flujo.title">Verifica el flujo actual</span>
+      <span data-i18n="callout.flujo.body">Los menús de Google Cloud y Google Chat cambian con frecuencia. Confirma cada paso contra la consola real al momento de configurar; los nombres exactos de los botones pueden variar.</span>
     </div>
   </section>
 
   <!-- ============ 4. PERMISOS ============ -->
-  <section id="permisos">
-    <h2><span class="lang-es">4. Permisos requeridos</span><span class="lang-en">4. Required permissions</span></h2>
+  <section>
+    <h2 id="permisos" data-i18n="section.permisos">4. Permisos requeridos</h2>
 
-    <div class="lang-es">
-      <p>Principio de mínimo privilegio: el conector solo necesita publicar mensajes como la app y, en modo cuenta de servicio, listar/consultar los espacios donde está agregada.</p>
-    </div>
-    <div class="lang-en">
-      <p>Least-privilege principle: the connector only needs to post messages as the app and, in service-account mode, list/read the spaces where it is added.</p>
-    </div>
+    <p data-i18n="section.permisos.body">Principio de mínimo privilegio: el conector solo necesita publicar mensajes como la app y, en modo cuenta de servicio, listar/consultar los espacios donde está agregada.</p>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Permiso / scope</span><span class="lang-en">Permission / scope</span></th>
-          <th><span class="lang-es">Modo</span><span class="lang-en">Mode</span></th>
-          <th><span class="lang-es">Para qué lo usa el conector</span><span class="lang-en">Why the connector needs it</span></th>
+          <th data-i18n="table.permiso_scope">Permiso / scope</th>
+          <th data-i18n="table.modo">Modo</th>
+          <th data-i18n="table.para_que">Para qué lo usa el conector</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">Webhook activo en el espacio</span><span class="lang-en">Active webhook in the space</span></td>
-          <td>Webhook</td>
-          <td><span class="lang-es">Publicar mensajes en ese espacio</span><span class="lang-en">Post messages to that space</span></td>
+          <td data-i18n="perm.webhook.name">Webhook activo en el espacio</td>
+          <td data-i18n="perm.mode.webhook">Webhook</td>
+          <td data-i18n="perm.webhook.why">Publicar mensajes en ese espacio</td>
         </tr>
         <tr>
           <td><code>https://www.googleapis.com/auth/chat.bot</code></td>
-          <td><span class="lang-es">Cuenta de servicio</span><span class="lang-en">Service account</span></td>
-          <td><span class="lang-es">Enviar mensajes como la app, listar espacios y consultar su información</span><span class="lang-en">Send messages as the app, list spaces and read their info</span></td>
+          <td data-i18n="perm.mode.sa">Cuenta de servicio</td>
+          <td data-i18n="perm.botscope.why">Enviar mensajes como la app, listar espacios y consultar su información</td>
         </tr>
         <tr>
-          <td><span class="lang-es">App agregada al espacio</span><span class="lang-en">App added to the space</span></td>
-          <td><span class="lang-es">Cuenta de servicio</span><span class="lang-en">Service account</span></td>
-          <td><span class="lang-es">Sin ser miembro, la API devuelve “no encontrado” al intentar publicar</span><span class="lang-en">Without membership, the API returns “not found” when trying to post</span></td>
+          <td data-i18n="perm.appadded.name">App agregada al espacio</td>
+          <td data-i18n="perm.mode.sa">Cuenta de servicio</td>
+          <td data-i18n="perm.appadded.why">Sin ser miembro, la API devuelve “no encontrado” al intentar publicar</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="lang-es"><p>El scope <code>chat.bot</code> es de autenticación de app: el agente actúa como la app de Chat, no en nombre de un usuario, por lo que no requiere delegación de dominio para enviar mensajes.</p></div>
-    <div class="lang-en"><p>The <code>chat.bot</code> scope is app authentication: the agent acts as the Chat app, not on behalf of a user, so it doesn't require domain-wide delegation to send messages.</p></div>
+    <p data-i18n="section.permisos.note">El scope <code>chat.bot</code> es de autenticación de app: el agente actúa como la app de Chat, no en nombre de un usuario, por lo que no requiere delegación de dominio para enviar mensajes.</p>
   </section>
 
   <!-- ============ 5. CONFIGURACIÓN EN RUVIC ============ -->
-  <section id="ruvic">
-    <h2><span class="lang-es">5. Configuración en Ruvic</span><span class="lang-en">5. Setup in Ruvic</span></h2>
+  <section>
+    <h2 id="configuracion-ruvic" data-i18n="section.configuracion_ruvic">5. Configuración en Ruvic</h2>
 
-    <div class="lang-es">
-      <p>Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Google Chat</strong> y pulsa <strong>Configurar</strong>. Elige el modo de autenticación que configuraste en la sección 3 y diligencia sus campos:</p>
-    </div>
-    <div class="lang-en">
-      <p>Go to <strong>Settings → Connectors</strong>, find the <strong>Google Chat</strong> card and click <strong>Configure</strong>. Choose the auth mode you set up in section 3 and fill in its fields:</p>
-    </div>
+    <p data-i18n="section.configuracion_ruvic.body">Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Google Chat</strong> y pulsa <strong>Configurar</strong>. Elige el modo de autenticación que configuraste en la sección 3 y diligencia sus campos:</p>
 
-    <h3><span class="lang-es">Modo “Webhook entrante”</span><span class="lang-en">“Incoming webhook” mode</span></h3>
+    <h3 data-i18n="ruvic.webhook.title">Modo “Webhook entrante”</h3>
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Campo del formulario</span><span class="lang-en">Form field</span></th>
-          <th><span class="lang-es">Valor (obtenido en la sección 3)</span><span class="lang-en">Value (from section 3)</span></th>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">URL del webhook</span><span class="lang-en">Webhook URL</span></td>
-          <td><span class="lang-es">La URL completa de la Opción A (incluye key y token). Se guarda como secreto</span><span class="lang-en">The full URL from Option A (includes key and token). Stored as a secret</span></td>
+          <td data-i18n="ruvic.webhook.url.field">URL del webhook</td>
+          <td data-i18n="ruvic.webhook.url.value">La URL completa de la Opción A (incluye key y token). Se guarda como secreto</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Timeout de peticiones</span><span class="lang-en">Request timeout</span></td>
-          <td><span class="lang-es">Opcional; <code>15</code> segundos por defecto</span><span class="lang-en">Optional; defaults to <code>15</code> seconds</span></td>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>15</code> segundos por defecto</td>
         </tr>
       </tbody>
     </table>
 
-    <h3><span class="lang-es">Modo “Cuenta de servicio”</span><span class="lang-en">“Service account” mode</span></h3>
+    <h3 data-i18n="ruvic.sa.title">Modo “Cuenta de servicio”</h3>
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Campo del formulario</span><span class="lang-en">Form field</span></th>
-          <th><span class="lang-es">Valor (obtenido en la sección 3)</span><span class="lang-en">Value (from section 3)</span></th>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">Credenciales de la cuenta de servicio (JSON)</span><span class="lang-en">Service account credentials (JSON)</span></td>
-          <td><span class="lang-es">Pega el contenido completo del archivo <code>.json</code> de la Opción B. Se guarda como secreto</span><span class="lang-en">Paste the full contents of the <code>.json</code> file from Option B. Stored as a secret</span></td>
+          <td data-i18n="ruvic.sa.json.field">Credenciales de la cuenta de servicio (JSON)</td>
+          <td data-i18n="ruvic.sa.json.value">Pega el contenido completo del archivo <code>.json</code> de la Opción B. Se guarda como secreto</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Espacio por defecto</span><span class="lang-en">Default space</span></td>
-          <td><span class="lang-es">Opcional; ID del espacio (<code>spaces/AAAA</code>) al que se enviará cuando no se indique otro</span><span class="lang-en">Optional; space ID (<code>spaces/AAAA</code>) used when no other is specified</span></td>
+          <td data-i18n="ruvic.sa.space.field">Espacio por defecto</td>
+          <td data-i18n="ruvic.sa.space.value">Opcional; ID del espacio (<code>spaces/AAAA</code>) al que se enviará cuando no se indique otro</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Timeout de peticiones</span><span class="lang-en">Request timeout</span></td>
-          <td><span class="lang-es">Opcional; <code>15</code> segundos por defecto</span><span class="lang-en">Optional; defaults to <code>15</code> seconds</span></td>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>15</code> segundos por defecto</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="lang-es"><p>Guarda y pulsa <span class="ruvic-button">Probar conexión</span> — la plataforma validará las credenciales sin publicar ningún mensaje en el espacio.</p></div>
-    <div class="lang-en"><p>Save and click <span class="ruvic-button">Test connection</span> — the platform will validate the credentials without posting any message to the space.</p></div>
+    <p data-i18n="section.configuracion_ruvic.test">Guarda y pulsa <span class="ruvic-button" data-i18n="btn.test">Probar conexión</span> — la plataforma validará las credenciales sin publicar ningún mensaje en el espacio.</p>
 
-    <div class="screenshot-placeholder">
-      <span class="lang-es">[ Captura: formulario del conector Google Chat con el selector de modo — reemplazar por assets/img/gchat-form.png ]</span>
-      <span class="lang-en">[ Screenshot: Google Chat connector form with the mode selector — replace with assets/img/gchat-form.png ]</span>
-    </div>
+    <div class="screenshot-placeholder" data-i18n="ruvic.shot">[ Captura: formulario del conector Google Chat con el selector de modo — reemplazar por assets/img/gchat-form.png ]</div>
   </section>
 
   <!-- ============ 6. VERIFICACIÓN ============ -->
-  <section id="verificacion">
-    <h2><span class="lang-es">6. Verificación</span><span class="lang-en">6. Verification</span></h2>
+  <section>
+    <h2 id="verificacion" data-i18n="section.verificacion">6. Verificación</h2>
 
     <ol class="ruvic-steps">
       <li>
-        <div class="lang-es"><strong>Test de conexión exitoso.</strong><p>El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa…”</em> (indicando el modo webhook o cuenta de servicio). La tarjeta del conector cambia a estado <strong>Configurado</strong>. Este test no publica mensajes en el espacio.</p></div>
-        <div class="lang-en"><strong>Successful connection test.</strong><p>The <em>Test connection</em> button should return: <em>“Successful connection…”</em> (indicating webhook or service-account mode). The connector card switches to <strong>Configured</strong>. This test posts no messages to the space.</p></div>
+        <strong data-i18n="verif.step1.label">Test de conexión exitoso.</strong>
+        <p data-i18n="verif.step1.body">El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa…”</em> (indicando el modo webhook o cuenta de servicio). La tarjeta del conector cambia a estado <strong>Configurado</strong>. Este test no publica mensajes en el espacio.</p>
       </li>
       <li>
-        <div class="lang-es"><strong>Automatización mínima de prueba.</strong><p>Abre una conversación nueva con el agente y pídele:</p><blockquote><em>“Envía un mensaje a Google Chat que diga: Conector configurado ✅.”</em></blockquote><p>El mensaje debe aparecer en el espacio destino. Si llega, el conector quedó operativo de punta a punta.</p></div>
-        <div class="lang-en"><strong>Minimal test automation.</strong><p>Open a new conversation with the agent and ask:</p><blockquote><em>“Send a message to Google Chat saying: Connector configured ✅.”</em></blockquote><p>The message should appear in the target space. If it arrives, the connector is fully operational.</p></div>
+        <strong data-i18n="verif.step2.label">Automatización mínima de prueba.</strong>
+        <p data-i18n="verif.step2.body">Abre una conversación nueva con el agente y pídele:</p>
+        <blockquote data-i18n="verif.step2.quote"><em>“Envía un mensaje a Google Chat que diga: Conector configurado ✅.”</em></blockquote>
+        <p data-i18n="verif.step2.after">El mensaje debe aparecer en el espacio destino. Si llega, el conector quedó operativo de punta a punta.</p>
       </li>
     </ol>
   </section>
 
   <!-- ============ 7. SOLUCIÓN DE PROBLEMAS ============ -->
-  <section id="problemas">
-    <h2><span class="lang-es">7. Solución de problemas</span><span class="lang-en">7. Troubleshooting</span></h2>
+  <section>
+    <h2 id="solucion-problemas" data-i18n="section.solucion_problemas">7. Solución de problemas</h2>
 
     <table>
       <thead>
         <tr>
-          <th><span class="lang-es">Mensaje / síntoma</span><span class="lang-en">Message / symptom</span></th>
-          <th><span class="lang-es">Causa probable y solución</span><span class="lang-en">Likely cause and fix</span></th>
+          <th data-i18n="table.sintoma">Mensaje / síntoma</th>
+          <th data-i18n="table.causa">Causa probable y solución</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="lang-es">“Google Chat rechazó las credenciales” (webhook)</span><span class="lang-en">“Google Chat rejected the credentials” (webhook)</span></td>
-          <td><span class="lang-es">La URL del webhook está incompleta o el webhook fue eliminado del espacio. Vuelve a copiarla completa (con key y token) o crea uno nuevo (Opción A).</span><span class="lang-en">The webhook URL is incomplete or the webhook was deleted from the space. Re-copy it in full (with key and token) or create a new one (Option A).</span></td>
+          <td data-i18n="tr.creds_webhook.sym">“Google Chat rechazó las credenciales” (webhook)</td>
+          <td data-i18n="tr.creds_webhook.fix">La URL del webhook está incompleta o el webhook fue eliminado del espacio. Vuelve a copiarla completa (con key y token) o crea uno nuevo (Opción A).</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“Google Chat rechazó las credenciales” (cuenta de servicio)</span><span class="lang-en">“Google Chat rejected the credentials” (service account)</span></td>
-          <td><span class="lang-es">La Chat API no está habilitada, la app de Chat no está configurada, o el proyecto es incorrecto. Revisa los pasos 2 y 4 de la Opción B.</span><span class="lang-en">The Chat API isn't enabled, the Chat app isn't configured, or the project is wrong. Review steps 2 and 4 of Option B.</span></td>
+          <td data-i18n="tr.creds_sa.sym">“Google Chat rechazó las credenciales” (cuenta de servicio)</td>
+          <td data-i18n="tr.creds_sa.fix">La Chat API no está habilitada, la app de Chat no está configurada, o el proyecto es incorrecto. Revisa los pasos 2 y 4 de la Opción B.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“Recurso no encontrado” al enviar</span><span class="lang-en">“Resource not found” when sending</span></td>
-          <td><span class="lang-es">La app no está agregada al espacio, o el ID del espacio es incorrecto. Agrega la app al espacio (paso 5 Opción B) y verifica el <code>spaces/…</code>.</span><span class="lang-en">The app isn't added to the space, or the space ID is wrong. Add the app to the space (step 5 Option B) and verify the <code>spaces/…</code>.</span></td>
+          <td data-i18n="tr.notfound.sym">“Recurso no encontrado” al enviar</td>
+          <td data-i18n="tr.notfound.fix">La app no está agregada al espacio, o el ID del espacio es incorrecto. Agrega la app al espacio (paso 5 Opción B) y verifica el <code>spaces/…</code>.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“El JSON de la cuenta de servicio es inválido”</span><span class="lang-en">“The service account JSON is invalid”</span></td>
-          <td><span class="lang-es">Se pegó solo una parte del archivo, o se modificó. Pega el contenido completo y sin editar del <code>.json</code> descargado.</span><span class="lang-en">Only part of the file was pasted, or it was edited. Paste the full, unmodified contents of the downloaded <code>.json</code>.</span></td>
+          <td data-i18n="tr.badjson.sym">“El JSON de la cuenta de servicio es inválido”</td>
+          <td data-i18n="tr.badjson.fix">Se pegó solo una parte del archivo, o se modificó. Pega el contenido completo y sin editar del <code>.json</code> descargado.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">“Esta operación requiere el modo cuenta de servicio”</span><span class="lang-en">“This operation requires service-account mode”</span></td>
-          <td><span class="lang-es">Se intentó listar espacios o enviar a un espacio distinto estando en modo webhook. Usa el modo cuenta de servicio para esas capacidades.</span><span class="lang-en">Tried to list spaces or send to a different space while in webhook mode. Use service-account mode for those capabilities.</span></td>
+          <td data-i18n="tr.needsa.sym">“Esta operación requiere el modo cuenta de servicio”</td>
+          <td data-i18n="tr.needsa.fix">Se intentó listar espacios o enviar a un espacio distinto estando en modo webhook. Usa el modo cuenta de servicio para esas capacidades.</td>
         </tr>
         <tr>
-          <td><span class="lang-es">Los webhooks no aparecen en el espacio</span><span class="lang-en">Webhooks don't appear in the space</span></td>
-          <td><span class="lang-es">El administrador de Workspace puede tenerlos deshabilitados. Usa el modo cuenta de servicio o solicita habilitarlos.</span><span class="lang-en">The Workspace admin may have them disabled. Use service-account mode or request to enable them.</span></td>
+          <td data-i18n="tr.nowebhook.sym">Los webhooks no aparecen en el espacio</td>
+          <td data-i18n="tr.nowebhook.fix">El administrador de Workspace puede tenerlos deshabilitados. Usa el modo cuenta de servicio o solicita habilitarlos.</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <!-- ============ 8. FAQ Y SEGURIDAD ============ -->
-  <section id="faq">
-    <h2><span class="lang-es">8. Preguntas frecuentes y notas de seguridad</span><span class="lang-en">8. FAQ and security notes</span></h2>
+  <section>
+    <h2 id="faq-seguridad" data-i18n="section.faq_seguridad">8. Preguntas frecuentes y notas de seguridad</h2>
 
-    <h3><span class="lang-es">¿Qué modo debería usar?</span><span class="lang-en">Which mode should I use?</span></h3>
-    <div class="lang-es"><p>Si solo necesitas publicar en <strong>un</strong> espacio y quieres lo más simple, usa el <strong>webhook</strong>. Si necesitas enviar a varios espacios, listar espacios o consultarlos, usa la <strong>cuenta de servicio</strong>.</p></div>
-    <div class="lang-en"><p>If you only need to post to <strong>one</strong> space and want the simplest setup, use the <strong>webhook</strong>. If you need to send to several spaces, list them or query them, use the <strong>service account</strong>.</p></div>
+    <h3 data-i18n="faq.modo.q">¿Qué modo debería usar?</h3>
+    <p data-i18n="faq.modo.a">Si solo necesitas publicar en <strong>un</strong> espacio y quieres lo más simple, usa el <strong>webhook</strong>. Si necesitas enviar a varios espacios, listar espacios o consultarlos, usa la <strong>cuenta de servicio</strong>.</p>
 
-    <h3><span class="lang-es">¿El agente puede leer los mensajes del espacio?</span><span class="lang-en">Can the agent read the space's messages?</span></h3>
-    <div class="lang-es"><p>No. Este conector es de <strong>solo envío</strong> (más listar/consultar espacios en modo cuenta de servicio). No lee el historial de mensajes de los espacios.</p></div>
-    <div class="lang-en"><p>No. This connector is <strong>send-only</strong> (plus listing/reading spaces in service-account mode). It does not read the spaces' message history.</p></div>
+    <h3 data-i18n="faq.lee.q">¿El agente puede leer los mensajes del espacio?</h3>
+    <p data-i18n="faq.lee.a">No. Este conector es de <strong>solo envío</strong> (más listar/consultar espacios en modo cuenta de servicio). No lee el historial de mensajes de los espacios.</p>
 
-    <h3><span class="lang-es">¿Dónde quedan guardadas las credenciales?</span><span class="lang-en">Where are the credentials stored?</span></h3>
-    <div class="lang-es"><p>Tanto la URL del webhook como el JSON de la cuenta de servicio se guardan como secretos en el almacén de credenciales de la plataforma. La interfaz nunca vuelve a mostrarlos; solo indica “definido”.</p></div>
-    <div class="lang-en"><p>Both the webhook URL and the service account JSON are stored as secrets in the platform's credential store. The UI never displays them again; it only shows “set”.</p></div>
+    <h3 data-i18n="faq.store.q">¿Dónde quedan guardadas las credenciales?</h3>
+    <p data-i18n="faq.store.a">Tanto la URL del webhook como el JSON de la cuenta de servicio se guardan como secretos en el almacén de credenciales de la plataforma. La interfaz nunca vuelve a mostrarlos; solo indica “definido”.</p>
 
-    <h3><span class="lang-es">Rotación de credenciales</span><span class="lang-en">Credential rotation</span></h3>
-    <div class="lang-es"><p><strong>Webhook</strong>: elimina el webhook en el espacio y crea uno nuevo; actualiza la URL en el formulario. <strong>Cuenta de servicio</strong>: en Google Cloud, crea una nueva clave JSON, actualízala en el formulario y luego elimina la clave anterior.</p></div>
-    <div class="lang-en"><p><strong>Webhook</strong>: delete the webhook in the space and create a new one; update the URL in the form. <strong>Service account</strong>: in Google Cloud, create a new JSON key, update it in the form, then delete the old key.</p></div>
+    <h3 data-i18n="faq.rot.q">Rotación de credenciales</h3>
+    <p data-i18n="faq.rot.a"><strong>Webhook</strong>: elimina el webhook en el espacio y crea uno nuevo; actualiza la URL en el formulario. <strong>Cuenta de servicio</strong>: en Google Cloud, crea una nueva clave JSON, actualízala en el formulario y luego elimina la clave anterior.</p>
 
-    <h3><span class="lang-es">¿Qué hago si una credencial se compromete?</span><span class="lang-en">What if a credential is compromised?</span></h3>
-    <div class="lang-es"><ol><li><strong>Webhook</strong>: elimínalo de inmediato en el espacio (invalida la URL) y crea uno nuevo.</li><li><strong>Cuenta de servicio</strong>: en Google Cloud, elimina/deshabilita la clave JSON comprometida (IAM → Cuentas de servicio → Claves).</li><li>Actualiza la nueva credencial en el formulario del conector.</li></ol></div>
-    <div class="lang-en"><ol><li><strong>Webhook</strong>: delete it immediately in the space (invalidates the URL) and create a new one.</li><li><strong>Service account</strong>: in Google Cloud, delete/disable the compromised JSON key (IAM → Service Accounts → Keys).</li><li>Update the new credential in the connector form.</li></ol></div>
+    <h3 data-i18n="faq.comp.q">¿Qué hago si una credencial se compromete?</h3>
+    <ol>
+      <li data-i18n="faq.comp.a1"><strong>Webhook</strong>: elimínalo de inmediato en el espacio (invalida la URL) y crea uno nuevo.</li>
+      <li data-i18n="faq.comp.a2"><strong>Cuenta de servicio</strong>: en Google Cloud, elimina/deshabilita la clave JSON comprometida (IAM → Cuentas de servicio → Claves).</li>
+      <li data-i18n="faq.comp.a3">Actualiza la nueva credencial en el formulario del conector.</li>
+    </ol>
 
     <div class="callout callout-warning">
-      <span class="callout-title"><span class="lang-es">Buenas prácticas</span><span class="lang-en">Best practices</span></span>
-      <span class="lang-es">Usa una cuenta de servicio dedicada solo para Ruvic; no compartas el JSON ni la URL del webhook por canales no seguros ni los publiques en repositorios; agrega la app únicamente a los espacios necesarios; y rota las claves periódicamente según tu política.</span>
-      <span class="lang-en">Use a dedicated service account only for Ruvic; never share the JSON or the webhook URL over insecure channels or commit them to repositories; add the app only to the spaces needed; and rotate keys periodically per your policy.</span>
+      <span class="callout-title" data-i18n="callout.bp.title">Buenas prácticas</span>
+      <span data-i18n="callout.bp.body">Usa una cuenta de servicio dedicada solo para Ruvic; no compartas el JSON ni la URL del webhook por canales no seguros ni los publiques en repositorios; agrega la app únicamente a los espacios necesarios; y rota las claves periódicamente según tu política.</span>
     </div>
   </section>
 
 </main>
 
-<footer class="ruvic-footer">
-  <div class="tagline">Opera, factura, escala — aunque tu equipo no esté</div>
-  <div>Ruvic Engine · @ruvic_ai</div>
-</footer>
-
 <script>
-  // Toggle de idioma ES/EN — parte de la plantilla, no modificar.
+  // Objeto I18N: mismas llaves en es/en. El PORTAL aplica el idioma del
+  // usuario (localStorage ruvic-docs-lang) sobre [data-i18n],
+  // [data-i18n-placeholder] y [data-i18n-alt]. No añadir toggle propio.
+  const I18N = {
+    es: {
+      doc_title: "Conector Google Chat — Ruvic",
+      guide_title: "Conector Google Chat",
+      guide_updated: "Última actualización: 16 de julio de 2026",
+      toc_title: "Contenido",
+      "toc.que_es": "¿Qué es y para qué sirve?",
+      "toc.prerrequisitos": "Prerrequisitos",
+      "toc.configuracion_fabricante": "Configuración en Google (paso a paso)",
+      "toc.permisos": "Permisos requeridos",
+      "toc.configuracion_ruvic": "Configuración en Ruvic",
+      "toc.verificacion": "Verificación",
+      "toc.solucion_problemas": "Solución de problemas",
+      "toc.faq_seguridad": "Preguntas frecuentes y notas de seguridad",
+
+      "section.que_es": "1. ¿Qué es y para qué sirve?",
+      "section.que_es.body": "El conector Google Chat permite que el agente de Ruvic <strong>envíe mensajes a los espacios (salas) de Google Chat</strong> de tu organización. Una vez configurado, puedes pedirle al agente cosas como:",
+      "section.que_es.ex1": "“Cuando termine el despliegue, avisa en el espacio de Ingeniería de Google Chat.”",
+      "section.que_es.ex2": "“Publica el resumen de ventas de hoy en el espacio de Dirección.”",
+      "section.que_es.ex3": "“Si una tarea de facturación falla, notifícalo en el espacio de Operaciones.”",
+      "section.que_es.ops": "Operaciones soportadas:",
+      "table.operacion": "Operación",
+      "table.que_hace": "Qué hace",
+      "op.send_message": "Envía un mensaje de texto a un espacio (soporta hilos)",
+      "op.list_spaces": "Lista los espacios donde la app está agregada (solo modo cuenta de servicio)",
+      "op.get_space": "Consulta la información de un espacio (solo modo cuenta de servicio)",
+      "callout.modos.title": "Dos modos de conexión",
+      "callout.modos.body": "El conector ofrece dos formas de conectarse. El <strong>webhook</strong> es el camino rápido: sin proyecto de Google Cloud, pero solo envía a un espacio. La <strong>cuenta de servicio (Chat API)</strong> requiere configurar Google Cloud, pero permite enviar a cualquier espacio donde agregues la app, listar espacios y consultar su información. Elige uno según tus necesidades.",
+
+      "section.prerrequisitos": "2. Prerrequisitos",
+      "section.prerrequisitos.comunes": "<strong>Comunes a ambos modos:</strong>",
+      "section.prerrequisitos.c1": "Una cuenta de <strong>Google Workspace</strong> con acceso a Google Chat y al menos un <strong>espacio</strong> destino.",
+      "section.prerrequisitos.c2": "Permiso para gestionar apps/webhooks en ese espacio (normalmente, ser miembro con derechos de administración del espacio).",
+      "section.prerrequisitos.sa": "<strong>Solo para el modo cuenta de servicio:</strong>",
+      "section.prerrequisitos.s1": "Acceso a <strong>Google Cloud Console</strong> con permiso para crear proyectos, habilitar APIs y crear cuentas de servicio.",
+      "section.prerrequisitos.s2": "En organizaciones restringidas, que el administrador de Workspace permita apps de Chat de terceros/internas.",
+
+      "section.configuracion_fabricante": "3. Configuración en Google (paso a paso)",
+      "callout.ruta.title": "Elige tu ruta",
+      "callout.ruta.body": "Sigue <strong>solo la Opción A (webhook)</strong> o <strong>solo la Opción B (cuenta de servicio)</strong>, según el modo que vayas a usar. No necesitas ambas.",
+      "opcion_a.title": "Opción A — Webhook entrante (rápido, un espacio)",
+      "a.step1.label": "Abre el espacio destino en Google Chat.",
+      "a.step1.body": "En <code>chat.google.com</code> (o Gmail con Chat activado), entra al <strong>espacio</strong> donde quieres que el agente publique. Los webhooks solo existen en espacios, no en mensajes directos.",
+      "a.step2.label": "Añade un webhook.",
+      "a.step2.body": "Pulsa el nombre del espacio &rarr; <strong>Apps e integraciones</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>Añadir webhook</strong>. Asigna un nombre (ej. “Ruvic”) y, opcionalmente, un avatar.",
+      "a.step2.shot": "[ Captura: diálogo “Añadir webhook” en un espacio de Google Chat — reemplazar por assets/img/gchat-webhook.png ]",
+      "a.step3.label": "Copia la URL del webhook.",
+      "a.step3.body": "Google genera una URL que incluye los parámetros <code>key</code> y <code>token</code>. Cópiala <strong>completa</strong>: es la credencial que irá en el formulario de Ruvic (campo <em>URL del webhook</em>). Trátala como un secreto.",
+      "opcion_b.title": "Opción B — Cuenta de servicio (Chat API)",
+      "b.step1.label": "Crea o elige un proyecto en Google Cloud.",
+      "b.step1.body": "Entra a <a href=\"https://console.cloud.google.com\">Google Cloud Console</a> y selecciona (o crea) el proyecto donde vivirá la app de Chat.",
+      "b.step2.label": "Habilita la Google Chat API.",
+      "b.step2.body": "<strong>APIs y servicios</strong> &rarr; <strong>Biblioteca</strong> &rarr; busca <em>Google Chat API</em> &rarr; <strong>Habilitar</strong>.",
+      "b.step2.shot": "[ Captura: página de la Google Chat API con el botón Habilitar — reemplazar por assets/img/gchat-enable-api.png ]",
+      "b.step3.label": "Crea una cuenta de servicio y su clave JSON.",
+      "b.step3.body": "<strong>IAM y administración</strong> &rarr; <strong>Cuentas de servicio</strong> &rarr; <strong>Crear cuenta de servicio</strong>. Luego, en la cuenta creada: <strong>Claves</strong> &rarr; <strong>Agregar clave</strong> &rarr; <strong>Crear clave nueva</strong> &rarr; <strong>JSON</strong>. Se descarga un archivo <code>.json</code>: su contenido completo irá en el formulario de Ruvic. Guárdalo de forma segura.",
+      "b.step3.shot": "[ Captura: creación de la clave JSON de la cuenta de servicio — reemplazar por assets/img/gchat-sa-key.png ]",
+      "b.step4.label": "Configura la app de Chat.",
+      "b.step4.body": "<strong>APIs y servicios</strong> &rarr; <strong>Google Chat API</strong> &rarr; <strong>Configuración</strong>: completa el nombre de la app, avatar y descripción, y habilita que pueda usarse en espacios. Sin este paso, la API responde error de permisos.",
+      "b.step5.label": "Agrega la app a cada espacio destino.",
+      "b.step5.body": "En Google Chat, entra al espacio &rarr; <strong>＋ Añadir personas y apps</strong> &rarr; busca el nombre de tu app de Chat y agrégala. Repite en cada espacio donde el agente deba publicar.",
+      "b.step6.label": "Anota el ID del espacio por defecto (opcional).",
+      "b.step6.body": "Abre el espacio en el navegador; el ID aparece en la URL con el formato <code>spaces/AAAAAAAAAAA</code>. Lo usarás en el campo <em>Espacio por defecto</em> (o el agente lo descubrirá con <code>list_spaces</code>).",
+      "callout.flujo.title": "Verifica el flujo actual",
+      "callout.flujo.body": "Los menús de Google Cloud y Google Chat cambian con frecuencia. Confirma cada paso contra la consola real al momento de configurar; los nombres exactos de los botones pueden variar.",
+
+      "section.permisos": "4. Permisos requeridos",
+      "section.permisos.body": "Principio de mínimo privilegio: el conector solo necesita publicar mensajes como la app y, en modo cuenta de servicio, listar/consultar los espacios donde está agregada.",
+      "table.permiso_scope": "Permiso / scope",
+      "table.modo": "Modo",
+      "table.para_que": "Para qué lo usa el conector",
+      "perm.webhook.name": "Webhook activo en el espacio",
+      "perm.mode.webhook": "Webhook",
+      "perm.webhook.why": "Publicar mensajes en ese espacio",
+      "perm.mode.sa": "Cuenta de servicio",
+      "perm.botscope.why": "Enviar mensajes como la app, listar espacios y consultar su información",
+      "perm.appadded.name": "App agregada al espacio",
+      "perm.appadded.why": "Sin ser miembro, la API devuelve “no encontrado” al intentar publicar",
+      "section.permisos.note": "El scope <code>chat.bot</code> es de autenticación de app: el agente actúa como la app de Chat, no en nombre de un usuario, por lo que no requiere delegación de dominio para enviar mensajes.",
+
+      "section.configuracion_ruvic": "5. Configuración en Ruvic",
+      "section.configuracion_ruvic.body": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Google Chat</strong> y pulsa <strong>Configurar</strong>. Elige el modo de autenticación que configuraste en la sección 3 y diligencia sus campos:",
+      "ruvic.webhook.title": "Modo “Webhook entrante”",
+      "table.campo": "Campo del formulario",
+      "table.valor": "Valor (obtenido en la sección 3)",
+      "ruvic.webhook.url.field": "URL del webhook",
+      "ruvic.webhook.url.value": "La URL completa de la Opción A (incluye key y token). Se guarda como secreto",
+      "ruvic.timeout.field": "Timeout de peticiones",
+      "ruvic.timeout.value": "Opcional; <code>15</code> segundos por defecto",
+      "ruvic.sa.title": "Modo “Cuenta de servicio”",
+      "ruvic.sa.json.field": "Credenciales de la cuenta de servicio (JSON)",
+      "ruvic.sa.json.value": "Pega el contenido completo del archivo <code>.json</code> de la Opción B. Se guarda como secreto",
+      "ruvic.sa.space.field": "Espacio por defecto",
+      "ruvic.sa.space.value": "Opcional; ID del espacio (<code>spaces/AAAA</code>) al que se enviará cuando no se indique otro",
+      "section.configuracion_ruvic.test": "Guarda y pulsa <span class=\"ruvic-button\">Probar conexión</span> — la plataforma validará las credenciales sin publicar ningún mensaje en el espacio.",
+      "btn.test": "Probar conexión",
+      "ruvic.shot": "[ Captura: formulario del conector Google Chat con el selector de modo — reemplazar por assets/img/gchat-form.png ]",
+
+      "section.verificacion": "6. Verificación",
+      "verif.step1.label": "Test de conexión exitoso.",
+      "verif.step1.body": "El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa…”</em> (indicando el modo webhook o cuenta de servicio). La tarjeta del conector cambia a estado <strong>Configurado</strong>. Este test no publica mensajes en el espacio.",
+      "verif.step2.label": "Automatización mínima de prueba.",
+      "verif.step2.body": "Abre una conversación nueva con el agente y pídele:",
+      "verif.step2.quote": "<em>“Envía un mensaje a Google Chat que diga: Conector configurado ✅.”</em>",
+      "verif.step2.after": "El mensaje debe aparecer en el espacio destino. Si llega, el conector quedó operativo de punta a punta.",
+
+      "section.solucion_problemas": "7. Solución de problemas",
+      "table.sintoma": "Mensaje / síntoma",
+      "table.causa": "Causa probable y solución",
+      "tr.creds_webhook.sym": "“Google Chat rechazó las credenciales” (webhook)",
+      "tr.creds_webhook.fix": "La URL del webhook está incompleta o el webhook fue eliminado del espacio. Vuelve a copiarla completa (con key y token) o crea uno nuevo (Opción A).",
+      "tr.creds_sa.sym": "“Google Chat rechazó las credenciales” (cuenta de servicio)",
+      "tr.creds_sa.fix": "La Chat API no está habilitada, la app de Chat no está configurada, o el proyecto es incorrecto. Revisa los pasos 2 y 4 de la Opción B.",
+      "tr.notfound.sym": "“Recurso no encontrado” al enviar",
+      "tr.notfound.fix": "La app no está agregada al espacio, o el ID del espacio es incorrecto. Agrega la app al espacio (paso 5 Opción B) y verifica el <code>spaces/…</code>.",
+      "tr.badjson.sym": "“El JSON de la cuenta de servicio es inválido”",
+      "tr.badjson.fix": "Se pegó solo una parte del archivo, o se modificó. Pega el contenido completo y sin editar del <code>.json</code> descargado.",
+      "tr.needsa.sym": "“Esta operación requiere el modo cuenta de servicio”",
+      "tr.needsa.fix": "Se intentó listar espacios o enviar a un espacio distinto estando en modo webhook. Usa el modo cuenta de servicio para esas capacidades.",
+      "tr.nowebhook.sym": "Los webhooks no aparecen en el espacio",
+      "tr.nowebhook.fix": "El administrador de Workspace puede tenerlos deshabilitados. Usa el modo cuenta de servicio o solicita habilitarlos.",
+
+      "section.faq_seguridad": "8. Preguntas frecuentes y notas de seguridad",
+      "faq.modo.q": "¿Qué modo debería usar?",
+      "faq.modo.a": "Si solo necesitas publicar en <strong>un</strong> espacio y quieres lo más simple, usa el <strong>webhook</strong>. Si necesitas enviar a varios espacios, listar espacios o consultarlos, usa la <strong>cuenta de servicio</strong>.",
+      "faq.lee.q": "¿El agente puede leer los mensajes del espacio?",
+      "faq.lee.a": "No. Este conector es de <strong>solo envío</strong> (más listar/consultar espacios en modo cuenta de servicio). No lee el historial de mensajes de los espacios.",
+      "faq.store.q": "¿Dónde quedan guardadas las credenciales?",
+      "faq.store.a": "Tanto la URL del webhook como el JSON de la cuenta de servicio se guardan como secretos en el almacén de credenciales de la plataforma. La interfaz nunca vuelve a mostrarlos; solo indica “definido”.",
+      "faq.rot.q": "Rotación de credenciales",
+      "faq.rot.a": "<strong>Webhook</strong>: elimina el webhook en el espacio y crea uno nuevo; actualiza la URL en el formulario. <strong>Cuenta de servicio</strong>: en Google Cloud, crea una nueva clave JSON, actualízala en el formulario y luego elimina la clave anterior.",
+      "faq.comp.q": "¿Qué hago si una credencial se compromete?",
+      "faq.comp.a1": "<strong>Webhook</strong>: elimínalo de inmediato en el espacio (invalida la URL) y crea uno nuevo.",
+      "faq.comp.a2": "<strong>Cuenta de servicio</strong>: en Google Cloud, elimina/deshabilita la clave JSON comprometida (IAM → Cuentas de servicio → Claves).",
+      "faq.comp.a3": "Actualiza la nueva credencial en el formulario del conector.",
+      "callout.bp.title": "Buenas prácticas",
+      "callout.bp.body": "Usa una cuenta de servicio dedicada solo para Ruvic; no compartas el JSON ni la URL del webhook por canales no seguros ni los publiques en repositorios; agrega la app únicamente a los espacios necesarios; y rota las claves periódicamente según tu política.",
+    },
+    en: {
+      doc_title: "Google Chat Connector — Ruvic",
+      guide_title: "Google Chat Connector",
+      guide_updated: "Last updated: July 16, 2026",
+      toc_title: "Contents",
+      "toc.que_es": "What it is and what it's for",
+      "toc.prerrequisitos": "Prerequisites",
+      "toc.configuracion_fabricante": "Google-side setup (step by step)",
+      "toc.permisos": "Required permissions",
+      "toc.configuracion_ruvic": "Configuration in Ruvic",
+      "toc.verificacion": "Verification",
+      "toc.solucion_problemas": "Troubleshooting",
+      "toc.faq_seguridad": "FAQ and security notes",
+
+      "section.que_es": "1. What it is and what it's for",
+      "section.que_es.body": "The Google Chat connector lets the Ruvic agent <strong>send messages to your organization's Google Chat spaces (rooms)</strong>. Once configured, you can ask the agent things like:",
+      "section.que_es.ex1": "“When the deploy finishes, post in the Engineering space on Google Chat.”",
+      "section.que_es.ex2": "“Publish today's sales summary in the Leadership space.”",
+      "section.que_es.ex3": "“If a billing job fails, notify the Operations space.”",
+      "section.que_es.ops": "Supported operations:",
+      "table.operacion": "Operation",
+      "table.que_hace": "What it does",
+      "op.send_message": "Sends a text message to a space (supports threads)",
+      "op.list_spaces": "Lists the spaces where the app is added (service-account mode only)",
+      "op.get_space": "Gets information about a space (service-account mode only)",
+      "callout.modos.title": "Two connection modes",
+      "callout.modos.body": "The connector offers two ways to connect. The <strong>webhook</strong> is the fast path: no Google Cloud project, but it sends to a single space only. The <strong>service account (Chat API)</strong> requires Google Cloud setup, but lets you send to any space where you add the app, list spaces and query their info. Pick one based on your needs.",
+
+      "section.prerrequisitos": "2. Prerequisites",
+      "section.prerrequisitos.comunes": "<strong>Common to both modes:</strong>",
+      "section.prerrequisitos.c1": "A <strong>Google Workspace</strong> account with access to Google Chat and at least one target <strong>space</strong>.",
+      "section.prerrequisitos.c2": "Permission to manage apps/webhooks in that space (usually being a member with space management rights).",
+      "section.prerrequisitos.sa": "<strong>Service-account mode only:</strong>",
+      "section.prerrequisitos.s1": "Access to <strong>Google Cloud Console</strong> with permission to create projects, enable APIs and create service accounts.",
+      "section.prerrequisitos.s2": "In restricted organizations, the Workspace admin must allow third-party/internal Chat apps.",
+
+      "section.configuracion_fabricante": "3. Google-side setup (step by step)",
+      "callout.ruta.title": "Choose your path",
+      "callout.ruta.body": "Follow <strong>only Option A (webhook)</strong> or <strong>only Option B (service account)</strong>, depending on the mode you'll use. You don't need both.",
+      "opcion_a.title": "Option A — Incoming webhook (fast, single space)",
+      "a.step1.label": "Open the target space in Google Chat.",
+      "a.step1.body": "In <code>chat.google.com</code> (or Gmail with Chat enabled), open the <strong>space</strong> where you want the agent to post. Webhooks only exist in spaces, not in direct messages.",
+      "a.step2.label": "Add a webhook.",
+      "a.step2.body": "Click the space name &rarr; <strong>Apps &amp; integrations</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>Add webhook</strong>. Give it a name (e.g. “Ruvic”) and optionally an avatar.",
+      "a.step2.shot": "[ Screenshot: “Add webhook” dialog in a Google Chat space — replace with assets/img/gchat-webhook.png ]",
+      "a.step3.label": "Copy the webhook URL.",
+      "a.step3.body": "Google generates a URL that includes the <code>key</code> and <code>token</code> parameters. Copy it <strong>in full</strong>: it is the credential that goes in the Ruvic form (<em>Webhook URL</em> field). Treat it as a secret.",
+      "opcion_b.title": "Option B — Service account (Chat API)",
+      "b.step1.label": "Create or pick a project in Google Cloud.",
+      "b.step1.body": "Go to <a href=\"https://console.cloud.google.com\">Google Cloud Console</a> and select (or create) the project where the Chat app will live.",
+      "b.step2.label": "Enable the Google Chat API.",
+      "b.step2.body": "<strong>APIs &amp; Services</strong> &rarr; <strong>Library</strong> &rarr; search <em>Google Chat API</em> &rarr; <strong>Enable</strong>.",
+      "b.step2.shot": "[ Screenshot: Google Chat API page with the Enable button — replace with assets/img/gchat-enable-api.png ]",
+      "b.step3.label": "Create a service account and its JSON key.",
+      "b.step3.body": "<strong>IAM &amp; Admin</strong> &rarr; <strong>Service Accounts</strong> &rarr; <strong>Create service account</strong>. Then, on the created account: <strong>Keys</strong> &rarr; <strong>Add key</strong> &rarr; <strong>Create new key</strong> &rarr; <strong>JSON</strong>. A <code>.json</code> file downloads: its full contents go into the Ruvic form. Store it securely.",
+      "b.step3.shot": "[ Screenshot: creating the service account JSON key — replace with assets/img/gchat-sa-key.png ]",
+      "b.step4.label": "Configure the Chat app.",
+      "b.step4.body": "<strong>APIs &amp; Services</strong> &rarr; <strong>Google Chat API</strong> &rarr; <strong>Configuration</strong>: fill in the app name, avatar and description, and enable it for spaces. Without this step, the API returns a permissions error.",
+      "b.step5.label": "Add the app to each target space.",
+      "b.step5.body": "In Google Chat, open the space &rarr; <strong>＋ Add people &amp; apps</strong> &rarr; search your Chat app's name and add it. Repeat for every space where the agent should post.",
+      "b.step6.label": "Note the default space ID (optional).",
+      "b.step6.body": "Open the space in the browser; the ID appears in the URL as <code>spaces/AAAAAAAAAAA</code>. You'll use it in the <em>Default space</em> field (or the agent can discover it with <code>list_spaces</code>).",
+      "callout.flujo.title": "Verify the current flow",
+      "callout.flujo.body": "Google Cloud and Google Chat menus change often. Confirm each step against the live console when configuring; exact button names may vary.",
+
+      "section.permisos": "4. Required permissions",
+      "section.permisos.body": "Least-privilege principle: the connector only needs to post messages as the app and, in service-account mode, list/read the spaces where it is added.",
+      "table.permiso_scope": "Permission / scope",
+      "table.modo": "Mode",
+      "table.para_que": "Why the connector needs it",
+      "perm.webhook.name": "Active webhook in the space",
+      "perm.mode.webhook": "Webhook",
+      "perm.webhook.why": "Post messages to that space",
+      "perm.mode.sa": "Service account",
+      "perm.botscope.why": "Send messages as the app, list spaces and read their info",
+      "perm.appadded.name": "App added to the space",
+      "perm.appadded.why": "Without membership, the API returns “not found” when trying to post",
+      "section.permisos.note": "The <code>chat.bot</code> scope is app authentication: the agent acts as the Chat app, not on behalf of a user, so it doesn't require domain-wide delegation to send messages.",
+
+      "section.configuracion_ruvic": "5. Configuration in Ruvic",
+      "section.configuracion_ruvic.body": "Go to <strong>Settings → Connectors</strong>, find the <strong>Google Chat</strong> card and click <strong>Configure</strong>. Choose the auth mode you set up in section 3 and fill in its fields:",
+      "ruvic.webhook.title": "“Incoming webhook” mode",
+      "table.campo": "Form field",
+      "table.valor": "Value (from section 3)",
+      "ruvic.webhook.url.field": "Webhook URL",
+      "ruvic.webhook.url.value": "The full URL from Option A (includes key and token). Stored as a secret",
+      "ruvic.timeout.field": "Request timeout",
+      "ruvic.timeout.value": "Optional; defaults to <code>15</code> seconds",
+      "ruvic.sa.title": "“Service account” mode",
+      "ruvic.sa.json.field": "Service account credentials (JSON)",
+      "ruvic.sa.json.value": "Paste the full contents of the <code>.json</code> file from Option B. Stored as a secret",
+      "ruvic.sa.space.field": "Default space",
+      "ruvic.sa.space.value": "Optional; space ID (<code>spaces/AAAA</code>) used when no other is specified",
+      "section.configuracion_ruvic.test": "Save and click <span class=\"ruvic-button\">Test connection</span> — the platform will validate the credentials without posting any message to the space.",
+      "btn.test": "Test connection",
+      "ruvic.shot": "[ Screenshot: Google Chat connector form with the mode selector — replace with assets/img/gchat-form.png ]",
+
+      "section.verificacion": "6. Verification",
+      "verif.step1.label": "Successful connection test.",
+      "verif.step1.body": "The <em>Test connection</em> button should return: <em>“Successful connection…”</em> (indicating webhook or service-account mode). The connector card switches to <strong>Configured</strong>. This test posts no messages to the space.",
+      "verif.step2.label": "Minimal test automation.",
+      "verif.step2.body": "Open a new conversation with the agent and ask:",
+      "verif.step2.quote": "<em>“Send a message to Google Chat saying: Connector configured ✅.”</em>",
+      "verif.step2.after": "The message should appear in the target space. If it arrives, the connector is fully operational.",
+
+      "section.solucion_problemas": "7. Troubleshooting",
+      "table.sintoma": "Message / symptom",
+      "table.causa": "Likely cause and fix",
+      "tr.creds_webhook.sym": "“Google Chat rejected the credentials” (webhook)",
+      "tr.creds_webhook.fix": "The webhook URL is incomplete or the webhook was deleted from the space. Re-copy it in full (with key and token) or create a new one (Option A).",
+      "tr.creds_sa.sym": "“Google Chat rejected the credentials” (service account)",
+      "tr.creds_sa.fix": "The Chat API isn't enabled, the Chat app isn't configured, or the project is wrong. Review steps 2 and 4 of Option B.",
+      "tr.notfound.sym": "“Resource not found” when sending",
+      "tr.notfound.fix": "The app isn't added to the space, or the space ID is wrong. Add the app to the space (step 5 Option B) and verify the <code>spaces/…</code>.",
+      "tr.badjson.sym": "“The service account JSON is invalid”",
+      "tr.badjson.fix": "Only part of the file was pasted, or it was edited. Paste the full, unmodified contents of the downloaded <code>.json</code>.",
+      "tr.needsa.sym": "“This operation requires service-account mode”",
+      "tr.needsa.fix": "Tried to list spaces or send to a different space while in webhook mode. Use service-account mode for those capabilities.",
+      "tr.nowebhook.sym": "Webhooks don't appear in the space",
+      "tr.nowebhook.fix": "The Workspace admin may have them disabled. Use service-account mode or request to enable them.",
+
+      "section.faq_seguridad": "8. FAQ and security notes",
+      "faq.modo.q": "Which mode should I use?",
+      "faq.modo.a": "If you only need to post to <strong>one</strong> space and want the simplest setup, use the <strong>webhook</strong>. If you need to send to several spaces, list them or query them, use the <strong>service account</strong>.",
+      "faq.lee.q": "Can the agent read the space's messages?",
+      "faq.lee.a": "No. This connector is <strong>send-only</strong> (plus listing/reading spaces in service-account mode). It does not read the spaces' message history.",
+      "faq.store.q": "Where are the credentials stored?",
+      "faq.store.a": "Both the webhook URL and the service account JSON are stored as secrets in the platform's credential store. The UI never displays them again; it only shows “set”.",
+      "faq.rot.q": "Credential rotation",
+      "faq.rot.a": "<strong>Webhook</strong>: delete the webhook in the space and create a new one; update the URL in the form. <strong>Service account</strong>: in Google Cloud, create a new JSON key, update it in the form, then delete the old key.",
+      "faq.comp.q": "What if a credential is compromised?",
+      "faq.comp.a1": "<strong>Webhook</strong>: delete it immediately in the space (invalidates the URL) and create a new one.",
+      "faq.comp.a2": "<strong>Service account</strong>: in Google Cloud, delete/disable the compromised JSON key (IAM → Service Accounts → Keys).",
+      "faq.comp.a3": "Update the new credential in the connector form.",
+      "callout.bp.title": "Best practices",
+      "callout.bp.body": "Use a dedicated service account only for Ruvic; never share the JSON or the webhook URL over insecure channels or commit them to repositories; add the app only to the spaces needed; and rotate keys periodically per your policy.",
+    },
+  };
+
+  // Fallback local: si el portal NO está presente (preview local), aplica
+  // el idioma guardado para poder previsualizar. El portal, cuando existe,
+  // maneja el toggle y vuelve a aplicar el idioma del usuario.
   (function () {
-    var buttons = document.querySelectorAll("[data-set-lang]");
-    function setLang(lang) {
-      document.documentElement.setAttribute("data-lang", lang);
+    function apply(lang) {
+      var dict = I18N[lang] || I18N.es;
       document.documentElement.setAttribute("lang", lang);
-      buttons.forEach(function (btn) {
-        btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n")];
+        if (v != null) el.innerHTML = v;
       });
-      try { localStorage.setItem("ruvic-docs-lang", lang); } catch (e) {}
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-placeholder")];
+        if (v != null) el.setAttribute("placeholder", v);
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-alt")];
+        if (v != null) el.setAttribute("alt", v);
+      });
     }
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        setLang(btn.getAttribute("data-set-lang"));
-      });
-    });
-    try {
-      var saved = localStorage.getItem("ruvic-docs-lang");
-      if (saved === "en" || saved === "es") setLang(saved);
-    } catch (e) {}
+    var saved = "es";
+    try { saved = localStorage.getItem("ruvic-docs-lang") || "es"; } catch (e) {}
+    if (saved !== "es") apply(saved);
   })();
 </script>
 
