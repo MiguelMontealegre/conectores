@@ -1,0 +1,61 @@
+{
+  "id": "slack",
+  "name": "Slack",
+  "name_en": "Slack",
+  "version": "1.0.0",
+  "description": "Mensajería a canales y usuarios de Slack mediante una app de bot: enviar mensajes y mensajes directos, consultar y listar canales",
+  "description_en": "Messaging to Slack channels and users through a bot app: send messages and direct messages, get and list channels",
+  "category": "messaging",
+  "category_en": "messaging",
+  "keywords": ["slack", "bot", "mensajería", "messaging", "canal", "channel", "usuario", "user", "dm", "mensaje directo", "direct message", "notificación", "notification"],
+  "library": {
+    "package": "ruvic-slack-connector",
+    "install": "pip install git+https://github.com/tu-org/conector-slack.git#subdirectory=lib",
+    "import_name": "ruvic_slack_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "bot_token",
+      "label": "Token de bot (OAuth de la app)",
+      "fields": [
+        {
+          "key": "bot_token",
+          "label": "Bot User OAuth Token",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "placeholder": "xoxb-...",
+          "help_text": "Token de bot de la app de Slack (OAuth & Permissions → Bot User OAuth Token). Empieza por xoxb-",
+          "pattern": "^xoxb-[A-Za-z0-9-]{10,}$"
+        },
+        {
+          "key": "default_channel",
+          "label": "Destino por defecto (opcional)",
+          "type": "text",
+          "required": false,
+          "placeholder": "#general  |  C0123ABCD  |  U0123ABCD",
+          "help_text": "Canal o usuario al que se enviará cuando no se indique destino. Acepta #nombre, ID de canal (C…) o ID de usuario (U…) para DM"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "15"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_SLACK_",
+  "operations": [
+    "chat.send_message",
+    "chat.send_direct_message",
+    "chat.get_channel_info",
+    "chat.list_channels"
+  ],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "La app de Slack necesita, como mínimo, los scopes de bot: chat:write (enviar mensajes), im:write (abrir DMs a usuarios), channels:read y groups:read (resolver/consultar canales). Para publicar en un canal el bot debe estar invitado a ese canal (/invite @tu-bot). Instala la app en el workspace para obtener el Bot User OAuth Token (xoxb-…)."
+  }
+}

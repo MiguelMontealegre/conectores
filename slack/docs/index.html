@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Guía de configuración del conector Slack — Ruvic
+  ============================================================
+  Sigue la guía oficial de documentación Ruvic:
+  - i18n por llaves data-i18n + objeto I18N (es/en). El texto
+    por defecto del HTML está en español.
+  - Sin toggle propio ni cabecera propia: el PORTAL aplica el
+    idioma del usuario (localStorage ruvic-docs-lang) sobre
+    [data-i18n], [data-i18n-placeholder] y [data-i18n-alt].
+  - ids de sección canónicos y estables (no se traducen).
+  - assets/ruvic.css es solo para preview local; al publicar se
+    reescribe a la hoja canónica del portal.
+  Reemplaza los .screenshot-placeholder por capturas reales en
+  assets/img/.
+  ============================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="doc_title">Conector Slack — Ruvic</title>
+  <link rel="stylesheet" href="assets/ruvic.css">
+</head>
+<body>
+
+<main class="ruvic-container">
+
+  <!-- ============ ÍNDICE ============ -->
+  <nav class="ruvic-toc" aria-label="Índice">
+    <h2 data-i18n="toc_title">Contenido</h2>
+    <ol>
+      <li><a href="#que-es" data-i18n="toc.que_es">¿Qué es y para qué sirve?</a></li>
+      <li><a href="#prerrequisitos" data-i18n="toc.prerrequisitos">Prerrequisitos</a></li>
+      <li><a href="#configuracion-fabricante" data-i18n="toc.configuracion_fabricante">Configuración en Slack (paso a paso)</a></li>
+      <li><a href="#permisos" data-i18n="toc.permisos">Permisos requeridos</a></li>
+      <li><a href="#configuracion-ruvic" data-i18n="toc.configuracion_ruvic">Configuración en Ruvic</a></li>
+      <li><a href="#verificacion" data-i18n="toc.verificacion">Verificación</a></li>
+      <li><a href="#solucion-problemas" data-i18n="toc.solucion_problemas">Solución de problemas</a></li>
+      <li><a href="#faq-seguridad" data-i18n="toc.faq_seguridad">Preguntas frecuentes y notas de seguridad</a></li>
+    </ol>
+  </nav>
+
+  <h1 data-i18n="guide_title">Conector Slack</h1>
+  <p class="guide-updated" data-i18n="guide_updated">Última actualización: 21 de julio de 2026</p>
+
+  <!-- ============ 1. QUÉ ES ============ -->
+  <section>
+    <h2 id="que-es" data-i18n="section.que_es">1. ¿Qué es y para qué sirve?</h2>
+
+    <p data-i18n="section.que_es.body">El conector Slack permite que el agente de Ruvic envíe mensajes a través de una <strong>app de Slack (bot)</strong>: a canales públicos o privados y a personas por mensaje directo. Una vez configurado, puedes pedirle al agente cosas como:</p>
+    <ul>
+      <li data-i18n="section.que_es.ex1">“Cuando termine el reporte de ventas, publícalo en el canal #operaciones de Slack.”</li>
+      <li data-i18n="section.que_es.ex2">“Avísame por Slack por mensaje directo si algún servidor supera el 90% de disco.”</li>
+      <li data-i18n="section.que_es.ex3">“Envía un recordatorio al canal #soporte cada mañana a las 9.”</li>
+    </ul>
+    <p data-i18n="section.que_es.ops">Operaciones soportadas:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.operacion">Operación</th>
+          <th data-i18n="table.que_hace">Qué hace</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>chat.send_message</code></td>
+          <td data-i18n="op.send_message">Envía un mensaje a un canal (público o privado) o a un usuario</td>
+        </tr>
+        <tr>
+          <td><code>chat.send_direct_message</code></td>
+          <td data-i18n="op.send_dm">Envía un mensaje directo (DM) a una persona por su ID</td>
+        </tr>
+        <tr>
+          <td><code>chat.get_channel_info</code></td>
+          <td data-i18n="op.get_info">Consulta la información de un canal</td>
+        </tr>
+        <tr>
+          <td><code>chat.list_channels</code></td>
+          <td data-i18n="op.list">Lista los canales del workspace (para resolver nombre → ID)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <span class="callout-title" data-i18n="callout.bot.title">Todo pasa por una app de bot</span>
+      <span data-i18n="callout.bot.body">Ruvic no usa tu cuenta personal de Slack: actúa mediante una app dedicada que tú creas e instalas en tu workspace. El bot solo puede publicar en los canales a los que lo invitas y enviar DMs con el permiso correspondiente.</span>
+    </div>
+  </section>
+
+  <!-- ============ 2. PRERREQUISITOS ============ -->
+  <section>
+    <h2 id="prerrequisitos" data-i18n="section.prerrequisitos">2. Prerrequisitos</h2>
+
+    <ul>
+      <li data-i18n="section.prerrequisitos.p1">Un <strong>workspace de Slack</strong> y permisos para crear e instalar apps en él (ser administrador, o que un administrador apruebe la instalación).</li>
+      <li data-i18n="section.prerrequisitos.p2">El <strong>canal o la persona destino</strong> donde el bot enviará mensajes, y capacidad para invitar el bot a ese canal.</li>
+      <li data-i18n="section.prerrequisitos.p3">Nada de infraestructura extra: no se necesita servidor propio; Ruvic se comunica con la API pública de Slack (<code>slack.com/api</code>).</li>
+    </ul>
+  </section>
+
+  <!-- ============ 3. CONFIGURACIÓN EN EL FABRICANTE ============ -->
+  <section>
+    <h2 id="configuracion-fabricante" data-i18n="section.configuracion_fabricante">3. Configuración en Slack (paso a paso)</h2>
+
+    <p data-i18n="section.configuracion_fabricante.intro">Vas a crear una <strong>app de Slack</strong>, darle los <strong>scopes</strong> de bot necesarios, instalarla en tu workspace y copiar el <strong>Bot User OAuth Token</strong> (empieza por <code>xoxb-</code>). Todo se hace en el panel de apps de Slack.</p>
+
+    <ol class="ruvic-steps">
+      <li>
+        <strong data-i18n="step1.label">Crea la app de Slack.</strong>
+        <p data-i18n="step1.body">Entra a <code>api.slack.com/apps</code>, pulsa <strong>Create New App → From scratch</strong>, ponle un nombre (ej. <code>Ruvic Bot</code>) y elige tu workspace.</p>
+        <div class="screenshot-placeholder" data-i18n="step1.shot">[ Captura: pantalla Create New App / From scratch — reemplazar por assets/img/slack-create-app.png ]</div>
+      </li>
+      <li>
+        <strong data-i18n="step2.label">Añade los scopes del bot.</strong>
+        <p data-i18n="step2.body">En el menú lateral entra a <strong>OAuth &amp; Permissions</strong> y baja a <strong>Scopes → Bot Token Scopes</strong>. Agrega como mínimo:</p>
+        <ul>
+          <li><code>chat:write</code> — <span data-i18n="step2.chat">enviar mensajes.</span></li>
+          <li><code>im:write</code> — <span data-i18n="step2.im">abrir mensajes directos a usuarios.</span></li>
+          <li><code>channels:read</code>, <code>groups:read</code> — <span data-i18n="step2.read">consultar y resolver canales públicos y privados.</span></li>
+          <li><code>chat:write.public</code> — <span data-i18n="step2.public">(opcional) publicar en canales públicos sin invitar el bot.</span></li>
+        </ul>
+      </li>
+      <li>
+        <strong data-i18n="step3.label">Instala la app en el workspace.</strong>
+        <p data-i18n="step3.body">Arriba en <strong>OAuth &amp; Permissions</strong> pulsa <strong>Install to Workspace</strong> y autoriza. Slack generará el token del bot.</p>
+      </li>
+      <li>
+        <strong data-i18n="step4.label">Copia el Bot User OAuth Token.</strong>
+        <p data-i18n="step4.body">Tras instalar, aparece el <strong>Bot User OAuth Token</strong> con el formato <code>xoxb-...</code>. Guárdalo: es la credencial que irá en el formulario de Ruvic. Trátalo como una contraseña — quien lo tenga puede publicar como el bot.</p>
+<pre><code>xoxb-1111111111-2222222222222-XXXXXXXXXXXXXXXXXXXXXXXX</code></pre>
+        <div class="screenshot-placeholder" data-i18n="step4.shot">[ Captura: Bot User OAuth Token en OAuth & Permissions (ofuscado) — reemplazar por assets/img/slack-token.png ]</div>
+      </li>
+      <li>
+        <strong data-i18n="step5.label">Invita el bot al canal destino.</strong>
+        <p data-i18n="step5.body">En Slack, abre el canal donde quieres que publique y escribe <code>/invite @Ruvic Bot</code>. Sin esto, publicar da error <code>not_in_channel</code> (salvo canales públicos con el scope <code>chat:write.public</code>). Para el ID de un usuario (DM), en su perfil usa <strong>Copy member ID</strong> (empieza por <code>U</code>).</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ 4. PERMISOS ============ -->
+  <section>
+    <h2 id="permisos" data-i18n="section.permisos">4. Permisos requeridos</h2>
+
+    <p data-i18n="section.permisos.body">Principio de mínimo privilegio: la app solo necesita los scopes para publicar y, si aplica, para abrir DMs y consultar canales. No requiere permisos de administración del workspace.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.permiso_cond">Scope / condición</th>
+          <th data-i18n="table.para_que">Para qué lo usa el conector</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>chat:write</code></td>
+          <td data-i18n="perm.write.why">Enviar mensajes a canales y usuarios (<code>send_message</code>, <code>send_direct_message</code>)</td>
+        </tr>
+        <tr>
+          <td><code>im:write</code></td>
+          <td data-i18n="perm.im.why">Abrir el canal de mensaje directo con un usuario antes de escribirle</td>
+        </tr>
+        <tr>
+          <td><code>channels:read</code> / <code>groups:read</code></td>
+          <td data-i18n="perm.read.why">Consultar información y listar canales (<code>get_channel_info</code>, <code>list_channels</code>)</td>
+        </tr>
+        <tr>
+          <td data-i18n="perm.invite.name">Bot invitado al canal (o <code>chat:write.public</code>)</td>
+          <td data-i18n="perm.invite.why">Condición para poder publicar en un canal concreto</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 5. CONFIGURACIÓN EN RUVIC ============ -->
+  <section>
+    <h2 id="configuracion-ruvic" data-i18n="section.configuracion_ruvic">5. Configuración en Ruvic</h2>
+
+    <p data-i18n="section.configuracion_ruvic.body">Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Slack</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores que obtuviste en la sección 3:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="ruvic.token.field">Bot User OAuth Token</td>
+          <td data-i18n="ruvic.token.value">El token <code>xoxb-…</code> (paso 4). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.chan.field">Destino por defecto</td>
+          <td data-i18n="ruvic.chan.value">Opcional. Un canal (<code>#general</code> o su ID <code>C…</code>) o un usuario (<code>U…</code>) al que enviar cuando no se indique destino. Si se omite, el agente deberá indicar el destino en cada envío</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>15</code> segundos por defecto</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p data-i18n="section.configuracion_ruvic.test">Guarda y pulsa <span class="ruvic-button" data-i18n="btn.test">Probar conexión</span> — la plataforma validará el token con Slack y, si configuraste un canal por defecto (por ID), verificará que el bot pueda consultarlo.</p>
+
+    <div class="screenshot-placeholder" data-i18n="ruvic.shot">[ Captura: formulario del conector Slack en Settings → Conectores — reemplazar por assets/img/slack-form.png ]</div>
+  </section>
+
+  <!-- ============ 6. VERIFICACIÓN ============ -->
+  <section>
+    <h2 id="verificacion" data-i18n="section.verificacion">6. Verificación</h2>
+
+    <ol class="ruvic-steps">
+      <li>
+        <strong data-i18n="verif.step1.label">Test de conexión exitoso.</strong>
+        <p data-i18n="verif.step1.body">El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como tu_bot en el workspace …”</em>. La tarjeta del conector cambia a estado <strong>Configurado</strong>.</p>
+      </li>
+      <li>
+        <strong data-i18n="verif.step2.label">Automatización mínima de prueba.</strong>
+        <p data-i18n="verif.step2.body">Abre una conversación nueva con el agente y pídele:</p>
+        <blockquote data-i18n="verif.step2.quote"><em>“Envía un mensaje de prueba al canal #general de Slack que diga: Conector configurado ✅.”</em></blockquote>
+        <p data-i18n="verif.step2.after">El mensaje debe aparecer en el canal destino. Si llega, el conector quedó operativo de punta a punta.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ 7. SOLUCIÓN DE PROBLEMAS ============ -->
+  <section>
+    <h2 id="solucion-problemas" data-i18n="section.solucion_problemas">7. Solución de problemas</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.sintoma">Mensaje / síntoma</th>
+          <th data-i18n="table.causa">Causa probable y solución</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="tr.auth.sym">“Fallo de autenticación de Slack (invalid_auth)”</td>
+          <td data-i18n="tr.auth.fix">Token mal copiado o revocado. Vuelve a copiar el Bot User OAuth Token desde OAuth &amp; Permissions y guárdalo de nuevo. Reinstala la app si fue necesario.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.scope.sym">“missing_scope”</td>
+          <td data-i18n="tr.scope.fix">A la app le falta un scope. Añádelo en Bot Token Scopes (ej. <code>chat:write</code>, <code>im:write</code>) y <strong>reinstala la app</strong> para que aplique.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.notin.sym">“not_in_channel”</td>
+          <td data-i18n="tr.notin.fix">El bot no está en el canal. Invítalo con <code>/invite @tu-bot</code>, o usa el scope <code>chat:write.public</code> para canales públicos.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.chan.sym">“channel_not_found”</td>
+          <td data-i18n="tr.chan.fix">El nombre o ID del canal es incorrecto. Usa <code>list_channels</code> para obtener el ID correcto, o revisa el nombre.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.user.sym">Falla el envío a un usuario</td>
+          <td data-i18n="tr.user.fix">ID de usuario inválido o falta el scope <code>im:write</code>. Copia el member ID desde el perfil (empieza por <code>U</code>) y verifica el scope.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.rate.sym">“Límite de peticiones; reintenta en N s”</td>
+          <td data-i18n="tr.rate.fix">Se enviaron demasiados mensajes muy rápido. El conector reporta los segundos a esperar; espacia los envíos (Slack limita ~1 msg/seg por canal).</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 8. FAQ Y SEGURIDAD ============ -->
+  <section>
+    <h2 id="faq-seguridad" data-i18n="section.faq_seguridad">8. Preguntas frecuentes y notas de seguridad</h2>
+
+    <h3 data-i18n="faq.personal.q">¿Ruvic accede a mi cuenta personal de Slack?</h3>
+    <p data-i18n="faq.personal.a">No. Todo ocurre a través de la app de bot que creaste e instalaste. El bot solo puede publicar en los canales a los que lo invitas y enviar DMs con el scope correspondiente; nunca accede a tus conversaciones personales.</p>
+
+    <h3 data-i18n="faq.store.q">¿Dónde queda guardado el token?</h3>
+    <p data-i18n="faq.store.a">Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo en el formulario; para conservarlo al editar otros campos, deja el campo vacío.</p>
+
+    <h3 data-i18n="faq.rot.q">Rotación de credenciales</h3>
+    <p data-i18n="faq.rot.a">En el panel de la app, sección <em>OAuth &amp; Permissions</em>, puedes reinstalar la app para generar un token nuevo; actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>.</p>
+
+    <h3 data-i18n="faq.comp.q">¿Qué hago si el token se compromete?</h3>
+    <ol>
+      <li data-i18n="faq.comp.a1">En el panel de la app (o con la ayuda de un administrador del workspace), revoca/rota el token de inmediato reinstalando la app.</li>
+      <li data-i18n="faq.comp.a2">Actualiza el nuevo token en el formulario del conector.</li>
+      <li data-i18n="faq.comp.a3">Revisa los canales por si hubo mensajes no autorizados enviados por el bot.</li>
+    </ol>
+
+    <div class="callout callout-warning">
+      <span class="callout-title" data-i18n="callout.bp.title">Buenas prácticas</span>
+      <span data-i18n="callout.bp.body">Usa una app dedicada solo para Ruvic; concede únicamente los scopes necesarios; no compartas el token por canales no seguros ni lo publiques en repositorios; e invita el bot solo a los canales estrictamente necesarios.</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Objeto I18N: mismas llaves en es/en. El PORTAL aplica el idioma del
+  // usuario (localStorage ruvic-docs-lang) sobre [data-i18n],
+  // [data-i18n-placeholder] y [data-i18n-alt]. No añadir toggle propio.
+  const I18N = {
+    es: {
+      doc_title: "Conector Slack — Ruvic",
+      guide_title: "Conector Slack",
+      guide_updated: "Última actualización: 21 de julio de 2026",
+      toc_title: "Contenido",
+      "toc.que_es": "¿Qué es y para qué sirve?",
+      "toc.prerrequisitos": "Prerrequisitos",
+      "toc.configuracion_fabricante": "Configuración en Slack (paso a paso)",
+      "toc.permisos": "Permisos requeridos",
+      "toc.configuracion_ruvic": "Configuración en Ruvic",
+      "toc.verificacion": "Verificación",
+      "toc.solucion_problemas": "Solución de problemas",
+      "toc.faq_seguridad": "Preguntas frecuentes y notas de seguridad",
+
+      "section.que_es": "1. ¿Qué es y para qué sirve?",
+      "section.que_es.body": "El conector Slack permite que el agente de Ruvic envíe mensajes a través de una <strong>app de Slack (bot)</strong>: a canales públicos o privados y a personas por mensaje directo. Una vez configurado, puedes pedirle al agente cosas como:",
+      "section.que_es.ex1": "“Cuando termine el reporte de ventas, publícalo en el canal #operaciones de Slack.”",
+      "section.que_es.ex2": "“Avísame por Slack por mensaje directo si algún servidor supera el 90% de disco.”",
+      "section.que_es.ex3": "“Envía un recordatorio al canal #soporte cada mañana a las 9.”",
+      "section.que_es.ops": "Operaciones soportadas:",
+      "table.operacion": "Operación",
+      "table.que_hace": "Qué hace",
+      "op.send_message": "Envía un mensaje a un canal (público o privado) o a un usuario",
+      "op.send_dm": "Envía un mensaje directo (DM) a una persona por su ID",
+      "op.get_info": "Consulta la información de un canal",
+      "op.list": "Lista los canales del workspace (para resolver nombre → ID)",
+      "callout.bot.title": "Todo pasa por una app de bot",
+      "callout.bot.body": "Ruvic no usa tu cuenta personal de Slack: actúa mediante una app dedicada que tú creas e instalas en tu workspace. El bot solo puede publicar en los canales a los que lo invitas y enviar DMs con el permiso correspondiente.",
+
+      "section.prerrequisitos": "2. Prerrequisitos",
+      "section.prerrequisitos.p1": "Un <strong>workspace de Slack</strong> y permisos para crear e instalar apps en él (ser administrador, o que un administrador apruebe la instalación).",
+      "section.prerrequisitos.p2": "El <strong>canal o la persona destino</strong> donde el bot enviará mensajes, y capacidad para invitar el bot a ese canal.",
+      "section.prerrequisitos.p3": "Nada de infraestructura extra: no se necesita servidor propio; Ruvic se comunica con la API pública de Slack (<code>slack.com/api</code>).",
+
+      "section.configuracion_fabricante": "3. Configuración en Slack (paso a paso)",
+      "section.configuracion_fabricante.intro": "Vas a crear una <strong>app de Slack</strong>, darle los <strong>scopes</strong> de bot necesarios, instalarla en tu workspace y copiar el <strong>Bot User OAuth Token</strong> (empieza por <code>xoxb-</code>). Todo se hace en el panel de apps de Slack.",
+      "step1.label": "Crea la app de Slack.",
+      "step1.body": "Entra a <code>api.slack.com/apps</code>, pulsa <strong>Create New App → From scratch</strong>, ponle un nombre (ej. <code>Ruvic Bot</code>) y elige tu workspace.",
+      "step1.shot": "[ Captura: pantalla Create New App / From scratch — reemplazar por assets/img/slack-create-app.png ]",
+      "step2.label": "Añade los scopes del bot.",
+      "step2.body": "En el menú lateral entra a <strong>OAuth &amp; Permissions</strong> y baja a <strong>Scopes → Bot Token Scopes</strong>. Agrega como mínimo:",
+      "step2.chat": "enviar mensajes.",
+      "step2.im": "abrir mensajes directos a usuarios.",
+      "step2.read": "consultar y resolver canales públicos y privados.",
+      "step2.public": "(opcional) publicar en canales públicos sin invitar el bot.",
+      "step3.label": "Instala la app en el workspace.",
+      "step3.body": "Arriba en <strong>OAuth &amp; Permissions</strong> pulsa <strong>Install to Workspace</strong> y autoriza. Slack generará el token del bot.",
+      "step4.label": "Copia el Bot User OAuth Token.",
+      "step4.body": "Tras instalar, aparece el <strong>Bot User OAuth Token</strong> con el formato <code>xoxb-...</code>. Guárdalo: es la credencial que irá en el formulario de Ruvic. Trátalo como una contraseña — quien lo tenga puede publicar como el bot.",
+      "step4.shot": "[ Captura: Bot User OAuth Token en OAuth & Permissions (ofuscado) — reemplazar por assets/img/slack-token.png ]",
+      "step5.label": "Invita el bot al canal destino.",
+      "step5.body": "En Slack, abre el canal donde quieres que publique y escribe <code>/invite @Ruvic Bot</code>. Sin esto, publicar da error <code>not_in_channel</code> (salvo canales públicos con el scope <code>chat:write.public</code>). Para el ID de un usuario (DM), en su perfil usa <strong>Copy member ID</strong> (empieza por <code>U</code>).",
+
+      "section.permisos": "4. Permisos requeridos",
+      "section.permisos.body": "Principio de mínimo privilegio: la app solo necesita los scopes para publicar y, si aplica, para abrir DMs y consultar canales. No requiere permisos de administración del workspace.",
+      "table.permiso_cond": "Scope / condición",
+      "table.para_que": "Para qué lo usa el conector",
+      "perm.write.why": "Enviar mensajes a canales y usuarios (<code>send_message</code>, <code>send_direct_message</code>)",
+      "perm.im.why": "Abrir el canal de mensaje directo con un usuario antes de escribirle",
+      "perm.read.why": "Consultar información y listar canales (<code>get_channel_info</code>, <code>list_channels</code>)",
+      "perm.invite.name": "Bot invitado al canal (o <code>chat:write.public</code>)",
+      "perm.invite.why": "Condición para poder publicar en un canal concreto",
+
+      "section.configuracion_ruvic": "5. Configuración en Ruvic",
+      "section.configuracion_ruvic.body": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Slack</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores que obtuviste en la sección 3:",
+      "table.campo": "Campo del formulario",
+      "table.valor": "Valor (obtenido en la sección 3)",
+      "ruvic.token.field": "Bot User OAuth Token",
+      "ruvic.token.value": "El token <code>xoxb-…</code> (paso 4). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo",
+      "ruvic.chan.field": "Destino por defecto",
+      "ruvic.chan.value": "Opcional. Un canal (<code>#general</code> o su ID <code>C…</code>) o un usuario (<code>U…</code>) al que enviar cuando no se indique destino. Si se omite, el agente deberá indicar el destino en cada envío",
+      "ruvic.timeout.field": "Timeout de peticiones",
+      "ruvic.timeout.value": "Opcional; <code>15</code> segundos por defecto",
+      "section.configuracion_ruvic.test": "Guarda y pulsa <span class=\"ruvic-button\">Probar conexión</span> — la plataforma validará el token con Slack y, si configuraste un canal por defecto (por ID), verificará que el bot pueda consultarlo.",
+      "btn.test": "Probar conexión",
+      "ruvic.shot": "[ Captura: formulario del conector Slack en Settings → Conectores — reemplazar por assets/img/slack-form.png ]",
+
+      "section.verificacion": "6. Verificación",
+      "verif.step1.label": "Test de conexión exitoso.",
+      "verif.step1.body": "El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como tu_bot en el workspace …”</em>. La tarjeta del conector cambia a estado <strong>Configurado</strong>.",
+      "verif.step2.label": "Automatización mínima de prueba.",
+      "verif.step2.body": "Abre una conversación nueva con el agente y pídele:",
+      "verif.step2.quote": "<em>“Envía un mensaje de prueba al canal #general de Slack que diga: Conector configurado ✅.”</em>",
+      "verif.step2.after": "El mensaje debe aparecer en el canal destino. Si llega, el conector quedó operativo de punta a punta.",
+
+      "section.solucion_problemas": "7. Solución de problemas",
+      "table.sintoma": "Mensaje / síntoma",
+      "table.causa": "Causa probable y solución",
+      "tr.auth.sym": "“Fallo de autenticación de Slack (invalid_auth)”",
+      "tr.auth.fix": "Token mal copiado o revocado. Vuelve a copiar el Bot User OAuth Token desde OAuth &amp; Permissions y guárdalo de nuevo. Reinstala la app si fue necesario.",
+      "tr.scope.sym": "“missing_scope”",
+      "tr.scope.fix": "A la app le falta un scope. Añádelo en Bot Token Scopes (ej. <code>chat:write</code>, <code>im:write</code>) y <strong>reinstala la app</strong> para que aplique.",
+      "tr.notin.sym": "“not_in_channel”",
+      "tr.notin.fix": "El bot no está en el canal. Invítalo con <code>/invite @tu-bot</code>, o usa el scope <code>chat:write.public</code> para canales públicos.",
+      "tr.chan.sym": "“channel_not_found”",
+      "tr.chan.fix": "El nombre o ID del canal es incorrecto. Usa <code>list_channels</code> para obtener el ID correcto, o revisa el nombre.",
+      "tr.user.sym": "Falla el envío a un usuario",
+      "tr.user.fix": "ID de usuario inválido o falta el scope <code>im:write</code>. Copia el member ID desde el perfil (empieza por <code>U</code>) y verifica el scope.",
+      "tr.rate.sym": "“Límite de peticiones; reintenta en N s”",
+      "tr.rate.fix": "Se enviaron demasiados mensajes muy rápido. El conector reporta los segundos a esperar; espacia los envíos (Slack limita ~1 msg/seg por canal).",
+
+      "section.faq_seguridad": "8. Preguntas frecuentes y notas de seguridad",
+      "faq.personal.q": "¿Ruvic accede a mi cuenta personal de Slack?",
+      "faq.personal.a": "No. Todo ocurre a través de la app de bot que creaste e instalaste. El bot solo puede publicar en los canales a los que lo invitas y enviar DMs con el scope correspondiente; nunca accede a tus conversaciones personales.",
+      "faq.store.q": "¿Dónde queda guardado el token?",
+      "faq.store.a": "Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo en el formulario; para conservarlo al editar otros campos, deja el campo vacío.",
+      "faq.rot.q": "Rotación de credenciales",
+      "faq.rot.a": "En el panel de la app, sección <em>OAuth &amp; Permissions</em>, puedes reinstalar la app para generar un token nuevo; actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>.",
+      "faq.comp.q": "¿Qué hago si el token se compromete?",
+      "faq.comp.a1": "En el panel de la app (o con la ayuda de un administrador del workspace), revoca/rota el token de inmediato reinstalando la app.",
+      "faq.comp.a2": "Actualiza el nuevo token en el formulario del conector.",
+      "faq.comp.a3": "Revisa los canales por si hubo mensajes no autorizados enviados por el bot.",
+      "callout.bp.title": "Buenas prácticas",
+      "callout.bp.body": "Usa una app dedicada solo para Ruvic; concede únicamente los scopes necesarios; no compartas el token por canales no seguros ni lo publiques en repositorios; e invita el bot solo a los canales estrictamente necesarios.",
+    },
+    en: {
+      doc_title: "Slack Connector — Ruvic",
+      guide_title: "Slack Connector",
+      guide_updated: "Last updated: July 21, 2026",
+      toc_title: "Contents",
+      "toc.que_es": "What it is and what it's for",
+      "toc.prerrequisitos": "Prerequisites",
+      "toc.configuracion_fabricante": "Slack-side setup (step by step)",
+      "toc.permisos": "Required permissions",
+      "toc.configuracion_ruvic": "Configuration in Ruvic",
+      "toc.verificacion": "Verification",
+      "toc.solucion_problemas": "Troubleshooting",
+      "toc.faq_seguridad": "FAQ and security notes",
+
+      "section.que_es": "1. What it is and what it's for",
+      "section.que_es.body": "The Slack connector lets the Ruvic agent send messages through a <strong>Slack app (bot)</strong>: to public or private channels and to people via direct message. Once configured, you can ask the agent things like:",
+      "section.que_es.ex1": "“When the sales report is ready, post it to the #operations channel on Slack.”",
+      "section.que_es.ex2": "“Notify me on Slack via direct message if any server goes above 90% disk usage.”",
+      "section.que_es.ex3": "“Send a reminder to the #support channel every morning at 9.”",
+      "section.que_es.ops": "Supported operations:",
+      "table.operacion": "Operation",
+      "table.que_hace": "What it does",
+      "op.send_message": "Sends a message to a channel (public or private) or to a user",
+      "op.send_dm": "Sends a direct message (DM) to a person by their ID",
+      "op.get_info": "Gets information about a channel",
+      "op.list": "Lists the workspace channels (to resolve name → ID)",
+      "callout.bot.title": "Everything goes through a bot app",
+      "callout.bot.body": "Ruvic does not use your personal Slack account: it acts through a dedicated app you create and install in your workspace. The bot can only post in the channels you invite it to and send DMs with the corresponding permission.",
+
+      "section.prerrequisitos": "2. Prerequisites",
+      "section.prerrequisitos.p1": "A <strong>Slack workspace</strong> and permission to create and install apps in it (be an admin, or have an admin approve the install).",
+      "section.prerrequisitos.p2": "The <strong>target channel or person</strong> where the bot will send messages, and the ability to invite the bot to that channel.",
+      "section.prerrequisitos.p3": "No extra infrastructure: no server needed; Ruvic talks to Slack's public API (<code>slack.com/api</code>).",
+
+      "section.configuracion_fabricante": "3. Slack-side setup (step by step)",
+      "section.configuracion_fabricante.intro": "You will create a <strong>Slack app</strong>, give it the required bot <strong>scopes</strong>, install it in your workspace and copy the <strong>Bot User OAuth Token</strong> (starts with <code>xoxb-</code>). Everything is done in the Slack app dashboard.",
+      "step1.label": "Create the Slack app.",
+      "step1.body": "Go to <code>api.slack.com/apps</code>, click <strong>Create New App → From scratch</strong>, give it a name (e.g. <code>Ruvic Bot</code>) and choose your workspace.",
+      "step1.shot": "[ Screenshot: Create New App / From scratch screen — replace with assets/img/slack-create-app.png ]",
+      "step2.label": "Add the bot scopes.",
+      "step2.body": "In the sidebar go to <strong>OAuth &amp; Permissions</strong> and scroll to <strong>Scopes → Bot Token Scopes</strong>. Add at least:",
+      "step2.chat": "send messages.",
+      "step2.im": "open direct messages to users.",
+      "step2.read": "look up and resolve public and private channels.",
+      "step2.public": "(optional) post to public channels without inviting the bot.",
+      "step3.label": "Install the app to the workspace.",
+      "step3.body": "At the top of <strong>OAuth &amp; Permissions</strong> click <strong>Install to Workspace</strong> and authorize. Slack will generate the bot token.",
+      "step4.label": "Copy the Bot User OAuth Token.",
+      "step4.body": "After installing, the <strong>Bot User OAuth Token</strong> appears in the form <code>xoxb-...</code>. Save it: it is the credential that goes in the Ruvic form. Treat it like a password — anyone who has it can post as the bot.",
+      "step4.shot": "[ Screenshot: Bot User OAuth Token in OAuth & Permissions (obfuscated) — replace with assets/img/slack-token.png ]",
+      "step5.label": "Invite the bot to the target channel.",
+      "step5.body": "In Slack, open the channel where it should post and type <code>/invite @Ruvic Bot</code>. Without this, posting fails with <code>not_in_channel</code> (except public channels with the <code>chat:write.public</code> scope). For a user's ID (DM), use <strong>Copy member ID</strong> on their profile (starts with <code>U</code>).",
+
+      "section.permisos": "4. Required permissions",
+      "section.permisos.body": "Least-privilege principle: the app only needs the scopes to post and, where applicable, to open DMs and look up channels. No workspace admin permissions required.",
+      "table.permiso_cond": "Scope / condition",
+      "table.para_que": "Why the connector needs it",
+      "perm.write.why": "Send messages to channels and users (<code>send_message</code>, <code>send_direct_message</code>)",
+      "perm.im.why": "Open the direct-message channel with a user before writing to them",
+      "perm.read.why": "Look up and list channels (<code>get_channel_info</code>, <code>list_channels</code>)",
+      "perm.invite.name": "Bot invited to the channel (or <code>chat:write.public</code>)",
+      "perm.invite.why": "Condition for being able to post in a specific channel",
+
+      "section.configuracion_ruvic": "5. Configuration in Ruvic",
+      "section.configuracion_ruvic.body": "Go to <strong>Settings → Connectors</strong>, find the <strong>Slack</strong> card and click <strong>Configure</strong>. Fill in the form with the values from section 3:",
+      "table.campo": "Form field",
+      "table.valor": "Value (from section 3)",
+      "ruvic.token.field": "Bot User OAuth Token",
+      "ruvic.token.value": "The <code>xoxb-…</code> token (step 4). Stored encrypted as a secret: the UI will never display it again",
+      "ruvic.chan.field": "Default target",
+      "ruvic.chan.value": "Optional. A channel (<code>#general</code> or its ID <code>C…</code>) or a user (<code>U…</code>) to send to when no target is given. If omitted, the agent must specify the target on each send",
+      "ruvic.timeout.field": "Request timeout",
+      "ruvic.timeout.value": "Optional; defaults to <code>15</code> seconds",
+      "section.configuracion_ruvic.test": "Save and click <span class=\"ruvic-button\">Test connection</span> — the platform will validate the token with Slack and, if you set a default channel (by ID), verify the bot can look it up.",
+      "btn.test": "Test connection",
+      "ruvic.shot": "[ Screenshot: Slack connector form in Settings → Connectors — replace with assets/img/slack-form.png ]",
+
+      "section.verificacion": "6. Verification",
+      "verif.step1.label": "Successful connection test.",
+      "verif.step1.body": "The <em>Test connection</em> button should return: <em>“Successful connection as your_bot in workspace …”</em>. The connector card switches to <strong>Configured</strong>.",
+      "verif.step2.label": "Minimal test automation.",
+      "verif.step2.body": "Open a new conversation with the agent and ask:",
+      "verif.step2.quote": "<em>“Send a test message to the #general channel on Slack saying: Connector configured ✅.”</em>",
+      "verif.step2.after": "The message should appear in the target channel. If it arrives, the connector is fully operational.",
+
+      "section.solucion_problemas": "7. Troubleshooting",
+      "table.sintoma": "Message / symptom",
+      "table.causa": "Likely cause and fix",
+      "tr.auth.sym": "“Slack authentication failure (invalid_auth)”",
+      "tr.auth.fix": "Token mistyped or revoked. Re-copy the Bot User OAuth Token from OAuth &amp; Permissions and save it again. Reinstall the app if needed.",
+      "tr.scope.sym": "“missing_scope”",
+      "tr.scope.fix": "The app is missing a scope. Add it under Bot Token Scopes (e.g. <code>chat:write</code>, <code>im:write</code>) and <strong>reinstall the app</strong> for it to take effect.",
+      "tr.notin.sym": "“not_in_channel”",
+      "tr.notin.fix": "The bot isn't in the channel. Invite it with <code>/invite @your-bot</code>, or use the <code>chat:write.public</code> scope for public channels.",
+      "tr.chan.sym": "“channel_not_found”",
+      "tr.chan.fix": "The channel name or ID is wrong. Use <code>list_channels</code> to get the correct ID, or check the name.",
+      "tr.user.sym": "Sending to a user fails",
+      "tr.user.fix": "Invalid user ID or missing <code>im:write</code> scope. Copy the member ID from the profile (starts with <code>U</code>) and verify the scope.",
+      "tr.rate.sym": "“Rate limited; retry in N s”",
+      "tr.rate.fix": "Too many messages sent too fast. The connector reports how many seconds to wait; space out the sends (Slack limits ~1 msg/sec per channel).",
+
+      "section.faq_seguridad": "8. FAQ and security notes",
+      "faq.personal.q": "Does Ruvic access my personal Slack account?",
+      "faq.personal.a": "No. Everything happens through the bot app you created and installed. The bot can only post in the channels you invite it to and send DMs with the corresponding scope; it never accesses your personal conversations.",
+      "faq.store.q": "Where is the token stored?",
+      "faq.store.a": "As a secret in the platform's credential store, tied to your user. The UI never displays it again; it only shows “set”. To change it, type a new one in the form; to keep it while editing other fields, leave the field empty.",
+      "faq.rot.q": "Credential rotation",
+      "faq.rot.a": "In the app dashboard, under <em>OAuth &amp; Permissions</em>, you can reinstall the app to generate a new token; update it in the connector form and click <em>Test connection</em>.",
+      "faq.comp.q": "What if the token is compromised?",
+      "faq.comp.a1": "In the app dashboard (or with help from a workspace admin), revoke/rotate the token immediately by reinstalling the app.",
+      "faq.comp.a2": "Update the new token in the connector form.",
+      "faq.comp.a3": "Check the channels for any unauthorized messages sent by the bot.",
+      "callout.bp.title": "Best practices",
+      "callout.bp.body": "Use a dedicated app only for Ruvic; grant only the scopes you need; never share the token over insecure channels or commit it to repositories; and invite the bot only to the channels strictly needed.",
+    },
+  };
+
+  // Fallback local: si el portal NO está presente (preview local), aplica
+  // el idioma guardado para poder previsualizar. El portal, cuando existe,
+  // maneja el toggle y vuelve a aplicar el idioma del usuario.
+  (function () {
+    function apply(lang) {
+      var dict = I18N[lang] || I18N.es;
+      document.documentElement.setAttribute("lang", lang);
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n")];
+        if (v != null) el.innerHTML = v;
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-placeholder")];
+        if (v != null) el.setAttribute("placeholder", v);
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-alt")];
+        if (v != null) el.setAttribute("alt", v);
+      });
+    }
+    var saved = "es";
+    try { saved = localStorage.getItem("ruvic-docs-lang") || "es"; } catch (e) {}
+    if (saved !== "es") apply(saved);
+  })();
+</script>
+
+</body>
+</html>
