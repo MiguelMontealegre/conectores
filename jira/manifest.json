@@ -1,0 +1,79 @@
+{
+  "id": "jira",
+  "name": "Jira",
+  "name_en": "Jira",
+  "version": "1.0.0",
+  "description": "Gestión de tickets en Jira Cloud: crear tickets, actualizar campos, cambiar estado, comentar y buscar con JQL",
+  "description_en": "Ticket management in Jira Cloud: create tickets, update fields, change status, comment and search with JQL",
+  "category": "project_management",
+  "category_en": "project_management",
+  "keywords": ["jira", "atlassian", "ticket", "issue", "incidencia", "tarea", "task", "bug", "jql", "proyecto", "project", "estado", "status", "comentario", "comment"],
+  "library": {
+    "package": "ruvic-jira-connector",
+    "install": "pip install git+https://github.com/tu-org/conector-jira.git#subdirectory=lib",
+    "import_name": "ruvic_jira_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "api_token",
+      "label": "Email + API token (Atlassian)",
+      "fields": [
+        {
+          "key": "base_url",
+          "label": "URL del sitio de Jira",
+          "type": "text",
+          "required": true,
+          "placeholder": "https://miempresa.atlassian.net",
+          "help_text": "URL base de tu sitio de Jira Cloud (sin ruta final)",
+          "pattern": "^https://[a-zA-Z0-9.-]+\\.atlassian\\.net/?$"
+        },
+        {
+          "key": "email",
+          "label": "Email de la cuenta Atlassian",
+          "type": "text",
+          "required": true,
+          "placeholder": "usuario@empresa.com",
+          "help_text": "Correo de la cuenta de Atlassian dueña del API token"
+        },
+        {
+          "key": "api_token",
+          "label": "API token",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "placeholder": "ATATT3xFfGF0...",
+          "help_text": "API token creado en id.atlassian.com → Security → Create and manage API tokens"
+        },
+        {
+          "key": "default_project",
+          "label": "Proyecto por defecto (opcional)",
+          "type": "text",
+          "required": false,
+          "placeholder": "OPS",
+          "help_text": "Clave del proyecto donde se crearán los tickets cuando no se indique otro"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "20"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_JIRA_",
+  "operations": [
+    "issue.create",
+    "issue.update",
+    "issue.transition",
+    "issue.add_comment",
+    "issue.search",
+    "issue.get"
+  ],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "El API token se crea en id.atlassian.com (Security → API tokens) con la cuenta que operará Jira. La cuenta necesita permiso 'Browse projects' para buscar/leer, 'Create issues' para crear, 'Edit issues' para actualizar, 'Transition issues' para cambiar estado y 'Add comments' para comentar, en cada proyecto donde se use. Todo ocurre con los permisos de esa cuenta."
+  }
+}

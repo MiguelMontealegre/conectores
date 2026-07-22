@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Guía de configuración del conector Jira — Ruvic
+  ============================================================
+  Sigue la guía oficial de documentación Ruvic:
+  - i18n por llaves data-i18n + objeto I18N (es/en). El texto
+    por defecto del HTML está en español.
+  - Sin toggle propio ni cabecera propia: el PORTAL aplica el
+    idioma del usuario (localStorage ruvic-docs-lang) sobre
+    [data-i18n], [data-i18n-placeholder] y [data-i18n-alt].
+  - ids de sección canónicos y estables (no se traducen).
+  - assets/ruvic.css es solo para preview local; al publicar se
+    reescribe a la hoja canónica del portal.
+  Reemplaza los .screenshot-placeholder por capturas reales en
+  assets/img/.
+  ============================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="doc_title">Conector Jira — Ruvic</title>
+  <link rel="stylesheet" href="assets/ruvic.css">
+</head>
+<body>
+
+<main class="ruvic-container">
+
+  <!-- ============ ÍNDICE ============ -->
+  <nav class="ruvic-toc" aria-label="Índice">
+    <h2 data-i18n="toc_title">Contenido</h2>
+    <ol>
+      <li><a href="#que-es" data-i18n="toc.que_es">¿Qué es y para qué sirve?</a></li>
+      <li><a href="#prerrequisitos" data-i18n="toc.prerrequisitos">Prerrequisitos</a></li>
+      <li><a href="#configuracion-fabricante" data-i18n="toc.configuracion_fabricante">Configuración en Atlassian (paso a paso)</a></li>
+      <li><a href="#permisos" data-i18n="toc.permisos">Permisos requeridos</a></li>
+      <li><a href="#configuracion-ruvic" data-i18n="toc.configuracion_ruvic">Configuración en Ruvic</a></li>
+      <li><a href="#verificacion" data-i18n="toc.verificacion">Verificación</a></li>
+      <li><a href="#solucion-problemas" data-i18n="toc.solucion_problemas">Solución de problemas</a></li>
+      <li><a href="#faq-seguridad" data-i18n="toc.faq_seguridad">Preguntas frecuentes y notas de seguridad</a></li>
+    </ol>
+  </nav>
+
+  <h1 data-i18n="guide_title">Conector Jira</h1>
+  <p class="guide-updated" data-i18n="guide_updated">Última actualización: 21 de julio de 2026</p>
+
+  <!-- ============ 1. QUÉ ES ============ -->
+  <section>
+    <h2 id="que-es" data-i18n="section.que_es">1. ¿Qué es y para qué sirve?</h2>
+
+    <p data-i18n="section.que_es.body">El conector Jira permite que el agente de Ruvic gestione tickets en <strong>Jira Cloud</strong>: crear incidencias, actualizar sus campos, cambiar su estado, comentar y buscar con JQL. Una vez configurado, puedes pedirle al agente cosas como:</p>
+    <ul>
+      <li data-i18n="section.que_es.ex1">“Crea un bug en el proyecto OPS: el nodo 3 no responde, prioridad alta.”</li>
+      <li data-i18n="section.que_es.ex2">“Mueve el ticket OPS-123 a En progreso y comenta que ya empecé.”</li>
+      <li data-i18n="section.que_es.ex3">“Lístame los tickets abiertos de OPS creados esta semana.”</li>
+    </ul>
+    <p data-i18n="section.que_es.ops">Operaciones soportadas:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.operacion">Operación</th>
+          <th data-i18n="table.que_hace">Qué hace</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>issue.create</code></td>
+          <td data-i18n="op.create">Crea un ticket (incidencia) en un proyecto</td>
+        </tr>
+        <tr>
+          <td><code>issue.update</code></td>
+          <td data-i18n="op.update">Actualiza campos: resumen, descripción, prioridad, etiquetas, asignado</td>
+        </tr>
+        <tr>
+          <td><code>issue.transition</code></td>
+          <td data-i18n="op.transition">Cambia el estado del ticket según el flujo de trabajo</td>
+        </tr>
+        <tr>
+          <td><code>issue.add_comment</code></td>
+          <td data-i18n="op.comment">Añade un comentario a un ticket</td>
+        </tr>
+        <tr>
+          <td><code>issue.search</code></td>
+          <td data-i18n="op.search">Busca tickets con una consulta JQL</td>
+        </tr>
+        <tr>
+          <td><code>issue.get</code></td>
+          <td data-i18n="op.get">Obtiene un ticket por su clave</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <span class="callout-title" data-i18n="callout.acct.title">Actúa con una cuenta de Atlassian</span>
+      <span data-i18n="callout.acct.body">Ruvic opera Jira mediante un API token de una cuenta de Atlassian que tú designes. Todas las acciones (crear, comentar, transicionar) usan los permisos de esa cuenta y quedan registradas a su nombre.</span>
+    </div>
+  </section>
+
+  <!-- ============ 2. PRERREQUISITOS ============ -->
+  <section>
+    <h2 id="prerrequisitos" data-i18n="section.prerrequisitos">2. Prerrequisitos</h2>
+
+    <ul>
+      <li data-i18n="section.prerrequisitos.p1">Un sitio de <strong>Jira Cloud</strong> (<code>https://tuempresa.atlassian.net</code>).</li>
+      <li data-i18n="section.prerrequisitos.p2">Una <strong>cuenta de Atlassian</strong> con permisos en el proyecto donde se gestionarán los tickets (crear, editar, transicionar, comentar).</li>
+      <li data-i18n="section.prerrequisitos.p3">La <strong>clave del proyecto</strong> destino (el prefijo de los tickets, ej. <code>OPS</code> en <code>OPS-123</code>).</li>
+    </ul>
+    <div class="callout callout-info">
+      <span class="callout-title" data-i18n="callout.cloud.title">Solo Jira Cloud</span>
+      <span data-i18n="callout.cloud.body">Este conector usa autenticación de Jira Cloud (email + API token). Jira Server / Data Center usa otro mecanismo (Personal Access Tokens) y no está cubierto aquí.</span>
+    </div>
+  </section>
+
+  <!-- ============ 3. CONFIGURACIÓN EN EL FABRICANTE ============ -->
+  <section>
+    <h2 id="configuracion-fabricante" data-i18n="section.configuracion_fabricante">3. Configuración en Atlassian (paso a paso)</h2>
+
+    <p data-i18n="section.configuracion_fabricante.intro">Vas a generar un <strong>API token</strong> para tu cuenta de Atlassian y a anotar la <strong>URL del sitio</strong> y la <strong>clave del proyecto</strong>. No hace falta crear ninguna app.</p>
+
+    <ol class="ruvic-steps">
+      <li>
+        <strong data-i18n="step1.label">Anota la URL de tu sitio de Jira.</strong>
+        <p data-i18n="step1.body">Es la dirección con la que entras a Jira, del tipo <code>https://tuempresa.atlassian.net</code>. La usarás en el campo <em>URL del sitio</em>.</p>
+      </li>
+      <li>
+        <strong data-i18n="step2.label">Crea un API token.</strong>
+        <p data-i18n="step2.body">Entra a <code>id.atlassian.com/manage-profile/security/api-tokens</code>, pulsa <strong>Create API token</strong>, ponle un nombre (ej. <code>Ruvic</code>) y <strong>copia el token</strong>. Solo se muestra una vez; guárdalo como una contraseña.</p>
+<pre><code>ATATT3xFfGF0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+        <div class="screenshot-placeholder" data-i18n="step2.shot">[ Captura: pantalla Create API token en id.atlassian.com (token ofuscado) — reemplazar por assets/img/jira-token.png ]</div>
+      </li>
+      <li>
+        <strong data-i18n="step3.label">Identifica el email de la cuenta.</strong>
+        <p data-i18n="step3.body">Es el correo con el que inicias sesión en Atlassian. Va junto al token: Jira Cloud autentica con la pareja <em>email + API token</em>.</p>
+      </li>
+      <li>
+        <strong data-i18n="step4.label">Anota la clave del proyecto.</strong>
+        <p data-i18n="step4.body">Abre el proyecto en Jira: la clave es el prefijo en mayúsculas de sus tickets (ej. <code>OPS</code>). También aparece en la URL de cualquier ticket (<code>/browse/OPS-123</code>). La usarás como proyecto por defecto (opcional).</p>
+      </li>
+      <li>
+        <strong data-i18n="step5.label">Verifica los permisos de la cuenta.</strong>
+        <p data-i18n="step5.body">La cuenta debe poder, en ese proyecto: <em>ver</em> (Browse projects), <em>crear</em>, <em>editar</em>, <em>transicionar</em> y <em>comentar</em> incidencias. Si no puede, pide a un administrador de Jira que le otorgue esos permisos.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ 4. PERMISOS ============ -->
+  <section>
+    <h2 id="permisos" data-i18n="section.permisos">4. Permisos requeridos</h2>
+
+    <p data-i18n="section.permisos.body">Principio de mínimo privilegio: usa una cuenta con permiso solo en los proyectos necesarios. El conector nunca hace más de lo que la cuenta puede hacer manualmente.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.permiso_cond">Permiso de proyecto</th>
+          <th data-i18n="table.para_que">Para qué lo usa el conector</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Browse projects</td>
+          <td data-i18n="perm.browse.why">Buscar y leer tickets (<code>search</code>, <code>get</code>)</td>
+        </tr>
+        <tr>
+          <td>Create issues</td>
+          <td data-i18n="perm.create.why">Crear tickets (<code>create</code>)</td>
+        </tr>
+        <tr>
+          <td>Edit issues</td>
+          <td data-i18n="perm.edit.why">Actualizar campos (<code>update</code>)</td>
+        </tr>
+        <tr>
+          <td>Transition issues</td>
+          <td data-i18n="perm.transition.why">Cambiar el estado (<code>transition</code>)</td>
+        </tr>
+        <tr>
+          <td>Add comments</td>
+          <td data-i18n="perm.comment.why">Comentar tickets (<code>add_comment</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 5. CONFIGURACIÓN EN RUVIC ============ -->
+  <section>
+    <h2 id="configuracion-ruvic" data-i18n="section.configuracion_ruvic">5. Configuración en Ruvic</h2>
+
+    <p data-i18n="section.configuracion_ruvic.body">Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Jira</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores de la sección 3:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="ruvic.url.field">URL del sitio de Jira</td>
+          <td data-i18n="ruvic.url.value">Ej. <code>https://tuempresa.atlassian.net</code></td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.email.field">Email de la cuenta Atlassian</td>
+          <td data-i18n="ruvic.email.value">El correo con el que inicias sesión en Atlassian</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.token.field">API token</td>
+          <td data-i18n="ruvic.token.value">El token del paso 2. Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.project.field">Proyecto por defecto</td>
+          <td data-i18n="ruvic.project.value">Opcional. La clave del proyecto (ej. <code>OPS</code>) para crear/buscar cuando no se indique otro</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>20</code> segundos por defecto</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p data-i18n="section.configuracion_ruvic.test">Guarda y pulsa <span class="ruvic-button" data-i18n="btn.test">Probar conexión</span> — la plataforma validará las credenciales y, si configuraste un proyecto por defecto, verificará que la cuenta pueda acceder a él.</p>
+
+    <div class="screenshot-placeholder" data-i18n="ruvic.shot">[ Captura: formulario del conector Jira en Settings → Conectores — reemplazar por assets/img/jira-form.png ]</div>
+  </section>
+
+  <!-- ============ 6. VERIFICACIÓN ============ -->
+  <section>
+    <h2 id="verificacion" data-i18n="section.verificacion">6. Verificación</h2>
+
+    <ol class="ruvic-steps">
+      <li>
+        <strong data-i18n="verif.step1.label">Test de conexión exitoso.</strong>
+        <p data-i18n="verif.step1.body">El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como Tu Nombre”</em> (y, si configuraste un proyecto por defecto, mencionará el acceso a ese proyecto). La tarjeta cambia a estado <strong>Configurado</strong>.</p>
+      </li>
+      <li>
+        <strong data-i18n="verif.step2.label">Automatización mínima de prueba.</strong>
+        <p data-i18n="verif.step2.body">Abre una conversación nueva con el agente y pídele:</p>
+        <blockquote data-i18n="verif.step2.quote"><em>“Crea un ticket de prueba en el proyecto OPS con el resumen: Prueba de conector.”</em></blockquote>
+        <p data-i18n="verif.step2.after">El ticket debe aparecer en Jira con su clave (ej. OPS-124). Si se crea, el conector quedó operativo de punta a punta. Puedes borrarlo después.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ 7. SOLUCIÓN DE PROBLEMAS ============ -->
+  <section>
+    <h2 id="solucion-problemas" data-i18n="section.solucion_problemas">7. Solución de problemas</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.sintoma">Mensaje / síntoma</th>
+          <th data-i18n="table.causa">Causa probable y solución</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="tr.auth.sym">“Autenticación o permisos insuficientes (HTTP 401)”</td>
+          <td data-i18n="tr.auth.fix">Email o API token incorrectos. Verifica el email exacto de la cuenta y regenera el token en id.atlassian.com si hace falta.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.perm.sym">“…insuficientes (HTTP 403)”</td>
+          <td data-i18n="tr.perm.fix">La cuenta no tiene permiso para esa acción en el proyecto. Pide a un administrador que le conceda Create/Edit/Transition/Add comments.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.notfound.sym">“Recurso no encontrado”</td>
+          <td data-i18n="tr.notfound.fix">La clave del ticket o del proyecto no existe o no es visible para la cuenta. Verifica la clave y los permisos de visualización.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.transition.sym">“No hay una transición hacia ese estado”</td>
+          <td data-i18n="tr.transition.fix">El flujo de trabajo no permite pasar a ese estado desde el actual. El mensaje lista los estados alcanzables; elige uno de ellos.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.jql.sym">Error al buscar con JQL</td>
+          <td data-i18n="tr.jql.fix">La consulta JQL tiene errores de sintaxis o nombres de campo inválidos. Revisa comillas, operadores y nombres de estado (entre comillas si tienen espacios).</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.type.sym">“issuetype is required / invalid”</td>
+          <td data-i18n="tr.type.fix">El tipo de issue no existe en ese proyecto. Usa un tipo válido del proyecto (Task, Bug, Story…) o consulta con un administrador.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 8. FAQ Y SEGURIDAD ============ -->
+  <section>
+    <h2 id="faq-seguridad" data-i18n="section.faq_seguridad">8. Preguntas frecuentes y notas de seguridad</h2>
+
+    <h3 data-i18n="faq.who.q">¿Con qué usuario se crean los tickets?</h3>
+    <p data-i18n="faq.who.a">Con la cuenta de Atlassian dueña del API token. Los tickets y comentarios aparecen a su nombre, y solo puede hacer lo que sus permisos le permitan.</p>
+
+    <h3 data-i18n="faq.store.q">¿Dónde queda guardado el API token?</h3>
+    <p data-i18n="faq.store.a">Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo; para conservarlo al editar otros campos, deja el campo vacío.</p>
+
+    <h3 data-i18n="faq.rot.q">Rotación de credenciales</h3>
+    <p data-i18n="faq.rot.a">Crea un token nuevo en id.atlassian.com, actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>; luego revoca el token anterior desde la misma página de Atlassian.</p>
+
+    <h3 data-i18n="faq.comp.q">¿Qué hago si el token se compromete?</h3>
+    <ol>
+      <li data-i18n="faq.comp.a1">En id.atlassian.com → API tokens, revoca el token comprometido de inmediato.</li>
+      <li data-i18n="faq.comp.a2">Crea uno nuevo y actualízalo en el formulario del conector.</li>
+      <li data-i18n="faq.comp.a3">Revisa el historial de actividad de la cuenta en Jira por cambios no autorizados.</li>
+    </ol>
+
+    <div class="callout callout-warning">
+      <span class="callout-title" data-i18n="callout.bp.title">Buenas prácticas</span>
+      <span data-i18n="callout.bp.body">Usa una cuenta de servicio dedicada con permisos solo en los proyectos necesarios; no compartas el token por canales inseguros ni lo publiques en repositorios; y rota el token periódicamente según tu política de seguridad.</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Objeto I18N: mismas llaves en es/en. El PORTAL aplica el idioma del
+  // usuario (localStorage ruvic-docs-lang) sobre [data-i18n],
+  // [data-i18n-placeholder] y [data-i18n-alt]. No añadir toggle propio.
+  const I18N = {
+    es: {
+      doc_title: "Conector Jira — Ruvic",
+      guide_title: "Conector Jira",
+      guide_updated: "Última actualización: 21 de julio de 2026",
+      toc_title: "Contenido",
+      "toc.que_es": "¿Qué es y para qué sirve?",
+      "toc.prerrequisitos": "Prerrequisitos",
+      "toc.configuracion_fabricante": "Configuración en Atlassian (paso a paso)",
+      "toc.permisos": "Permisos requeridos",
+      "toc.configuracion_ruvic": "Configuración en Ruvic",
+      "toc.verificacion": "Verificación",
+      "toc.solucion_problemas": "Solución de problemas",
+      "toc.faq_seguridad": "Preguntas frecuentes y notas de seguridad",
+
+      "section.que_es": "1. ¿Qué es y para qué sirve?",
+      "section.que_es.body": "El conector Jira permite que el agente de Ruvic gestione tickets en <strong>Jira Cloud</strong>: crear incidencias, actualizar sus campos, cambiar su estado, comentar y buscar con JQL. Una vez configurado, puedes pedirle al agente cosas como:",
+      "section.que_es.ex1": "“Crea un bug en el proyecto OPS: el nodo 3 no responde, prioridad alta.”",
+      "section.que_es.ex2": "“Mueve el ticket OPS-123 a En progreso y comenta que ya empecé.”",
+      "section.que_es.ex3": "“Lístame los tickets abiertos de OPS creados esta semana.”",
+      "section.que_es.ops": "Operaciones soportadas:",
+      "table.operacion": "Operación",
+      "table.que_hace": "Qué hace",
+      "op.create": "Crea un ticket (incidencia) en un proyecto",
+      "op.update": "Actualiza campos: resumen, descripción, prioridad, etiquetas, asignado",
+      "op.transition": "Cambia el estado del ticket según el flujo de trabajo",
+      "op.comment": "Añade un comentario a un ticket",
+      "op.search": "Busca tickets con una consulta JQL",
+      "op.get": "Obtiene un ticket por su clave",
+      "callout.acct.title": "Actúa con una cuenta de Atlassian",
+      "callout.acct.body": "Ruvic opera Jira mediante un API token de una cuenta de Atlassian que tú designes. Todas las acciones (crear, comentar, transicionar) usan los permisos de esa cuenta y quedan registradas a su nombre.",
+
+      "section.prerrequisitos": "2. Prerrequisitos",
+      "section.prerrequisitos.p1": "Un sitio de <strong>Jira Cloud</strong> (<code>https://tuempresa.atlassian.net</code>).",
+      "section.prerrequisitos.p2": "Una <strong>cuenta de Atlassian</strong> con permisos en el proyecto donde se gestionarán los tickets (crear, editar, transicionar, comentar).",
+      "section.prerrequisitos.p3": "La <strong>clave del proyecto</strong> destino (el prefijo de los tickets, ej. <code>OPS</code> en <code>OPS-123</code>).",
+      "callout.cloud.title": "Solo Jira Cloud",
+      "callout.cloud.body": "Este conector usa autenticación de Jira Cloud (email + API token). Jira Server / Data Center usa otro mecanismo (Personal Access Tokens) y no está cubierto aquí.",
+
+      "section.configuracion_fabricante": "3. Configuración en Atlassian (paso a paso)",
+      "section.configuracion_fabricante.intro": "Vas a generar un <strong>API token</strong> para tu cuenta de Atlassian y a anotar la <strong>URL del sitio</strong> y la <strong>clave del proyecto</strong>. No hace falta crear ninguna app.",
+      "step1.label": "Anota la URL de tu sitio de Jira.",
+      "step1.body": "Es la dirección con la que entras a Jira, del tipo <code>https://tuempresa.atlassian.net</code>. La usarás en el campo <em>URL del sitio</em>.",
+      "step2.label": "Crea un API token.",
+      "step2.body": "Entra a <code>id.atlassian.com/manage-profile/security/api-tokens</code>, pulsa <strong>Create API token</strong>, ponle un nombre (ej. <code>Ruvic</code>) y <strong>copia el token</strong>. Solo se muestra una vez; guárdalo como una contraseña.",
+      "step2.shot": "[ Captura: pantalla Create API token en id.atlassian.com (token ofuscado) — reemplazar por assets/img/jira-token.png ]",
+      "step3.label": "Identifica el email de la cuenta.",
+      "step3.body": "Es el correo con el que inicias sesión en Atlassian. Va junto al token: Jira Cloud autentica con la pareja <em>email + API token</em>.",
+      "step4.label": "Anota la clave del proyecto.",
+      "step4.body": "Abre el proyecto en Jira: la clave es el prefijo en mayúsculas de sus tickets (ej. <code>OPS</code>). También aparece en la URL de cualquier ticket (<code>/browse/OPS-123</code>). La usarás como proyecto por defecto (opcional).",
+      "step5.label": "Verifica los permisos de la cuenta.",
+      "step5.body": "La cuenta debe poder, en ese proyecto: <em>ver</em> (Browse projects), <em>crear</em>, <em>editar</em>, <em>transicionar</em> y <em>comentar</em> incidencias. Si no puede, pide a un administrador de Jira que le otorgue esos permisos.",
+
+      "section.permisos": "4. Permisos requeridos",
+      "section.permisos.body": "Principio de mínimo privilegio: usa una cuenta con permiso solo en los proyectos necesarios. El conector nunca hace más de lo que la cuenta puede hacer manualmente.",
+      "table.permiso_cond": "Permiso de proyecto",
+      "table.para_que": "Para qué lo usa el conector",
+      "perm.browse.why": "Buscar y leer tickets (<code>search</code>, <code>get</code>)",
+      "perm.create.why": "Crear tickets (<code>create</code>)",
+      "perm.edit.why": "Actualizar campos (<code>update</code>)",
+      "perm.transition.why": "Cambiar el estado (<code>transition</code>)",
+      "perm.comment.why": "Comentar tickets (<code>add_comment</code>)",
+
+      "section.configuracion_ruvic": "5. Configuración en Ruvic",
+      "section.configuracion_ruvic.body": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Jira</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores de la sección 3:",
+      "table.campo": "Campo del formulario",
+      "table.valor": "Valor (obtenido en la sección 3)",
+      "ruvic.url.field": "URL del sitio de Jira",
+      "ruvic.url.value": "Ej. <code>https://tuempresa.atlassian.net</code>",
+      "ruvic.email.field": "Email de la cuenta Atlassian",
+      "ruvic.email.value": "El correo con el que inicias sesión en Atlassian",
+      "ruvic.token.field": "API token",
+      "ruvic.token.value": "El token del paso 2. Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo",
+      "ruvic.project.field": "Proyecto por defecto",
+      "ruvic.project.value": "Opcional. La clave del proyecto (ej. <code>OPS</code>) para crear/buscar cuando no se indique otro",
+      "ruvic.timeout.field": "Timeout de peticiones",
+      "ruvic.timeout.value": "Opcional; <code>20</code> segundos por defecto",
+      "section.configuracion_ruvic.test": "Guarda y pulsa <span class=\"ruvic-button\">Probar conexión</span> — la plataforma validará las credenciales y, si configuraste un proyecto por defecto, verificará que la cuenta pueda acceder a él.",
+      "btn.test": "Probar conexión",
+      "ruvic.shot": "[ Captura: formulario del conector Jira en Settings → Conectores — reemplazar por assets/img/jira-form.png ]",
+
+      "section.verificacion": "6. Verificación",
+      "verif.step1.label": "Test de conexión exitoso.",
+      "verif.step1.body": "El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa como Tu Nombre”</em> (y, si configuraste un proyecto por defecto, mencionará el acceso a ese proyecto). La tarjeta cambia a estado <strong>Configurado</strong>.",
+      "verif.step2.label": "Automatización mínima de prueba.",
+      "verif.step2.body": "Abre una conversación nueva con el agente y pídele:",
+      "verif.step2.quote": "<em>“Crea un ticket de prueba en el proyecto OPS con el resumen: Prueba de conector.”</em>",
+      "verif.step2.after": "El ticket debe aparecer en Jira con su clave (ej. OPS-124). Si se crea, el conector quedó operativo de punta a punta. Puedes borrarlo después.",
+
+      "section.solucion_problemas": "7. Solución de problemas",
+      "table.sintoma": "Mensaje / síntoma",
+      "table.causa": "Causa probable y solución",
+      "tr.auth.sym": "“Autenticación o permisos insuficientes (HTTP 401)”",
+      "tr.auth.fix": "Email o API token incorrectos. Verifica el email exacto de la cuenta y regenera el token en id.atlassian.com si hace falta.",
+      "tr.perm.sym": "“…insuficientes (HTTP 403)”",
+      "tr.perm.fix": "La cuenta no tiene permiso para esa acción en el proyecto. Pide a un administrador que le conceda Create/Edit/Transition/Add comments.",
+      "tr.notfound.sym": "“Recurso no encontrado”",
+      "tr.notfound.fix": "La clave del ticket o del proyecto no existe o no es visible para la cuenta. Verifica la clave y los permisos de visualización.",
+      "tr.transition.sym": "“No hay una transición hacia ese estado”",
+      "tr.transition.fix": "El flujo de trabajo no permite pasar a ese estado desde el actual. El mensaje lista los estados alcanzables; elige uno de ellos.",
+      "tr.jql.sym": "Error al buscar con JQL",
+      "tr.jql.fix": "La consulta JQL tiene errores de sintaxis o nombres de campo inválidos. Revisa comillas, operadores y nombres de estado (entre comillas si tienen espacios).",
+      "tr.type.sym": "“issuetype is required / invalid”",
+      "tr.type.fix": "El tipo de issue no existe en ese proyecto. Usa un tipo válido del proyecto (Task, Bug, Story…) o consulta con un administrador.",
+
+      "section.faq_seguridad": "8. Preguntas frecuentes y notas de seguridad",
+      "faq.who.q": "¿Con qué usuario se crean los tickets?",
+      "faq.who.a": "Con la cuenta de Atlassian dueña del API token. Los tickets y comentarios aparecen a su nombre, y solo puede hacer lo que sus permisos le permitan.",
+      "faq.store.q": "¿Dónde queda guardado el API token?",
+      "faq.store.a": "Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo; para conservarlo al editar otros campos, deja el campo vacío.",
+      "faq.rot.q": "Rotación de credenciales",
+      "faq.rot.a": "Crea un token nuevo en id.atlassian.com, actualízalo en el formulario del conector y pulsa <em>Probar conexión</em>; luego revoca el token anterior desde la misma página de Atlassian.",
+      "faq.comp.q": "¿Qué hago si el token se compromete?",
+      "faq.comp.a1": "En id.atlassian.com → API tokens, revoca el token comprometido de inmediato.",
+      "faq.comp.a2": "Crea uno nuevo y actualízalo en el formulario del conector.",
+      "faq.comp.a3": "Revisa el historial de actividad de la cuenta en Jira por cambios no autorizados.",
+      "callout.bp.title": "Buenas prácticas",
+      "callout.bp.body": "Usa una cuenta de servicio dedicada con permisos solo en los proyectos necesarios; no compartas el token por canales inseguros ni lo publiques en repositorios; y rota el token periódicamente según tu política de seguridad.",
+    },
+    en: {
+      doc_title: "Jira Connector — Ruvic",
+      guide_title: "Jira Connector",
+      guide_updated: "Last updated: July 21, 2026",
+      toc_title: "Contents",
+      "toc.que_es": "What it is and what it's for",
+      "toc.prerrequisitos": "Prerequisites",
+      "toc.configuracion_fabricante": "Atlassian-side setup (step by step)",
+      "toc.permisos": "Required permissions",
+      "toc.configuracion_ruvic": "Configuration in Ruvic",
+      "toc.verificacion": "Verification",
+      "toc.solucion_problemas": "Troubleshooting",
+      "toc.faq_seguridad": "FAQ and security notes",
+
+      "section.que_es": "1. What it is and what it's for",
+      "section.que_es.body": "The Jira connector lets the Ruvic agent manage tickets in <strong>Jira Cloud</strong>: create issues, update their fields, change their status, comment and search with JQL. Once configured, you can ask the agent things like:",
+      "section.que_es.ex1": "“Create a bug in the OPS project: node 3 is not responding, high priority.”",
+      "section.que_es.ex2": "“Move ticket OPS-123 to In Progress and comment that I've started.”",
+      "section.que_es.ex3": "“List the open OPS tickets created this week.”",
+      "section.que_es.ops": "Supported operations:",
+      "table.operacion": "Operation",
+      "table.que_hace": "What it does",
+      "op.create": "Creates a ticket (issue) in a project",
+      "op.update": "Updates fields: summary, description, priority, labels, assignee",
+      "op.transition": "Changes the ticket status per the workflow",
+      "op.comment": "Adds a comment to a ticket",
+      "op.search": "Searches tickets with a JQL query",
+      "op.get": "Gets a ticket by its key",
+      "callout.acct.title": "Acts with an Atlassian account",
+      "callout.acct.body": "Ruvic operates Jira through an API token of an Atlassian account you designate. All actions (create, comment, transition) use that account's permissions and are recorded under its name.",
+
+      "section.prerrequisitos": "2. Prerequisites",
+      "section.prerrequisitos.p1": "A <strong>Jira Cloud</strong> site (<code>https://yourcompany.atlassian.net</code>).",
+      "section.prerrequisitos.p2": "An <strong>Atlassian account</strong> with permissions in the project where tickets will be managed (create, edit, transition, comment).",
+      "section.prerrequisitos.p3": "The target <strong>project key</strong> (the ticket prefix, e.g. <code>OPS</code> in <code>OPS-123</code>).",
+      "callout.cloud.title": "Jira Cloud only",
+      "callout.cloud.body": "This connector uses Jira Cloud authentication (email + API token). Jira Server / Data Center uses a different mechanism (Personal Access Tokens) and is not covered here.",
+
+      "section.configuracion_fabricante": "3. Atlassian-side setup (step by step)",
+      "section.configuracion_fabricante.intro": "You will generate an <strong>API token</strong> for your Atlassian account and note the <strong>site URL</strong> and the <strong>project key</strong>. No app creation needed.",
+      "step1.label": "Note your Jira site URL.",
+      "step1.body": "It's the address you use to reach Jira, like <code>https://yourcompany.atlassian.net</code>. You'll use it in the <em>Site URL</em> field.",
+      "step2.label": "Create an API token.",
+      "step2.body": "Go to <code>id.atlassian.com/manage-profile/security/api-tokens</code>, click <strong>Create API token</strong>, give it a name (e.g. <code>Ruvic</code>) and <strong>copy the token</strong>. It's shown only once; store it like a password.",
+      "step2.shot": "[ Screenshot: Create API token screen at id.atlassian.com (token obfuscated) — replace with assets/img/jira-token.png ]",
+      "step3.label": "Identify the account email.",
+      "step3.body": "It's the email you sign in to Atlassian with. It goes together with the token: Jira Cloud authenticates with the <em>email + API token</em> pair.",
+      "step4.label": "Note the project key.",
+      "step4.body": "Open the project in Jira: the key is the uppercase prefix of its tickets (e.g. <code>OPS</code>). It also appears in any ticket URL (<code>/browse/OPS-123</code>). You'll use it as the default project (optional).",
+      "step5.label": "Check the account's permissions.",
+      "step5.body": "In that project the account must be able to: <em>view</em> (Browse projects), <em>create</em>, <em>edit</em>, <em>transition</em> and <em>comment</em> issues. If not, ask a Jira admin to grant those permissions.",
+
+      "section.permisos": "4. Required permissions",
+      "section.permisos.body": "Least-privilege principle: use an account with permission only in the necessary projects. The connector never does more than the account can do manually.",
+      "table.permiso_cond": "Project permission",
+      "table.para_que": "Why the connector needs it",
+      "perm.browse.why": "Search and read tickets (<code>search</code>, <code>get</code>)",
+      "perm.create.why": "Create tickets (<code>create</code>)",
+      "perm.edit.why": "Update fields (<code>update</code>)",
+      "perm.transition.why": "Change the status (<code>transition</code>)",
+      "perm.comment.why": "Comment on tickets (<code>add_comment</code>)",
+
+      "section.configuracion_ruvic": "5. Configuration in Ruvic",
+      "section.configuracion_ruvic.body": "Go to <strong>Settings → Connectors</strong>, find the <strong>Jira</strong> card and click <strong>Configure</strong>. Fill in the form with the values from section 3:",
+      "table.campo": "Form field",
+      "table.valor": "Value (from section 3)",
+      "ruvic.url.field": "Jira site URL",
+      "ruvic.url.value": "E.g. <code>https://yourcompany.atlassian.net</code>",
+      "ruvic.email.field": "Atlassian account email",
+      "ruvic.email.value": "The email you sign in to Atlassian with",
+      "ruvic.token.field": "API token",
+      "ruvic.token.value": "The token from step 2. Stored encrypted as a secret: the UI will never display it again",
+      "ruvic.project.field": "Default project",
+      "ruvic.project.value": "Optional. The project key (e.g. <code>OPS</code>) to create/search when no other is given",
+      "ruvic.timeout.field": "Request timeout",
+      "ruvic.timeout.value": "Optional; defaults to <code>20</code> seconds",
+      "section.configuracion_ruvic.test": "Save and click <span class=\"ruvic-button\">Test connection</span> — the platform will validate the credentials and, if you set a default project, verify the account can access it.",
+      "btn.test": "Test connection",
+      "ruvic.shot": "[ Screenshot: Jira connector form in Settings → Connectors — replace with assets/img/jira-form.png ]",
+
+      "section.verificacion": "6. Verification",
+      "verif.step1.label": "Successful connection test.",
+      "verif.step1.body": "The <em>Test connection</em> button should return: <em>“Successful connection as Your Name”</em> (and, if you set a default project, it will mention access to that project). The card switches to <strong>Configured</strong>.",
+      "verif.step2.label": "Minimal test automation.",
+      "verif.step2.body": "Open a new conversation with the agent and ask:",
+      "verif.step2.quote": "<em>“Create a test ticket in the OPS project with the summary: Connector test.”</em>",
+      "verif.step2.after": "The ticket should appear in Jira with its key (e.g. OPS-124). If it's created, the connector is fully operational. You can delete it afterwards.",
+
+      "section.solucion_problemas": "7. Troubleshooting",
+      "table.sintoma": "Message / symptom",
+      "table.causa": "Likely cause and fix",
+      "tr.auth.sym": "“Authentication or insufficient permissions (HTTP 401)”",
+      "tr.auth.fix": "Wrong email or API token. Verify the account's exact email and regenerate the token at id.atlassian.com if needed.",
+      "tr.perm.sym": "“…insufficient (HTTP 403)”",
+      "tr.perm.fix": "The account lacks permission for that action in the project. Ask an admin to grant Create/Edit/Transition/Add comments.",
+      "tr.notfound.sym": "“Resource not found”",
+      "tr.notfound.fix": "The ticket or project key doesn't exist or isn't visible to the account. Verify the key and view permissions.",
+      "tr.transition.sym": "“No transition to that status”",
+      "tr.transition.fix": "The workflow doesn't allow moving to that status from the current one. The message lists reachable statuses; pick one of them.",
+      "tr.jql.sym": "Error searching with JQL",
+      "tr.jql.fix": "The JQL query has syntax errors or invalid field names. Check quotes, operators and status names (quote them if they contain spaces).",
+      "tr.type.sym": "“issuetype is required / invalid”",
+      "tr.type.fix": "The issue type doesn't exist in that project. Use a valid type for the project (Task, Bug, Story…) or check with an admin.",
+
+      "section.faq_seguridad": "8. FAQ and security notes",
+      "faq.who.q": "Under which user are tickets created?",
+      "faq.who.a": "Under the Atlassian account that owns the API token. Tickets and comments appear under its name, and it can only do what its permissions allow.",
+      "faq.store.q": "Where is the API token stored?",
+      "faq.store.a": "As a secret in the platform's credential store, tied to your user. The UI never displays it again; it only shows “set”. To change it, type a new one; to keep it while editing other fields, leave the field empty.",
+      "faq.rot.q": "Credential rotation",
+      "faq.rot.a": "Create a new token at id.atlassian.com, update it in the connector form and click <em>Test connection</em>; then revoke the old token from the same Atlassian page.",
+      "faq.comp.q": "What if the token is compromised?",
+      "faq.comp.a1": "At id.atlassian.com → API tokens, revoke the compromised token immediately.",
+      "faq.comp.a2": "Create a new one and update it in the connector form.",
+      "faq.comp.a3": "Review the account's activity history in Jira for unauthorized changes.",
+      "callout.bp.title": "Best practices",
+      "callout.bp.body": "Use a dedicated service account with permissions only in the needed projects; never share the token over insecure channels or commit it to repositories; and rotate the token periodically per your security policy.",
+    },
+  };
+
+  // Fallback local: si el portal NO está presente (preview local), aplica
+  // el idioma guardado para poder previsualizar. El portal, cuando existe,
+  // maneja el toggle y vuelve a aplicar el idioma del usuario.
+  (function () {
+    function apply(lang) {
+      var dict = I18N[lang] || I18N.es;
+      document.documentElement.setAttribute("lang", lang);
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n")];
+        if (v != null) el.innerHTML = v;
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-placeholder")];
+        if (v != null) el.setAttribute("placeholder", v);
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-alt")];
+        if (v != null) el.setAttribute("alt", v);
+      });
+    }
+    var saved = "es";
+    try { saved = localStorage.getItem("ruvic-docs-lang") || "es"; } catch (e) {}
+    if (saved !== "es") apply(saved);
+  })();
+</script>
+
+</body>
+</html>
