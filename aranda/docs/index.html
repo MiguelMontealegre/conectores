@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Guía de configuración del conector Aranda ASMS — Ruvic
+  ============================================================
+  Sigue la guía oficial de documentación Ruvic:
+  - i18n por llaves data-i18n + objeto I18N (es/en). El texto
+    por defecto del HTML está en español.
+  - Sin toggle propio ni cabecera propia: el PORTAL aplica el
+    idioma del usuario (localStorage ruvic-docs-lang) sobre
+    [data-i18n], [data-i18n-placeholder] y [data-i18n-alt].
+  - ids de sección canónicos y estables (no se traducen).
+  - assets/ruvic.css es solo para preview local; al publicar se
+    reescribe a la hoja canónica del portal.
+  Reemplaza los .screenshot-placeholder por capturas reales en
+  assets/img/.
+  ============================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="doc_title">Conector Aranda ASMS — Ruvic</title>
+  <link rel="stylesheet" href="assets/ruvic.css">
+</head>
+<body>
+
+<main class="ruvic-container">
+
+  <!-- ============ ÍNDICE ============ -->
+  <nav class="ruvic-toc" aria-label="Índice">
+    <h2 data-i18n="toc_title">Contenido</h2>
+    <ol>
+      <li><a href="#que-es" data-i18n="toc.que_es">¿Qué es y para qué sirve?</a></li>
+      <li><a href="#prerrequisitos" data-i18n="toc.prerrequisitos">Prerrequisitos</a></li>
+      <li><a href="#configuracion-fabricante" data-i18n="toc.configuracion_fabricante">Configuración en Aranda (paso a paso)</a></li>
+      <li><a href="#permisos" data-i18n="toc.permisos">Permisos requeridos</a></li>
+      <li><a href="#configuracion-ruvic" data-i18n="toc.configuracion_ruvic">Configuración en Ruvic</a></li>
+      <li><a href="#verificacion" data-i18n="toc.verificacion">Verificación</a></li>
+      <li><a href="#solucion-problemas" data-i18n="toc.solucion_problemas">Solución de problemas</a></li>
+      <li><a href="#faq-seguridad" data-i18n="toc.faq_seguridad">Preguntas frecuentes y notas de seguridad</a></li>
+    </ol>
+  </nav>
+
+  <h1 data-i18n="guide_title">Conector Aranda ASMS</h1>
+  <p class="guide-updated" data-i18n="guide_updated">Última actualización: 21 de julio de 2026</p>
+
+  <!-- ============ 1. QUÉ ES ============ -->
+  <section>
+    <h2 id="que-es" data-i18n="section.que_es">1. ¿Qué es y para qué sirve?</h2>
+
+    <p data-i18n="section.que_es.body">El conector Aranda ASMS permite que el agente de Ruvic gestione casos en el <strong>service desk de Aranda</strong>: abrir incidentes, requerimientos, problemas o cambios, consultar casos y resolver toda la información necesaria (proyectos, servicios, categorías, estados, clientes…). Una vez configurado, puedes pedirle al agente cosas como:</p>
+    <ul>
+      <li data-i18n="section.que_es.ex1">“Abre un incidente en Aranda: el servidor de correo no responde.”</li>
+      <li data-i18n="section.que_es.ex2">“Consúltame el estado del caso IM-10658.”</li>
+      <li data-i18n="section.que_es.ex3">“Lístame los servicios del proyecto de Soporte para incidentes.”</li>
+    </ul>
+    <p data-i18n="section.que_es.ops">Grupos de operaciones soportadas:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.grupo">Grupo</th>
+          <th data-i18n="table.que_hace">Qué hace</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="grp.casos">Casos</td>
+          <td data-i18n="grp.casos.d">Crear un caso (<code>create_item</code>) y consultarlo por su id (<code>get_item_by_id</code>)</td>
+        </tr>
+        <tr>
+          <td data-i18n="grp.catalogos">Catálogos</td>
+          <td data-i18n="grp.catalogos.d">Tipos de caso, urgencia, impacto y tipos de registro</td>
+        </tr>
+        <tr>
+          <td data-i18n="grp.descubrimiento">Descubrimiento</td>
+          <td data-i18n="grp.descubrimiento.d">Proyectos, servicios, categorías, modelos, estados, compañías, clientes y campos adicionales para armar el caso</td>
+        </tr>
+        <tr>
+          <td data-i18n="grp.flujo">Flujo y asignación</td>
+          <td data-i18n="grp.flujo.d">Transiciones de estado, grupos, motivos y responsables</td>
+        </tr>
+        <tr>
+          <td data-i18n="grp.cmdb">CMDB</td>
+          <td data-i18n="grp.cmdb.d">Búsqueda de elementos de configuración (CIs)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <span class="callout-title" data-i18n="callout.token.title">Actúa con un token de integración</span>
+      <span data-i18n="callout.token.body">Ruvic opera Aranda mediante un token de integración que tú generas en la consola de Aranda. Todas las acciones se ejecutan con los permisos asociados a ese token.</span>
+    </div>
+  </section>
+
+  <!-- ============ 2. PRERREQUISITOS ============ -->
+  <section>
+    <h2 id="prerrequisitos" data-i18n="section.prerrequisitos">2. Prerrequisitos</h2>
+
+    <ul>
+      <li data-i18n="section.prerrequisitos.p1">Una instalación de <strong>Aranda ASMS</strong> con la API v9 habilitada (nube de Arandasoft u on-premise).</li>
+      <li data-i18n="section.prerrequisitos.p2">Un <strong>token de integración</strong> con permisos sobre los proyectos y tipos de caso que se vayan a gestionar.</li>
+      <li data-i18n="section.prerrequisitos.p3">La <strong>URL base de la API</strong> de tu instalación (para on-premise). En la nube de Arandasoft es la que trae el conector por defecto.</li>
+    </ul>
+  </section>
+
+  <!-- ============ 3. CONFIGURACIÓN EN EL FABRICANTE ============ -->
+  <section>
+    <h2 id="configuracion-fabricante" data-i18n="section.configuracion_fabricante">3. Configuración en Aranda (paso a paso)</h2>
+
+    <p data-i18n="section.configuracion_fabricante.intro">Vas a obtener un <strong>token de integración</strong> de Aranda ASMS y a confirmar la <strong>URL base</strong> de la API. El token es la única credencial secreta.</p>
+
+    <ol class="ruvic-steps">
+      <li>
+        <strong data-i18n="step1.label">Genera el token de integración.</strong>
+        <p data-i18n="step1.body">En la consola de administración de Aranda ASMS, entra a la sección de <em>integraciones / API</em> y genera (o copia) el token de integración para el usuario o la aplicación que operará los casos. Guárdalo: es la credencial que irá en el formulario de Ruvic.</p>
+<pre><code>Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...</code></pre>
+        <div class="screenshot-placeholder" data-i18n="step1.shot">[ Captura: pantalla de token de integración en la consola de Aranda (token ofuscado) — reemplazar por assets/img/aranda-token.png ]</div>
+      </li>
+      <li>
+        <strong data-i18n="step2.label">Confirma la URL base de la API.</strong>
+        <p data-i18n="step2.body">Es la ruta de la API v9 de tu instalación. En la nube de Arandasoft es <code>https://proyectos.arandasoft.com/asmsapi/api/v9</code>. En on-premise, la URL de tu servidor terminando en <code>/asmsapi/api/v9</code>.</p>
+      </li>
+      <li>
+        <strong data-i18n="step3.label">Verifica los permisos del token.</strong>
+        <p data-i18n="step3.body">El token debe poder ver y operar los <em>proyectos</em> y <em>tipos de caso</em> que Ruvic vaya a gestionar (crear casos, consultar, listar catálogos). Si falta algún permiso, pídeselo al administrador de Aranda.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ 4. PERMISOS ============ -->
+  <section>
+    <h2 id="permisos" data-i18n="section.permisos">4. Permisos requeridos</h2>
+
+    <p data-i18n="section.permisos.body">Principio de mínimo privilegio: usa un token con acceso solo a los proyectos necesarios. El conector no hace más de lo que el token permite.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.permiso">Acceso del token</th>
+          <th data-i18n="table.para_que">Para qué lo usa el conector</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="perm.read.name">Lectura de catálogos y proyectos</td>
+          <td data-i18n="perm.read.why">Listar tipos de caso, urgencia, impacto, proyectos, servicios, categorías, estados, etc.</td>
+        </tr>
+        <tr>
+          <td data-i18n="perm.create.name">Creación de casos</td>
+          <td data-i18n="perm.create.why">Abrir incidentes/requerimientos/problemas/cambios (<code>create_item</code>)</td>
+        </tr>
+        <tr>
+          <td data-i18n="perm.view.name">Consulta de casos</td>
+          <td data-i18n="perm.view.why">Leer el detalle de un caso por su id (<code>get_item_by_id</code>)</td>
+        </tr>
+        <tr>
+          <td data-i18n="perm.cmdb.name">Acceso a la CMDB</td>
+          <td data-i18n="perm.cmdb.why">Buscar elementos de configuración (<code>search_cis</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 5. CONFIGURACIÓN EN RUVIC ============ -->
+  <section>
+    <h2 id="configuracion-ruvic" data-i18n="section.configuracion_ruvic">5. Configuración en Ruvic</h2>
+
+    <p data-i18n="section.configuracion_ruvic.body">Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Aranda ASMS</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores de la sección 3:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.campo">Campo del formulario</th>
+          <th data-i18n="table.valor">Valor (obtenido en la sección 3)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="ruvic.token.field">Token de integración</td>
+          <td data-i18n="ruvic.token.value">El token del paso 1 (con o sin <code>Bearer</code>). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.url.field">URL base de la API</td>
+          <td data-i18n="ruvic.url.value">Opcional. La de tu instalación; si se omite, se usa la nube de Arandasoft</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.ssl.field">Validar certificado TLS</td>
+          <td data-i18n="ruvic.ssl.value">Opcional. Déjalo desactivado si tu servidor usa certificado interno (por defecto)</td>
+        </tr>
+        <tr>
+          <td data-i18n="ruvic.timeout.field">Timeout de peticiones</td>
+          <td data-i18n="ruvic.timeout.value">Opcional; <code>30</code> segundos por defecto</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p data-i18n="section.configuracion_ruvic.test">Guarda y pulsa <span class="ruvic-button" data-i18n="btn.test">Probar conexión</span> — la plataforma validará el token listando los tipos de caso disponibles.</p>
+
+    <div class="screenshot-placeholder" data-i18n="ruvic.shot">[ Captura: formulario del conector Aranda en Settings → Conectores — reemplazar por assets/img/aranda-form.png ]</div>
+  </section>
+
+  <!-- ============ 6. VERIFICACIÓN ============ -->
+  <section>
+    <h2 id="verificacion" data-i18n="section.verificacion">6. Verificación</h2>
+
+    <ol class="ruvic-steps">
+      <li>
+        <strong data-i18n="verif.step1.label">Test de conexión exitoso.</strong>
+        <p data-i18n="verif.step1.body">El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa con Aranda ASMS; N tipos de caso disponibles.”</em>. La tarjeta cambia a estado <strong>Configurado</strong>.</p>
+      </li>
+      <li>
+        <strong data-i18n="verif.step2.label">Automatización mínima de prueba.</strong>
+        <p data-i18n="verif.step2.body">Abre una conversación nueva con el agente y pídele:</p>
+        <blockquote data-i18n="verif.step2.quote"><em>“Lístame los proyectos que tengo disponibles en Aranda.”</em></blockquote>
+        <p data-i18n="verif.step2.after">Si el agente devuelve la lista de proyectos, el conector quedó operativo. Crear un caso requiere resolver primero varios IDs (servicio, categoría, modelo, estado, cliente); el agente lo hace paso a paso.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ 7. SOLUCIÓN DE PROBLEMAS ============ -->
+  <section>
+    <h2 id="solucion-problemas" data-i18n="section.solucion_problemas">7. Solución de problemas</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th data-i18n="table.sintoma">Mensaje / síntoma</th>
+          <th data-i18n="table.causa">Causa probable y solución</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="tr.auth.sym">“Autenticación o permisos insuficientes (HTTP 401/403)”</td>
+          <td data-i18n="tr.auth.fix">Token inválido, expirado o sin permisos. Genera uno nuevo en la consola de Aranda y actualízalo en el formulario.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.ssl.sym">Error de certificado TLS</td>
+          <td data-i18n="tr.ssl.fix">Tu servidor usa un certificado interno. Deja <em>Validar certificado TLS</em> desactivado (comportamiento por defecto).</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.net.sym">“No se pudo alcanzar Aranda”</td>
+          <td data-i18n="tr.net.fix">URL base incorrecta o servidor inaccesible. Verifica la URL (debe terminar en <code>/asmsapi/api/v9</code>) y la conectividad de red.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.data.sym">“Recurso no encontrado” / “rechazó la operación”</td>
+          <td data-i18n="tr.data.fix">Algún ID (proyecto, servicio, categoría, modelo, estado, cliente) no existe o la combinación no es válida. Resuélvelos con las operaciones de descubrimiento antes de crear el caso.</td>
+        </tr>
+        <tr>
+          <td data-i18n="tr.fields.sym">La creación falla por campos obligatorios</td>
+          <td data-i18n="tr.fields.fix">Faltan campos adicionales obligatorios. Consulta los campos requeridos con la operación de campos adicionales y complétalos.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ 8. FAQ Y SEGURIDAD ============ -->
+  <section>
+    <h2 id="faq-seguridad" data-i18n="section.faq_seguridad">8. Preguntas frecuentes y notas de seguridad</h2>
+
+    <h3 data-i18n="faq.who.q">¿Con qué usuario se crean los casos?</h3>
+    <p data-i18n="faq.who.a">Con la identidad/permisos asociados al token de integración. Los casos y acciones se registran conforme a ese token.</p>
+
+    <h3 data-i18n="faq.store.q">¿Dónde queda guardado el token?</h3>
+    <p data-i18n="faq.store.a">Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo; para conservarlo al editar otros campos, deja el campo vacío.</p>
+
+    <h3 data-i18n="faq.ssl.q">¿Por qué la validación TLS viene desactivada?</h3>
+    <p data-i18n="faq.ssl.a">Muchas instalaciones on-premise de Aranda usan certificados internos que no son de confianza pública. Por eso el conector no valida TLS por defecto. Si tu servidor tiene un certificado válido y de confianza, puedes activar la validación.</p>
+
+    <h3 data-i18n="faq.comp.q">¿Qué hago si el token se compromete?</h3>
+    <ol>
+      <li data-i18n="faq.comp.a1">En la consola de Aranda, revoca/regenera el token de integración de inmediato.</li>
+      <li data-i18n="faq.comp.a2">Actualiza el nuevo token en el formulario del conector.</li>
+      <li data-i18n="faq.comp.a3">Revisa en Aranda los casos y acciones recientes por actividad no autorizada.</li>
+    </ol>
+
+    <div class="callout callout-warning">
+      <span class="callout-title" data-i18n="callout.bp.title">Buenas prácticas</span>
+      <span data-i18n="callout.bp.body">Usa un token dedicado con acceso solo a los proyectos necesarios; no compartas el token por canales inseguros ni lo publiques en repositorios; y rótalo periódicamente según tu política de seguridad.</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Objeto I18N: mismas llaves en es/en. El PORTAL aplica el idioma del
+  // usuario (localStorage ruvic-docs-lang) sobre [data-i18n],
+  // [data-i18n-placeholder] y [data-i18n-alt]. No añadir toggle propio.
+  const I18N = {
+    es: {
+      doc_title: "Conector Aranda ASMS — Ruvic",
+      guide_title: "Conector Aranda ASMS",
+      guide_updated: "Última actualización: 21 de julio de 2026",
+      toc_title: "Contenido",
+      "toc.que_es": "¿Qué es y para qué sirve?",
+      "toc.prerrequisitos": "Prerrequisitos",
+      "toc.configuracion_fabricante": "Configuración en Aranda (paso a paso)",
+      "toc.permisos": "Permisos requeridos",
+      "toc.configuracion_ruvic": "Configuración en Ruvic",
+      "toc.verificacion": "Verificación",
+      "toc.solucion_problemas": "Solución de problemas",
+      "toc.faq_seguridad": "Preguntas frecuentes y notas de seguridad",
+
+      "section.que_es": "1. ¿Qué es y para qué sirve?",
+      "section.que_es.body": "El conector Aranda ASMS permite que el agente de Ruvic gestione casos en el <strong>service desk de Aranda</strong>: abrir incidentes, requerimientos, problemas o cambios, consultar casos y resolver toda la información necesaria (proyectos, servicios, categorías, estados, clientes…). Una vez configurado, puedes pedirle al agente cosas como:",
+      "section.que_es.ex1": "“Abre un incidente en Aranda: el servidor de correo no responde.”",
+      "section.que_es.ex2": "“Consúltame el estado del caso IM-10658.”",
+      "section.que_es.ex3": "“Lístame los servicios del proyecto de Soporte para incidentes.”",
+      "section.que_es.ops": "Grupos de operaciones soportadas:",
+      "table.grupo": "Grupo",
+      "table.que_hace": "Qué hace",
+      "grp.casos": "Casos",
+      "grp.casos.d": "Crear un caso (<code>create_item</code>) y consultarlo por su id (<code>get_item_by_id</code>)",
+      "grp.catalogos": "Catálogos",
+      "grp.catalogos.d": "Tipos de caso, urgencia, impacto y tipos de registro",
+      "grp.descubrimiento": "Descubrimiento",
+      "grp.descubrimiento.d": "Proyectos, servicios, categorías, modelos, estados, compañías, clientes y campos adicionales para armar el caso",
+      "grp.flujo": "Flujo y asignación",
+      "grp.flujo.d": "Transiciones de estado, grupos, motivos y responsables",
+      "grp.cmdb": "CMDB",
+      "grp.cmdb.d": "Búsqueda de elementos de configuración (CIs)",
+      "callout.token.title": "Actúa con un token de integración",
+      "callout.token.body": "Ruvic opera Aranda mediante un token de integración que tú generas en la consola de Aranda. Todas las acciones se ejecutan con los permisos asociados a ese token.",
+
+      "section.prerrequisitos": "2. Prerrequisitos",
+      "section.prerrequisitos.p1": "Una instalación de <strong>Aranda ASMS</strong> con la API v9 habilitada (nube de Arandasoft u on-premise).",
+      "section.prerrequisitos.p2": "Un <strong>token de integración</strong> con permisos sobre los proyectos y tipos de caso que se vayan a gestionar.",
+      "section.prerrequisitos.p3": "La <strong>URL base de la API</strong> de tu instalación (para on-premise). En la nube de Arandasoft es la que trae el conector por defecto.",
+
+      "section.configuracion_fabricante": "3. Configuración en Aranda (paso a paso)",
+      "section.configuracion_fabricante.intro": "Vas a obtener un <strong>token de integración</strong> de Aranda ASMS y a confirmar la <strong>URL base</strong> de la API. El token es la única credencial secreta.",
+      "step1.label": "Genera el token de integración.",
+      "step1.body": "En la consola de administración de Aranda ASMS, entra a la sección de <em>integraciones / API</em> y genera (o copia) el token de integración para el usuario o la aplicación que operará los casos. Guárdalo: es la credencial que irá en el formulario de Ruvic.",
+      "step1.shot": "[ Captura: pantalla de token de integración en la consola de Aranda (token ofuscado) — reemplazar por assets/img/aranda-token.png ]",
+      "step2.label": "Confirma la URL base de la API.",
+      "step2.body": "Es la ruta de la API v9 de tu instalación. En la nube de Arandasoft es <code>https://proyectos.arandasoft.com/asmsapi/api/v9</code>. En on-premise, la URL de tu servidor terminando en <code>/asmsapi/api/v9</code>.",
+      "step3.label": "Verifica los permisos del token.",
+      "step3.body": "El token debe poder ver y operar los <em>proyectos</em> y <em>tipos de caso</em> que Ruvic vaya a gestionar (crear casos, consultar, listar catálogos). Si falta algún permiso, pídeselo al administrador de Aranda.",
+
+      "section.permisos": "4. Permisos requeridos",
+      "section.permisos.body": "Principio de mínimo privilegio: usa un token con acceso solo a los proyectos necesarios. El conector no hace más de lo que el token permite.",
+      "table.permiso": "Acceso del token",
+      "table.para_que": "Para qué lo usa el conector",
+      "perm.read.name": "Lectura de catálogos y proyectos",
+      "perm.read.why": "Listar tipos de caso, urgencia, impacto, proyectos, servicios, categorías, estados, etc.",
+      "perm.create.name": "Creación de casos",
+      "perm.create.why": "Abrir incidentes/requerimientos/problemas/cambios (<code>create_item</code>)",
+      "perm.view.name": "Consulta de casos",
+      "perm.view.why": "Leer el detalle de un caso por su id (<code>get_item_by_id</code>)",
+      "perm.cmdb.name": "Acceso a la CMDB",
+      "perm.cmdb.why": "Buscar elementos de configuración (<code>search_cis</code>)",
+
+      "section.configuracion_ruvic": "5. Configuración en Ruvic",
+      "section.configuracion_ruvic.body": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Aranda ASMS</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores de la sección 3:",
+      "table.campo": "Campo del formulario",
+      "table.valor": "Valor (obtenido en la sección 3)",
+      "ruvic.token.field": "Token de integración",
+      "ruvic.token.value": "El token del paso 1 (con o sin <code>Bearer</code>). Se guarda cifrado como secreto: la interfaz no volverá a mostrarlo",
+      "ruvic.url.field": "URL base de la API",
+      "ruvic.url.value": "Opcional. La de tu instalación; si se omite, se usa la nube de Arandasoft",
+      "ruvic.ssl.field": "Validar certificado TLS",
+      "ruvic.ssl.value": "Opcional. Déjalo desactivado si tu servidor usa certificado interno (por defecto)",
+      "ruvic.timeout.field": "Timeout de peticiones",
+      "ruvic.timeout.value": "Opcional; <code>30</code> segundos por defecto",
+      "section.configuracion_ruvic.test": "Guarda y pulsa <span class=\"ruvic-button\">Probar conexión</span> — la plataforma validará el token listando los tipos de caso disponibles.",
+      "btn.test": "Probar conexión",
+      "ruvic.shot": "[ Captura: formulario del conector Aranda en Settings → Conectores — reemplazar por assets/img/aranda-form.png ]",
+
+      "section.verificacion": "6. Verificación",
+      "verif.step1.label": "Test de conexión exitoso.",
+      "verif.step1.body": "El botón <em>Probar conexión</em> debe responder: <em>“Conexión exitosa con Aranda ASMS; N tipos de caso disponibles.”</em>. La tarjeta cambia a estado <strong>Configurado</strong>.",
+      "verif.step2.label": "Automatización mínima de prueba.",
+      "verif.step2.body": "Abre una conversación nueva con el agente y pídele:",
+      "verif.step2.quote": "<em>“Lístame los proyectos que tengo disponibles en Aranda.”</em>",
+      "verif.step2.after": "Si el agente devuelve la lista de proyectos, el conector quedó operativo. Crear un caso requiere resolver primero varios IDs (servicio, categoría, modelo, estado, cliente); el agente lo hace paso a paso.",
+
+      "section.solucion_problemas": "7. Solución de problemas",
+      "table.sintoma": "Mensaje / síntoma",
+      "table.causa": "Causa probable y solución",
+      "tr.auth.sym": "“Autenticación o permisos insuficientes (HTTP 401/403)”",
+      "tr.auth.fix": "Token inválido, expirado o sin permisos. Genera uno nuevo en la consola de Aranda y actualízalo en el formulario.",
+      "tr.ssl.sym": "Error de certificado TLS",
+      "tr.ssl.fix": "Tu servidor usa un certificado interno. Deja <em>Validar certificado TLS</em> desactivado (comportamiento por defecto).",
+      "tr.net.sym": "“No se pudo alcanzar Aranda”",
+      "tr.net.fix": "URL base incorrecta o servidor inaccesible. Verifica la URL (debe terminar en <code>/asmsapi/api/v9</code>) y la conectividad de red.",
+      "tr.data.sym": "“Recurso no encontrado” / “rechazó la operación”",
+      "tr.data.fix": "Algún ID (proyecto, servicio, categoría, modelo, estado, cliente) no existe o la combinación no es válida. Resuélvelos con las operaciones de descubrimiento antes de crear el caso.",
+      "tr.fields.sym": "La creación falla por campos obligatorios",
+      "tr.fields.fix": "Faltan campos adicionales obligatorios. Consulta los campos requeridos con la operación de campos adicionales y complétalos.",
+
+      "section.faq_seguridad": "8. Preguntas frecuentes y notas de seguridad",
+      "faq.who.q": "¿Con qué usuario se crean los casos?",
+      "faq.who.a": "Con la identidad/permisos asociados al token de integración. Los casos y acciones se registran conforme a ese token.",
+      "faq.store.q": "¿Dónde queda guardado el token?",
+      "faq.store.a": "Como secreto en el almacén de credenciales de la plataforma, asociado a tu usuario. La interfaz nunca vuelve a mostrarlo; solo indica “definido”. Para cambiarlo, escribe uno nuevo; para conservarlo al editar otros campos, deja el campo vacío.",
+      "faq.ssl.q": "¿Por qué la validación TLS viene desactivada?",
+      "faq.ssl.a": "Muchas instalaciones on-premise de Aranda usan certificados internos que no son de confianza pública. Por eso el conector no valida TLS por defecto. Si tu servidor tiene un certificado válido y de confianza, puedes activar la validación.",
+      "faq.comp.q": "¿Qué hago si el token se compromete?",
+      "faq.comp.a1": "En la consola de Aranda, revoca/regenera el token de integración de inmediato.",
+      "faq.comp.a2": "Actualiza el nuevo token en el formulario del conector.",
+      "faq.comp.a3": "Revisa en Aranda los casos y acciones recientes por actividad no autorizada.",
+      "callout.bp.title": "Buenas prácticas",
+      "callout.bp.body": "Usa un token dedicado con acceso solo a los proyectos necesarios; no compartas el token por canales inseguros ni lo publiques en repositorios; y rótalo periódicamente según tu política de seguridad.",
+    },
+    en: {
+      doc_title: "Aranda ASMS Connector — Ruvic",
+      guide_title: "Aranda ASMS Connector",
+      guide_updated: "Last updated: July 21, 2026",
+      toc_title: "Contents",
+      "toc.que_es": "What it is and what it's for",
+      "toc.prerrequisitos": "Prerequisites",
+      "toc.configuracion_fabricante": "Aranda-side setup (step by step)",
+      "toc.permisos": "Required permissions",
+      "toc.configuracion_ruvic": "Configuration in Ruvic",
+      "toc.verificacion": "Verification",
+      "toc.solucion_problemas": "Troubleshooting",
+      "toc.faq_seguridad": "FAQ and security notes",
+
+      "section.que_es": "1. What it is and what it's for",
+      "section.que_es.body": "The Aranda ASMS connector lets the Ruvic agent manage cases in the <strong>Aranda service desk</strong>: open incidents, service requests, problems or changes, query cases and resolve all the required information (projects, services, categories, states, customers…). Once configured, you can ask the agent things like:",
+      "section.que_es.ex1": "“Open an incident in Aranda: the mail server is not responding.”",
+      "section.que_es.ex2": "“Tell me the status of case IM-10658.”",
+      "section.que_es.ex3": "“List the services of the Support project for incidents.”",
+      "section.que_es.ops": "Supported operation groups:",
+      "table.grupo": "Group",
+      "table.que_hace": "What it does",
+      "grp.casos": "Cases",
+      "grp.casos.d": "Create a case (<code>create_item</code>) and query it by its id (<code>get_item_by_id</code>)",
+      "grp.catalogos": "Catalogs",
+      "grp.catalogos.d": "Case types, urgency, impact and registry types",
+      "grp.descubrimiento": "Discovery",
+      "grp.descubrimiento.d": "Projects, services, categories, models, states, companies, customers and additional fields to build the case",
+      "grp.flujo": "Workflow & assignment",
+      "grp.flujo.d": "State transitions, groups, reasons and responsibles",
+      "grp.cmdb": "CMDB",
+      "grp.cmdb.d": "Search configuration items (CIs)",
+      "callout.token.title": "Acts with an integration token",
+      "callout.token.body": "Ruvic operates Aranda through an integration token you generate in the Aranda console. All actions run with the permissions tied to that token.",
+
+      "section.prerrequisitos": "2. Prerequisites",
+      "section.prerrequisitos.p1": "An <strong>Aranda ASMS</strong> installation with the v9 API enabled (Arandasoft cloud or on-premise).",
+      "section.prerrequisitos.p2": "An <strong>integration token</strong> with permissions over the projects and case types to be managed.",
+      "section.prerrequisitos.p3": "The API <strong>base URL</strong> of your installation (for on-premise). On the Arandasoft cloud it's the connector's default.",
+
+      "section.configuracion_fabricante": "3. Aranda-side setup (step by step)",
+      "section.configuracion_fabricante.intro": "You will obtain an <strong>integration token</strong> from Aranda ASMS and confirm the API <strong>base URL</strong>. The token is the only secret credential.",
+      "step1.label": "Generate the integration token.",
+      "step1.body": "In the Aranda ASMS admin console, go to the <em>integrations / API</em> section and generate (or copy) the integration token for the user or application that will operate the cases. Save it: it's the credential that goes in the Ruvic form.",
+      "step1.shot": "[ Screenshot: integration token screen in the Aranda console (token obfuscated) — replace with assets/img/aranda-token.png ]",
+      "step2.label": "Confirm the API base URL.",
+      "step2.body": "It's the v9 API path of your installation. On the Arandasoft cloud it's <code>https://proyectos.arandasoft.com/asmsapi/api/v9</code>. On-premise, your server URL ending in <code>/asmsapi/api/v9</code>.",
+      "step3.label": "Check the token's permissions.",
+      "step3.body": "The token must be able to view and operate the <em>projects</em> and <em>case types</em> Ruvic will manage (create cases, query, list catalogs). If a permission is missing, ask your Aranda administrator.",
+
+      "section.permisos": "4. Required permissions",
+      "section.permisos.body": "Least-privilege principle: use a token with access only to the necessary projects. The connector does no more than the token allows.",
+      "table.permiso": "Token access",
+      "table.para_que": "Why the connector needs it",
+      "perm.read.name": "Read catalogs and projects",
+      "perm.read.why": "List case types, urgency, impact, projects, services, categories, states, etc.",
+      "perm.create.name": "Create cases",
+      "perm.create.why": "Open incidents/requests/problems/changes (<code>create_item</code>)",
+      "perm.view.name": "Query cases",
+      "perm.view.why": "Read a case detail by its id (<code>get_item_by_id</code>)",
+      "perm.cmdb.name": "CMDB access",
+      "perm.cmdb.why": "Search configuration items (<code>search_cis</code>)",
+
+      "section.configuracion_ruvic": "5. Configuration in Ruvic",
+      "section.configuracion_ruvic.body": "Go to <strong>Settings → Connectors</strong>, find the <strong>Aranda ASMS</strong> card and click <strong>Configure</strong>. Fill in the form with the values from section 3:",
+      "table.campo": "Form field",
+      "table.valor": "Value (from section 3)",
+      "ruvic.token.field": "Integration token",
+      "ruvic.token.value": "The token from step 1 (with or without <code>Bearer</code>). Stored encrypted as a secret: the UI will never display it again",
+      "ruvic.url.field": "API base URL",
+      "ruvic.url.value": "Optional. Your installation's; if omitted, the Arandasoft cloud is used",
+      "ruvic.ssl.field": "Validate TLS certificate",
+      "ruvic.ssl.value": "Optional. Leave it off if your server uses an internal certificate (default)",
+      "ruvic.timeout.field": "Request timeout",
+      "ruvic.timeout.value": "Optional; defaults to <code>30</code> seconds",
+      "section.configuracion_ruvic.test": "Save and click <span class=\"ruvic-button\">Test connection</span> — the platform will validate the token by listing the available case types.",
+      "btn.test": "Test connection",
+      "ruvic.shot": "[ Screenshot: Aranda connector form in Settings → Connectors — replace with assets/img/aranda-form.png ]",
+
+      "section.verificacion": "6. Verification",
+      "verif.step1.label": "Successful connection test.",
+      "verif.step1.body": "The <em>Test connection</em> button should return: <em>“Successful connection with Aranda ASMS; N case types available.”</em>. The card switches to <strong>Configured</strong>.",
+      "verif.step2.label": "Minimal test automation.",
+      "verif.step2.body": "Open a new conversation with the agent and ask:",
+      "verif.step2.quote": "<em>“List the projects I have available in Aranda.”</em>",
+      "verif.step2.after": "If the agent returns the project list, the connector is operational. Creating a case requires first resolving several IDs (service, category, model, state, customer); the agent does it step by step.",
+
+      "section.solucion_problemas": "7. Troubleshooting",
+      "table.sintoma": "Message / symptom",
+      "table.causa": "Likely cause and fix",
+      "tr.auth.sym": "“Authentication or insufficient permissions (HTTP 401/403)”",
+      "tr.auth.fix": "Invalid, expired or unauthorized token. Generate a new one in the Aranda console and update it in the form.",
+      "tr.ssl.sym": "TLS certificate error",
+      "tr.ssl.fix": "Your server uses an internal certificate. Leave <em>Validate TLS certificate</em> off (default behavior).",
+      "tr.net.sym": "“Could not reach Aranda”",
+      "tr.net.fix": "Wrong base URL or unreachable server. Verify the URL (must end in <code>/asmsapi/api/v9</code>) and network connectivity.",
+      "tr.data.sym": "“Resource not found” / “rejected the operation”",
+      "tr.data.fix": "Some ID (project, service, category, model, state, customer) doesn't exist or the combination is invalid. Resolve them with the discovery operations before creating the case.",
+      "tr.fields.sym": "Creation fails due to required fields",
+      "tr.fields.fix": "Required additional fields are missing. Check the required fields with the additional-fields operation and fill them in.",
+
+      "section.faq_seguridad": "8. FAQ and security notes",
+      "faq.who.q": "Under which user are cases created?",
+      "faq.who.a": "Under the identity/permissions tied to the integration token. Cases and actions are recorded per that token.",
+      "faq.store.q": "Where is the token stored?",
+      "faq.store.a": "As a secret in the platform's credential store, tied to your user. The UI never displays it again; it only shows “set”. To change it, type a new one; to keep it while editing other fields, leave the field empty.",
+      "faq.ssl.q": "Why is TLS validation off by default?",
+      "faq.ssl.a": "Many on-premise Aranda installations use internal certificates that aren't publicly trusted. That's why the connector doesn't validate TLS by default. If your server has a valid, trusted certificate, you can turn validation on.",
+      "faq.comp.q": "What if the token is compromised?",
+      "faq.comp.a1": "In the Aranda console, revoke/regenerate the integration token immediately.",
+      "faq.comp.a2": "Update the new token in the connector form.",
+      "faq.comp.a3": "Review recent cases and actions in Aranda for unauthorized activity.",
+      "callout.bp.title": "Best practices",
+      "callout.bp.body": "Use a dedicated token with access only to the necessary projects; never share the token over insecure channels or commit it to repositories; and rotate it periodically per your security policy.",
+    },
+  };
+
+  // Fallback local: si el portal NO está presente (preview local), aplica
+  // el idioma guardado para poder previsualizar. El portal, cuando existe,
+  // maneja el toggle y vuelve a aplicar el idioma del usuario.
+  (function () {
+    function apply(lang) {
+      var dict = I18N[lang] || I18N.es;
+      document.documentElement.setAttribute("lang", lang);
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n")];
+        if (v != null) el.innerHTML = v;
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-placeholder")];
+        if (v != null) el.setAttribute("placeholder", v);
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+        var v = dict[el.getAttribute("data-i18n-alt")];
+        if (v != null) el.setAttribute("alt", v);
+      });
+    }
+    var saved = "es";
+    try { saved = localStorage.getItem("ruvic-docs-lang") || "es"; } catch (e) {}
+    if (saved !== "es") apply(saved);
+  })();
+</script>
+
+</body>
+</html>

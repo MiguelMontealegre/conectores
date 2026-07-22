@@ -1,0 +1,82 @@
+{
+  "id": "aranda",
+  "name": "Aranda ASMS",
+  "name_en": "Aranda ASMS",
+  "version": "1.0.0",
+  "description": "Gestión de casos del service desk de Aranda ASMS: crear y consultar casos, catálogos, descubrimiento (proyectos, servicios, categorías, modelos, estados) y CMDB",
+  "description_en": "Aranda ASMS service desk case management: create and query cases, catalogs, discovery (projects, services, categories, models, states) and CMDB",
+  "category": "itsm",
+  "category_en": "itsm",
+  "keywords": ["aranda", "asms", "service desk", "mesa de servicio", "itsm", "caso", "incidente", "requerimiento", "problema", "cambio", "ticket", "cmdb", "ci"],
+  "library": {
+    "package": "ruvic-aranda-connector",
+    "install": "pip install git+https://github.com/tu-org/conector-aranda.git#subdirectory=lib",
+    "import_name": "ruvic_aranda_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "integration_token",
+      "label": "Token de integración (X-Authorization)",
+      "fields": [
+        {
+          "key": "token",
+          "label": "Token de integración",
+          "type": "password",
+          "secret": true,
+          "required": true,
+          "placeholder": "Bearer eyJ0eXAiOiJKV1Q...",
+          "help_text": "Token JWT de integración de Aranda ASMS. Se envía en la cabecera X-Authorization. Puede pegarse con o sin el prefijo 'Bearer '"
+        },
+        {
+          "key": "base_url",
+          "label": "URL base de la API",
+          "type": "text",
+          "required": false,
+          "placeholder": "https://proyectos.arandasoft.com/asmsapi/api/v9",
+          "help_text": "URL base de la API v9 de tu instalación de Aranda. Por defecto la nube de Arandasoft"
+        },
+        {
+          "key": "verify_ssl",
+          "label": "Validar certificado TLS",
+          "type": "boolean",
+          "required": false,
+          "default": "false",
+          "help_text": "Actívalo solo si tu servidor de Aranda tiene un certificado TLS de confianza pública. Muchas instalaciones internas requieren dejarlo desactivado"
+        },
+        {
+          "key": "timeout",
+          "label": "Timeout de peticiones (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "30"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_ARANDA_",
+  "operations": [
+    "case.create",
+    "case.get",
+    "catalog.item_types",
+    "catalog.urgency",
+    "catalog.impact",
+    "catalog.registry_types",
+    "discovery.projects",
+    "discovery.services",
+    "discovery.categories",
+    "discovery.model",
+    "discovery.states",
+    "discovery.companies",
+    "discovery.customers",
+    "discovery.additional_fields",
+    "workflow.groups_by_state",
+    "workflow.reasons_for_state",
+    "workflow.responsible",
+    "cmdb.search_cis"
+  ],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "El token de integración se genera en la consola de administración de Aranda ASMS (integraciones / API). Debe tener permisos sobre los proyectos y tipos de caso que se vayan a gestionar. Todas las operaciones se ejecutan con los permisos asociados a ese token."
+  }
+}

@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ruvic-aranda-connector"
+version = "1.0.0"
+description = "Conector Ruvic para Aranda ASMS (API v9): gestión de casos del service desk (crear, consultar, catálogos, CMDB)"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31,<3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["ruvic_aranda_connector*"]
